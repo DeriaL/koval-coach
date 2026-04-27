@@ -93,6 +93,9 @@ model WorkoutSession {
   title               String
   completed           Boolean  @default(false)   // client finished via player
   confirmedByTrainer  Boolean  @default(false)   // trainer confirmed planned session happened
+  cancelledAt         DateTime?
+  cancelledBy         String?  // CLIENT | TRAINER
+  cancelReason        String?
   durationSec         Int?
   notes               String?
   sets                SessionSet[]

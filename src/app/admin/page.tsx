@@ -44,6 +44,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         scheduledAt: { lt: new Date() },
         completed: false,
         confirmedByTrainer: false,
+        cancelledAt: null,
         client: { role: "CLIENT" },
       },
       include: { client: { select: { firstName: true, lastName: true, id: true } } },

@@ -1,10 +1,11 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
-import { Calendar, Clock, Sparkles, Dumbbell, AlertCircle, Activity, Download } from "lucide-react";
+import { Calendar, Clock, Sparkles, Dumbbell, AlertCircle, Activity, Download, Ban } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { googleCalendarUrl } from "@/lib/calendar";
+import { CancelButton } from "./cancel-button";
 
 export default async function ClientSessions() {
   const u = await requireClient();
@@ -12,22 +13,27 @@ export default async function ClientSessions() {
   const weekAhead = new Date(now.getTime() + 30 * 86400000);
   const monthAgo = new Date(now.getTime() - 60 * 86400000);
 
-  const [awaiting, upcoming, done, total] = await Promise.all([
+  const [awaiting, upcoming, done, cancelled, total] = await Promise.all([
     prisma.workoutSession.findMany({
-      where: { clientId: u.id, scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false },
+      where: { clientId: u.id, scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null },
       orderBy: { scheduledAt: "desc" },
     }),
     prisma.workoutSession.findMany({
-      where: { clientId: u.id, scheduledAt: { gte: now, lte: weekAhead }, completed: false, confirmedByTrainer: false },
+      where: { clientId: u.id, scheduledAt: { gte: now, lte: weekAhead }, completed: false, confirmedByTrainer: false, cancelledAt: null },
       orderBy: { scheduledAt: "asc" },
     }),
     prisma.workoutSession.findMany({
-      where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }], date: { gte: monthAgo } },
+      where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null, date: { gte: monthAgo } },
       include: { sets: true },
       orderBy: { date: "desc" },
       take: 50,
     }),
-    prisma.workoutSession.count({ where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] } }),
+    prisma.workoutSession.findMany({
+      where: { clientId: u.id, cancelledAt: { gte: monthAgo } },
+      orderBy: { cancelledAt: "desc" },
+      take: 20,
+    }),
+    prisma.workoutSession.count({ where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null } }),
   ]);
 
   // Group upcoming by day
@@ -105,6 +111,7 @@ export default async function ClientSessions() {
                       <a href={googleCalendarUrl({ id: s.id, title: s.title, scheduledAt: s.scheduledAt, notes: s.notes })}
                         target="_blank" rel="noreferrer" title="Додати в Google Calendar"
                         className="btn text-xs py-2 hover:border-accent/50 hover:text-accent shrink-0">📅</a>
+                      <CancelButton sessionId={s.id} title={s.title} />
                     </div>
                   ))}
                 </div>
@@ -136,7 +143,32 @@ export default async function ClientSessions() {
         </Section>
       )}
 
-      {awaiting.length === 0 && upcoming.length === 0 && done.length === 0 && (
+      {/* Cancelled */}
+      {cancelled.length > 0 && (
+        <Section icon={Ban} title="Скасовані · 60 днів" accent="danger" count={cancelled.length}>
+          <div className="space-y-2">
+            {cancelled.map((s) => (
+              <div key={s.id} className="card p-3 border-danger/20 bg-danger/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-danger/15 text-danger flex items-center justify-center"><Ban className="w-4 h-4" /></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate flex items-center gap-2">
+                      {s.title}
+                      <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "вами" : "тренером"}</span>
+                    </div>
+                    <div className="text-[11px] text-muted">
+                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      {s.cancelReason ? ` · ${s.cancelReason}` : ""}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {awaiting.length === 0 && upcoming.length === 0 && done.length === 0 && cancelled.length === 0 && (
         <div className="card p-12 text-center">
           <div className="w-16 h-16 mx-auto rounded-2xl accent-shine text-white flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7" />
@@ -165,7 +197,7 @@ function Kpi({ icon: Icon, label, value, sub, color }: any) {
 }
 
 function Section({ icon: Icon, title, count, accent = "accent", children }: any) {
-  const accentClass = accent === "accent2" ? "text-accent2" : accent === "success" ? "text-success" : "text-accent";
+  const accentClass = accent === "accent2" ? "text-accent2" : accent === "success" ? "text-success" : accent === "danger" ? "text-danger" : "text-accent";
   return (
     <div className="mb-6">
       <h3 className={`font-semibold flex items-center gap-2 mb-3 ${accentClass}`}>

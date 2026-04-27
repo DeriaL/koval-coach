@@ -1,9 +1,10 @@
 "use client";
 import { useState, useTransition } from "react";
-import { scheduleSession, confirmSession, deleteSession } from "../../actions";
-import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles } from "lucide-react";
+import { scheduleSession, confirmSession, deleteSession, cancelSessionByTrainer } from "../../actions";
+import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
+import { CancelModal } from "@/components/CancelModal";
 
 type S = {
   id: string;
@@ -12,6 +13,9 @@ type S = {
   scheduledAt: Date | null;
   completed: boolean;
   confirmedByTrainer: boolean;
+  cancelledAt?: Date | null;
+  cancelledBy?: string | null;
+  cancelReason?: string | null;
   durationSec: number | null;
   notes: string | null;
 };
@@ -19,6 +23,7 @@ type S = {
 export function SessionsTab({ clientId, items }: { clientId: string; items: S[] }) {
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
+  const [cancelTarget, setCancelTarget] = useState<S | null>(null);
   const now = new Date();
 
   function add(fd: FormData) {
@@ -34,12 +39,26 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
   }
 
   // Categorize
-  const awaiting = items.filter(s => s.scheduledAt && new Date(s.scheduledAt) < now && !s.completed && !s.confirmedByTrainer);
-  const upcoming = items.filter(s => s.scheduledAt && new Date(s.scheduledAt) >= now && !s.completed);
-  const done = items.filter(s => s.completed || s.confirmedByTrainer).slice(0, 30);
+  const active = items.filter(s => !s.cancelledAt);
+  const awaiting = active.filter(s => s.scheduledAt && new Date(s.scheduledAt) < now && !s.completed && !s.confirmedByTrainer);
+  const upcoming = active.filter(s => s.scheduledAt && new Date(s.scheduledAt) >= now && !s.completed);
+  const done = active.filter(s => s.completed || s.confirmedByTrainer).slice(0, 30);
+  const cancelled = items.filter(s => s.cancelledAt).slice(0, 20);
+
+  async function doCancel(reason: string) {
+    if (!cancelTarget) return;
+    await cancelSessionByTrainer(cancelTarget.id, clientId, reason);
+  }
 
   return (
     <div>
+      <CancelModal
+        open={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={doCancel}
+        who="TRAINER"
+        title={cancelTarget?.title}
+      />
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold flex items-center gap-2"><Calendar className="w-4 h-4 text-accent" /> Розклад тренувань</h3>
         {!editing && (
@@ -124,7 +143,38 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                     {formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
                   </div>
                 </div>
-                <button onClick={() => del(s.id)} disabled={pending} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => setCancelTarget(s)} disabled={pending} title="Скасувати з повідомленням клієнту"
+                  className="btn text-sm hover:border-danger/40 hover:text-danger"><Ban className="w-3.5 h-3.5" /></button>
+                <button onClick={() => del(s.id)} disabled={pending} title="Видалити" className="btn text-sm text-muted"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Cancelled */}
+      {cancelled.length > 0 && (
+        <div className="mb-5">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-danger mb-2">
+            <Ban className="w-3.5 h-3.5" /> Скасовані ({cancelled.length})
+          </div>
+          <div className="space-y-2">
+            {cancelled.map(s => (
+              <div key={s.id} className="card p-3 border-danger/20 bg-danger/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-danger/15 text-danger flex items-center justify-center"><Ban className="w-4 h-4" /></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate flex items-center gap-2">
+                      {s.title}
+                      <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "клієнт" : "тренер"}</span>
+                    </div>
+                    <div className="text-[11px] text-muted">
+                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      {s.cancelReason ? ` · ${s.cancelReason}` : ""}
+                    </div>
+                  </div>
+                  <button onClick={() => del(s.id)} className="btn text-xs text-muted"><Trash2 className="w-3 h-3" /></button>
+                </div>
               </div>
             ))}
           </div>

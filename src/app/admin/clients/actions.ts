@@ -353,6 +353,29 @@ export async function deleteSession(sessionId: string, clientId: string) {
   revalidatePath(`/admin/clients/${clientId}`);
 }
 
+export async function cancelSessionByTrainer(sessionId: string, clientId: string, reason: string) {
+  await requireTrainer();
+  const s = await prisma.workoutSession.update({
+    where: { id: sessionId },
+    data: { cancelledAt: new Date(), cancelledBy: "TRAINER", cancelReason: reason || "Без причини" },
+  });
+  await prisma.reminder.create({
+    data: {
+      clientId,
+      title: `❌ Тренер скасував тренування «${s.title}» на ${s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : ""} — ${reason || "без причини"}`,
+      type: "cancel",
+      datetime: new Date(),
+      done: false,
+    },
+  });
+  revalidatePath(`/admin/clients/${clientId}`);
+  revalidatePath("/admin/sessions");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/sessions");
+  revalidatePath("/dashboard/workout");
+}
+
 // ========= Reminders =========
 export async function saveReminder(id: string, data: Record<string, any>) {
   await requireTrainer();

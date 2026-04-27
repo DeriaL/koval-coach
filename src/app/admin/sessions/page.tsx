@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireTrainer } from "@/lib/session";
 import { PageHeader } from "@/components/ui";
 import Link from "next/link";
-import { Calendar, AlertTriangle, CheckCircle2, Clock, Sparkles, Dumbbell, Wifi, Crown, Zap, Activity } from "lucide-react";
+import { Calendar, AlertTriangle, CheckCircle2, Clock, Sparkles, Dumbbell, Wifi, Crown, Zap, Activity, Ban } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { SessionRowActions } from "./row-actions";
@@ -22,10 +22,10 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   const planWhere = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
   const clientWhere = { role: "CLIENT", ...planWhere, ...(clientFilter ? { id: clientFilter } : {}) };
 
-  const [awaiting, upcoming, completed, allClients, todaySessions] = await Promise.all([
+  const [awaiting, upcoming, completed, cancelled, allClients, todaySessions] = await Promise.all([
     prisma.workoutSession.findMany({
       where: {
-        scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false,
+        scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null,
         client: clientWhere as any,
       },
       include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
@@ -33,7 +33,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     }),
     prisma.workoutSession.findMany({
       where: {
-        scheduledAt: { gte: now, lte: weekAhead }, completed: false, confirmedByTrainer: false,
+        scheduledAt: { gte: now, lte: weekAhead }, completed: false, confirmedByTrainer: false, cancelledAt: null,
         client: clientWhere as any,
       },
       include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
@@ -42,12 +42,19 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     prisma.workoutSession.findMany({
       where: {
         OR: [{ completed: true }, { confirmedByTrainer: true }],
+        cancelledAt: null,
         date: { gte: monthAgo },
         client: clientWhere as any,
       },
       include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
       orderBy: { date: "desc" },
       take: 50,
+    }),
+    prisma.workoutSession.findMany({
+      where: { cancelledAt: { gte: monthAgo }, client: clientWhere as any },
+      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
+      orderBy: { cancelledAt: "desc" },
+      take: 30,
     }),
     prisma.user.findMany({ where: { role: "CLIENT" }, select: { id: true, firstName: true, lastName: true, coachingPlan: true }, orderBy: { firstName: "asc" } }),
     prisma.workoutSession.count({
@@ -154,7 +161,16 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         </Section>
       )}
 
-      {awaiting.length === 0 && upcoming.length === 0 && completed.length === 0 && (
+      {/* CANCELLED */}
+      {cancelled.length > 0 && (
+        <Section icon={Ban} title="Скасовані · 30 днів" count={cancelled.length} accent="danger">
+          <div className="space-y-2">
+            {cancelled.map(s => <CancelledRow key={s.id} session={s} />)}
+          </div>
+        </Section>
+      )}
+
+      {awaiting.length === 0 && upcoming.length === 0 && completed.length === 0 && cancelled.length === 0 && (
         <div className="card p-12 text-center">
           <div className="w-16 h-16 mx-auto rounded-2xl accent-shine text-white flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7" />
@@ -169,7 +185,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
 }
 
 function Section({ icon: Icon, title, subtitle, count, accent = "accent", children }: any) {
-  const accentClass = accent === "accent2" ? "text-accent2" : accent === "success" ? "text-success" : "text-accent";
+  const accentClass = accent === "accent2" ? "text-accent2" : accent === "success" ? "text-success" : accent === "danger" ? "text-danger" : "text-accent";
   return (
     <div className="mb-6">
       <div className="flex items-end justify-between mb-3 flex-wrap gap-2">
@@ -257,7 +273,7 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
           </a>
         )}
 
-        <SessionRowActions sessionId={session.id} clientId={session.client.id} mode={mode} />
+        <SessionRowActions sessionId={session.id} clientId={session.client.id} mode={mode} sessionTitle={session.title} />
       </div>
 
       {session.notes && (
@@ -270,6 +286,41 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
           {session.completed && !session.confirmedByTrainer && <span className="chip text-[9px] py-0.5 px-1.5">самостійно</span>}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function CancelledRow({ session }: { session: any }) {
+  const initials = `${session.client.firstName[0]}${session.client.lastName[0]}`;
+  const byClient = session.cancelledBy === "CLIENT";
+  return (
+    <div className="card p-4 border-danger/20 bg-danger/5">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Link href={`/admin/clients/${session.client.id}`} className="flex items-center gap-3 min-w-0 flex-1 group">
+          <div className="w-11 h-11 rounded-xl accent-shine flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold truncate flex items-center gap-1.5">
+              {session.client.firstName} {session.client.lastName}
+              <span className={`chip text-[9px] py-0.5 px-1.5 ${byClient ? "text-danger border-danger/40" : "text-muted border-border"}`}>
+                <Ban className="w-2.5 h-2.5" /> {byClient ? "клієнт" : "тренер"}
+              </span>
+            </div>
+            <div className="text-xs text-muted truncate">{session.title}</div>
+          </div>
+        </Link>
+        <div className="text-right shrink-0 hidden sm:block">
+          <div className="text-[11px] text-muted">
+            {session.scheduledAt ? new Date(session.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+          </div>
+          <div className="text-[10px] text-muted">скасовано {formatDistanceToNow(new Date(session.cancelledAt), { addSuffix: true, locale: uk })}</div>
+        </div>
+        <SessionRowActions sessionId={session.id} clientId={session.client.id} mode="cancelled" sessionTitle={session.title} />
+      </div>
+      {session.cancelReason && (
+        <div className="mt-2 pl-14 text-xs text-muted">💬 {session.cancelReason}</div>
+      )}
     </div>
   );
 }
