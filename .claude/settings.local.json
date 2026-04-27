@@ -24,7 +24,12 @@
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Initial commit: Koval Coach platform\")",
       "Bash(gh repo *)",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Make build Vercel-friendly \\(skip db push\\)\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(vercel link *)",
+      "Bash(vercel projects *)",
+      "Bash(vercel deploy *)",
+      "Bash(vercel env *)",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Switch DB to PostgreSQL \\(Neon\\)\")"
     ]
   }
 }

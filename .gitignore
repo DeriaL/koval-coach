@@ -8,3 +8,5 @@ out
 *.db-journal
 .DS_Store
 .vercel
+
+.vercel
