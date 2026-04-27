@@ -85,16 +85,21 @@ model Exercise {
 }
 
 model WorkoutSession {
-  id          String   @id @default(cuid())
-  clientId    String
-  client      User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  date        DateTime @default(now())
-  title       String
-  completed   Boolean  @default(false)
-  durationSec Int?
-  notes       String?
-  sets        SessionSet[]
-  createdAt   DateTime @default(now())
+  id                  String   @id @default(cuid())
+  clientId            String
+  client              User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date                DateTime @default(now())
+  scheduledAt         DateTime?
+  title               String
+  completed           Boolean  @default(false)   // client finished via player
+  confirmedByTrainer  Boolean  @default(false)   // trainer confirmed planned session happened
+  durationSec         Int?
+  notes               String?
+  sets                SessionSet[]
+  createdAt           DateTime @default(now())
+
+  @@index([clientId, scheduledAt])
+  @@index([clientId, completed])
 }
 
 model SessionSet {

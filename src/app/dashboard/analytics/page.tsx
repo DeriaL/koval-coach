@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
     prisma.user.findUnique({ where: { id: u.id } }),
     prisma.measurement.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
     prisma.checkIn.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
-    prisma.workoutSession.findMany({ where: { clientId: u.id, completed: true }, orderBy: { date: "asc" } }),
+    prisma.workoutSession.findMany({ where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] }, orderBy: { date: "asc" } }),
     prisma.sessionSet.findMany({
       where: { session: { clientId: u.id, completed: true }, completed: true, weight: { not: null }, reps: { not: null } },
       include: { session: { select: { date: true } } },

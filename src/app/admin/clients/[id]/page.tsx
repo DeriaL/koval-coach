@@ -15,6 +15,7 @@ import { CheckInsTab } from "./sections/checkins";
 import { RemindersTab } from "./sections/reminders";
 import { ChatTab } from "./sections/chat";
 import { HabitsTab } from "./sections/habits";
+import { SessionsTab } from "./sections/sessions";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet } from "lucide-react";
 
 type Props = { params: { id: string }; searchParams: { tab?: string } };
@@ -26,7 +27,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
   const client = await prisma.user.findUnique({
     where: { id },
     include: {
-      _count: { select: { sessions: { where: { completed: true } } } },
+      _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
       nutritionPlans: { orderBy: { updatedAt: "desc" } },
       trainingPlans: { orderBy: { updatedAt: "desc" }, include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } } },
       habits: { include: { logs: true }, orderBy: { order: "asc" } },
@@ -38,6 +39,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       checkIns: { orderBy: { date: "desc" }, take: 60 },
       reminders: { orderBy: { datetime: "asc" } },
       messages: { orderBy: { createdAt: "asc" } },
+      sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }] },
     },
   });
 
@@ -110,6 +112,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "achievements" && <AchievementsTab clientId={client.id} items={client.achievements} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
         {tab === "habits" && <HabitsTab clientId={client.id} items={client.habits} />}
+        {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} />}
         {tab === "reminders" && <RemindersTab clientId={client.id} items={client.reminders} />}
         {tab === "chat" && <ChatTab clientId={client.id} initial={client.messages.map(m => ({ ...m, createdAt: m.createdAt.toISOString() }))} />}
       </div>

@@ -273,6 +273,65 @@ export async function deleteHabit(id: string, clientId: string) {
   revalidatePath(`/admin/clients/${clientId}`);
 }
 
+// ========= Scheduled sessions =========
+export async function scheduleSession(clientId: string, data: { title: string; scheduledAt: string; notes?: string }) {
+  await requireTrainer();
+  const dt = new Date(data.scheduledAt);
+  await prisma.workoutSession.create({
+    data: {
+      clientId,
+      title: data.title,
+      scheduledAt: dt,
+      date: dt,
+      completed: false,
+      confirmedByTrainer: false,
+      notes: data.notes || null,
+    },
+  });
+  revalidatePath(`/admin/clients/${clientId}`);
+  revalidatePath(`/admin`);
+  revalidatePath(`/dashboard`);
+  revalidatePath(`/dashboard/workout`);
+}
+
+export async function confirmSession(sessionId: string, clientId: string, happened: boolean) {
+  await requireTrainer();
+  if (happened) {
+    await prisma.workoutSession.update({
+      where: { id: sessionId },
+      data: { confirmedByTrainer: true, completed: true },
+    });
+    // Check milestone (every 10)
+    const total = await prisma.workoutSession.count({
+      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+    });
+    if (total > 0 && total % 10 === 0) {
+      const u = await prisma.user.findUnique({ where: { id: clientId } });
+      const amount = u?.pricePer10 ?? null;
+      const pkg = Math.floor(total / 10);
+      if (amount && amount > 0) {
+        await prisma.payment.create({
+          data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
+        });
+      }
+      await prisma.reminder.create({
+        data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
+      });
+    }
+  } else {
+    await prisma.workoutSession.delete({ where: { id: sessionId } });
+  }
+  revalidatePath(`/admin/clients/${clientId}`);
+  revalidatePath(`/admin`);
+  revalidatePath(`/dashboard`);
+}
+
+export async function deleteSession(sessionId: string, clientId: string) {
+  await requireTrainer();
+  await prisma.workoutSession.delete({ where: { id: sessionId } });
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
 // ========= Reminders =========
 export async function saveReminder(id: string, data: Record<string, any>) {
   await requireTrainer();

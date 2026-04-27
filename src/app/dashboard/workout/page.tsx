@@ -1,12 +1,14 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, EmptyState } from "@/components/ui";
-import { Dumbbell, Play, Clock, Trophy } from "lucide-react";
+import { Dumbbell, Play, Clock, Trophy, Calendar } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { uk } from "date-fns/locale";
 import Link from "next/link";
 
 export default async function WorkoutHome() {
   const u = await requireClient();
-  const [plans, recentSessions, prSets] = await Promise.all([
+  const [plans, recentSessions, prSets, upcoming] = await Promise.all([
     prisma.trainingPlan.findMany({
       where: { clientId: u.id },
       include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } },
@@ -19,6 +21,10 @@ export default async function WorkoutHome() {
       include: { sets: true },
     }),
     prisma.sessionSet.findMany({ where: { isPR: true, session: { clientId: u.id } }, orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.workoutSession.findMany({
+      where: { clientId: u.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
+      orderBy: { scheduledAt: "asc" }, take: 5,
+    }),
   ]);
 
   const plan = plans[0];
@@ -30,6 +36,26 @@ export default async function WorkoutHome() {
   return (
     <div>
       <PageHeader title="Тренування" subtitle="Обери день — і в зал 💪" />
+
+      {upcoming.length > 0 && (
+        <div className="card p-5 mb-4 border-accent/30">
+          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Заплановані тренування</h3>
+          <div className="space-y-2">
+            {upcoming.map((s) => (
+              <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{s.title}</div>
+                  <div className="text-xs text-muted">
+                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                    {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
+                  </div>
+                </div>
+                <span className="chip text-xs text-accent">заплановано</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!plan || plan.exercises.length === 0 ? (
         <EmptyState icon={Dumbbell} title="Ще немає структурованої програми" text="Попроси тренера додати вправи — після цього тут з’явиться «в залі» режим з таймерами." />

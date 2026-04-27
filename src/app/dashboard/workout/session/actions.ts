@@ -61,7 +61,7 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
 
   // Milestone: every 10 completed sessions -> auto payment + reminder
   const totalCompleted = await prisma.workoutSession.count({
-    where: { clientId: u.id, completed: true },
+    where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] },
   });
 
   let milestone: FinishResult["milestone"] = null;

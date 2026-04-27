@@ -8,19 +8,19 @@ import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet,
 export default async function AdminHome() {
   const since = new Date(Date.now() - 3 * 86400000);
 
-  const [clients, recentSessions, recentCheckIns, recentPRs] = await Promise.all([
+  const [clients, recentSessions, recentCheckIns, recentPRs, awaiting] = await Promise.all([
     prisma.user.findMany({
       where: { role: "CLIENT" },
       include: {
         measurements: { orderBy: { date: "desc" }, take: 1 },
         checkIns: { orderBy: { date: "desc" }, take: 7 },
         payments: { orderBy: { date: "desc" }, take: 3 },
-        _count: { select: { sessions: { where: { completed: true } } } },
+        _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
       },
       orderBy: { createdAt: "desc" },
     }),
     prisma.workoutSession.findMany({
-      where: { completed: true, date: { gte: since }, client: { role: "CLIENT" } },
+      where: { OR: [{ completed: true }, { confirmedByTrainer: true }], date: { gte: since }, client: { role: "CLIENT" } },
       include: { client: { select: { firstName: true, lastName: true, id: true } } },
       orderBy: { date: "desc" },
       take: 8,
@@ -36,6 +36,16 @@ export default async function AdminHome() {
       include: { session: { include: { client: { select: { firstName: true, lastName: true, id: true } } } } },
       orderBy: { createdAt: "desc" },
       take: 6,
+    }),
+    prisma.workoutSession.findMany({
+      where: {
+        scheduledAt: { lt: new Date() },
+        completed: false,
+        confirmedByTrainer: false,
+        client: { role: "CLIENT" },
+      },
+      include: { client: { select: { firstName: true, lastName: true, id: true } } },
+      orderBy: { scheduledAt: "desc" },
     }),
   ]);
 
@@ -60,6 +70,25 @@ export default async function AdminHome() {
           </Link>
         }
       />
+
+      {/* Awaiting confirmation */}
+      {awaiting.length > 0 && (
+        <div className="card p-5 mb-4 border-accent2/40 bg-accent2/5">
+          <h3 className="font-semibold flex items-center gap-2 text-accent2"><AlertTriangle className="w-4 h-4" /> Підтверди тренування ({awaiting.length})</h3>
+          <div className="mt-3 space-y-2">
+            {awaiting.map((s) => (
+              <Link key={s.id} href={`/admin/clients/${s.clientId}?tab=sessions`}
+                className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border hover:border-accent2/50 transition">
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{s.client.firstName} {s.client.lastName} · {s.title}</div>
+                  <div className="text-xs text-muted">{new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}</div>
+                </div>
+                <span className="chip text-xs text-accent2 border-accent2/40">підтвердити →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Activity feed (last 72h) */}
       {feed.length > 0 && (

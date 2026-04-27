@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import {
-  User, Apple, Dumbbell, Pill, Wallet, LineChart, Camera, Trophy, Flame, Bell, MessageCircle, Target
+  User, Apple, Dumbbell, Pill, Wallet, LineChart, Camera, Trophy, Flame, Bell, MessageCircle, Target, Calendar
 } from "lucide-react";
 
 const tabs = [
   { id: "profile", label: "Профіль", icon: User },
+  { id: "sessions", label: "Сесії", icon: Calendar },
   { id: "checkins", label: "Check-ins", icon: Flame },
   { id: "habits", label: "Звички", icon: Target },
   { id: "nutrition", label: "Харчування", icon: Apple },

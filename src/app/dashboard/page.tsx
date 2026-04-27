@@ -2,7 +2,7 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { ProgressRing } from "@/components/charts2";
-import { Flame, Trophy, Dumbbell, Scale, TrendingDown, Bell, CheckCircle2, Play, Target, Droplet, ArrowRight } from "lucide-react";
+import { Flame, Trophy, Dumbbell, Scale, TrendingDown, Bell, CheckCircle2, Play, Target, Droplet, ArrowRight, Calendar } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
@@ -24,6 +24,11 @@ export default async function DashboardHome() {
     prisma.habit.findMany({ where: { clientId: user.id, active: true }, include: { logs: { where: { date: today } } }, orderBy: { order: "asc" } }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, date: { gte: today } } }),
   ]);
+
+  const upcomingSessions = await prisma.workoutSession.findMany({
+    where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
+    orderBy: { scheduledAt: "asc" }, take: 3,
+  });
 
   const streak = calcStreak(checkIns.map(c => c.date));
   const latestWeight = checkIns.find(c => c.weight)?.weight ?? measurements.at(-1)?.weight;
@@ -85,6 +90,27 @@ export default async function DashboardHome() {
         <KPI icon={Dumbbell} label="Тренувань" value={workoutsLast30} sub="за 30 днів" />
         <KPI icon={Scale} label="Вага" value={latestWeight ? `${latestWeight.toFixed(1)}` : "—"} sub="кг" />
       </div>
+
+      {/* Upcoming planned sessions */}
+      {upcomingSessions.length > 0 && (
+        <div className="card p-5 mt-4 border-accent/30">
+          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Найближчі тренування з тренером</h3>
+          <div className="space-y-2">
+            {upcomingSessions.map((s) => (
+              <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{s.title}</div>
+                  <div className="text-xs text-muted">
+                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                    {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
+                  </div>
+                </div>
+                <span className="chip text-xs text-accent border-accent/40">заплановано</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Reminders */}
       {reminders.length > 0 && (
