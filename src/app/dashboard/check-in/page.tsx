@@ -2,7 +2,8 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { CheckInForm } from "./form";
-import { Flame, Moon, Smile, Zap, Scale, Droplet, Footprints } from "lucide-react";
+import { Flame, Moon, Smile, Zap, Droplet, Footprints, Ruler, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default async function CheckInPage() {
   const u = await requireClient();
@@ -31,6 +32,15 @@ export default async function CheckInPage() {
         <CheckInForm defaults={existing ?? null} />
       </div>
 
+      <Link href="/dashboard/analytics" className="card p-4 mt-4 flex items-center gap-3 hover:border-accent/40 transition group">
+        <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Ruler className="w-4 h-4" /></div>
+        <div className="flex-1">
+          <div className="font-medium text-sm">Зважився? Додай замір окремо</div>
+          <div className="text-xs text-muted">Вага, заміри тіла, % жиру — у вкладці «Аналітика»</div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
+      </Link>
+
       <div className="card p-6 mt-6">
         <h3 className="font-semibold mb-4">Останні 7 днів</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
@@ -41,10 +51,10 @@ export default async function CheckInPage() {
               </div>
               <div className="mt-1 text-2xl">{c.mood === 5 ? "😄" : c.mood === 4 ? "🙂" : c.mood === 3 ? "😐" : c.mood === 2 ? "🙁" : "😞"}</div>
               <div className="text-[11px] text-muted mt-1">
-                <Moon className="w-3 h-3 inline" /> {c.sleep?.toFixed(1)}г
+                <Moon className="w-3 h-3 inline" /> {c.sleep?.toFixed(1) ?? "—"}г
               </div>
               <div className="text-[11px] text-muted">
-                <Scale className="w-3 h-3 inline" /> {c.weight?.toFixed(1)}
+                <Droplet className="w-3 h-3 inline" /> {c.water?.toFixed(1) ?? "—"}л
               </div>
             </div>
           ))}

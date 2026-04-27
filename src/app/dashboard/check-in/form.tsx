@@ -7,7 +7,6 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
   const [mood, setMood] = useState<number>(defaults?.mood ?? 4);
   const [energy, setEnergy] = useState<number>(defaults?.energy ?? 4);
   const [sleep, setSleep] = useState<number>(defaults?.sleep ?? 7);
-  const [weight, setWeight] = useState<number | "">(defaults?.weight ?? "");
   const [water, setWater] = useState<number | "">(defaults?.water ?? "");
   const [steps, setSteps] = useState<number | "">(defaults?.steps ?? "");
   const [notes, setNotes] = useState<string>(defaults?.notes ?? "");
@@ -19,7 +18,7 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
   function submit() {
     const data = {
       mood, energy, sleep,
-      weight: weight === "" ? null : Number(weight),
+      weight: null,
       water: water === "" ? null : Number(water),
       steps: steps === "" ? null : Number(steps),
       notes,
@@ -61,11 +60,6 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
         <input type="range" min={3} max={12} step={0.5} value={sleep}
           onChange={(e) => setSleep(Number(e.target.value))}
           className="w-full accent-[#6366f1]" />
-      </div>
-      <div>
-        <label className="label">Вага (кг)</label>
-        <input className="input" type="number" step="0.1" value={weight}
-          onChange={(e) => setWeight(e.target.value === "" ? "" : Number(e.target.value))} />
       </div>
       <div>
         <label className="label">Вода (літри)</label>
