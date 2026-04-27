@@ -21,7 +21,10 @@
       "Bash(vercel --version)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Initial commit: Koval Coach platform\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Initial commit: Koval Coach platform\")",
+      "Bash(gh repo *)",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Make build Vercel-friendly \\(skip db push\\)\")",
+      "Bash(git push *)"
     ]
   }
 }
