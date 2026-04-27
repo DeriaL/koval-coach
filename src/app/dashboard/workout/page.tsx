@@ -4,6 +4,11 @@ import { PageHeader, EmptyState } from "@/components/ui";
 import { Dumbbell, Play, Clock, Trophy, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
+
+function formatGCalDate(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+}
 import Link from "next/link";
 
 export default async function WorkoutHome() {
@@ -39,20 +44,29 @@ export default async function WorkoutHome() {
 
       {upcoming.length > 0 && (
         <div className="card p-5 mb-4 border-accent/30">
-          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Заплановані тренування</h3>
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h3 className="font-semibold flex items-center gap-2"><Calendar className="w-4 h-4 text-accent" /> Заплановані тренування</h3>
+            <a href="/api/calendar/sessions.ics?scope=mine" download className="chip text-xs hover:border-accent/50">📅 У календар</a>
+          </div>
           <div className="space-y-2">
-            {upcoming.map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
-                <div className="min-w-0">
-                  <div className="font-medium text-sm truncate">{s.title}</div>
-                  <div className="text-xs text-muted">
-                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
-                    {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
+            {upcoming.map((s) => {
+              const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(s.title)}&dates=${formatGCalDate(new Date(s.scheduledAt!))}/${formatGCalDate(new Date(new Date(s.scheduledAt!).getTime() + 60*60*1000))}&details=${encodeURIComponent(s.notes ?? "Тренування з тренером")}`;
+              return (
+                <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm truncate">{s.title}</div>
+                    <div className="text-xs text-muted">
+                      {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                      {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
+                    </div>
                   </div>
+                  <a href={gcal} target="_blank" rel="noreferrer" title="Додати в Google Calendar"
+                    className="btn text-xs py-1.5 hover:border-accent/50 hover:text-accent shrink-0">
+                    📅
+                  </a>
                 </div>
-                <span className="chip text-xs text-accent">заплановано</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

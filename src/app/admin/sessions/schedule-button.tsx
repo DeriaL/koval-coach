@@ -12,6 +12,10 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
   const [pending, start] = useTransition();
   const [clientId, setClientId] = useState(defaultClientId ?? clients[0]?.id ?? "");
   const [err, setErr] = useState<string | null>(null);
+  const [whenStr, setWhenStr] = useState("");
+  const [alreadyDone, setAlreadyDone] = useState(false);
+
+  const isPast = whenStr && new Date(whenStr).getTime() < Date.now();
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
@@ -28,16 +32,18 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
 
   function submit(fd: FormData) {
     setErr(null);
-    const data = {
+    const data: any = {
       title: String(fd.get("title") || "Персональна сесія"),
       scheduledAt: String(fd.get("scheduledAt") || ""),
       notes: String(fd.get("notes") || ""),
+      alreadyDone: alreadyDone || (new Date(String(fd.get("scheduledAt") || "")).getTime() < Date.now() && fd.get("alreadyDone") === "on"),
     };
     if (!data.scheduledAt || !clientId) { setErr("Обери клієнта і час"); return; }
     start(async () => {
       try {
         await scheduleSession(clientId, data);
         setOpen(false);
+        setAlreadyDone(false);
       } catch (e: any) { setErr(e?.message ?? "Помилка"); }
     });
   }
@@ -80,7 +86,9 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
                 </div>
                 <div>
                   <label className="label">Дата і час</label>
-                  <input name="scheduledAt" type="datetime-local" defaultValue={defStr} className="input" required />
+                  <input name="scheduledAt" type="datetime-local" defaultValue={defStr}
+                    onChange={(e) => setWhenStr(e.target.value)}
+                    className="input" required />
                 </div>
               </div>
 
@@ -108,6 +116,18 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
                     className="chip text-[11px] hover:border-accent/50 active:scale-95">{p.label}</button>
                 ))}
               </div>
+
+              {/* Backfill toggle (when in past) */}
+              {isPast && (
+                <label className="flex items-start gap-2 p-3 rounded-xl border border-accent/30 bg-accent/5 cursor-pointer">
+                  <input type="checkbox" name="alreadyDone" checked={alreadyDone} onChange={(e) => setAlreadyDone(e.target.checked)}
+                    className="mt-0.5 accent-[rgb(var(--accent))]" />
+                  <div className="text-xs">
+                    <div className="font-semibold text-accent">Вже відбулось — зарахувати в статистику</div>
+                    <div className="text-muted mt-0.5">Сесія додасться як виконана й увійде в загальний рахунок тренувань (для бекфіл-у).</div>
+                  </div>
+                </label>
+              )}
 
               {err && <div className="text-danger text-xs">{err}</div>}
 

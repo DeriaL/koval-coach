@@ -274,22 +274,43 @@ export async function deleteHabit(id: string, clientId: string) {
 }
 
 // ========= Scheduled sessions =========
-export async function scheduleSession(clientId: string, data: { title: string; scheduledAt: string; notes?: string }) {
+export async function scheduleSession(clientId: string, data: { title: string; scheduledAt: string; notes?: string; alreadyDone?: boolean | string }) {
   await requireTrainer();
   const dt = new Date(data.scheduledAt);
+  const alreadyDone = data.alreadyDone === true || data.alreadyDone === "on" || data.alreadyDone === "true";
   await prisma.workoutSession.create({
     data: {
       clientId,
       title: data.title,
       scheduledAt: dt,
       date: dt,
-      completed: false,
-      confirmedByTrainer: false,
+      completed: alreadyDone,
+      confirmedByTrainer: alreadyDone,
       notes: data.notes || null,
     },
   });
+  // If backfilled as done, check milestone
+  if (alreadyDone) {
+    const total = await prisma.workoutSession.count({
+      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+    });
+    if (total > 0 && total % 10 === 0) {
+      const u = await prisma.user.findUnique({ where: { id: clientId } });
+      const amount = u?.pricePer10 ?? null;
+      const pkg = Math.floor(total / 10);
+      if (amount && amount > 0) {
+        await prisma.payment.create({
+          data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
+        });
+      }
+      await prisma.reminder.create({
+        data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
+      });
+    }
+  }
   revalidatePath(`/admin/clients/${clientId}`);
   revalidatePath(`/admin`);
+  revalidatePath(`/admin/sessions`);
   revalidatePath(`/dashboard`);
   revalidatePath(`/dashboard/workout`);
 }

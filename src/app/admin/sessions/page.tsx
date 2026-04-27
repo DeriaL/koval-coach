@@ -7,6 +7,8 @@ import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { SessionRowActions } from "./row-actions";
 import { ScheduleButton } from "./schedule-button";
+import { googleCalendarUrl } from "@/lib/calendar";
+import { CalendarPlus, Download } from "lucide-react";
 
 export default async function AdminSessions({ searchParams }: { searchParams: { format?: string; client?: string } }) {
   await requireTrainer();
@@ -69,7 +71,15 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       <PageHeader
         title="Тренування"
         subtitle="Розклад сесій з усіма клієнтами"
-        action={<ScheduleButton clients={allClients} defaultClientId={clientFilter || undefined} />}
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
+            <a href={`/api/calendar/sessions.ics${clientFilter ? `?clientId=${clientFilter}` : ""}`}
+              className="btn text-sm" download>
+              <Download className="w-4 h-4" /> <span className="hidden sm:inline">Експорт .ics</span>
+            </a>
+            <ScheduleButton clients={allClients} defaultClientId={clientFilter || undefined} />
+          </div>
+        }
       />
 
       {/* KPI strip */}
@@ -233,6 +243,19 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
               : formatDistanceToNow(new Date(dt), { addSuffix: true, locale: uk })}
           </div>
         </div>
+
+        {(mode === "upcoming" || mode === "awaiting") && (
+          <a
+            href={googleCalendarUrl({
+              id: session.id, title: session.title, scheduledAt: session.scheduledAt, notes: session.notes,
+              client: { firstName: session.client.firstName, lastName: session.client.lastName },
+            })}
+            target="_blank" rel="noreferrer"
+            title="Додати в Google Calendar"
+            className="btn text-xs py-2 hover:border-accent/50 hover:text-accent shrink-0">
+            <CalendarPlus className="w-3.5 h-3.5" />
+          </a>
+        )}
 
         <SessionRowActions sessionId={session.id} clientId={session.client.id} mode={mode} />
       </div>
