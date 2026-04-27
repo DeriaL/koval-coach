@@ -6,6 +6,7 @@ import { MultiLineChart } from "@/components/Charts";
 import { Heatmap } from "@/components/Heatmap";
 import { movingAverage, linearRegression, bmi, bmiCategory, calcStreak, buildHeatmap } from "@/lib/analytics";
 import { LineChart, Scale, TrendingDown, Target, Flame, Heart, Moon, Zap, Trophy, Calendar, Droplet, Activity, Dumbbell } from "lucide-react";
+import { AddMeasurement } from "./AddMeasurement";
 
 export default async function AnalyticsPage() {
   const u = await requireClient();
@@ -23,8 +24,8 @@ export default async function AnalyticsPage() {
   if (!user || (measurements.length === 0 && checkIns.length === 0))
     return (
       <div>
-        <PageHeader title="Аналітика" />
-        <EmptyState icon={LineChart} title="Ще мало даних" text="Зроби перший check-in або попроси тренера додати замір" />
+        <PageHeader title="Аналітика" action={<AddMeasurement />} />
+        <EmptyState icon={LineChart} title="Ще мало даних" text="Зроби перший check-in або додай замір" />
       </div>
     );
 
@@ -127,7 +128,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <PageHeader title="Аналітика" subtitle="Твої цифри — твій шлях" />
+      <PageHeader title="Аналітика" subtitle="Твої цифри — твій шлях" action={<AddMeasurement />} />
 
       {/* Top KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
