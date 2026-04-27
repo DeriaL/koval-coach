@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("CLIENT") // CLIENT | TRAINER
+  firstName String
+  lastName  String
+  phone     String?
+  birthday  DateTime?
+  avatarUrl String?
+  goal      String?
+  height    Float?
+  startWeight Float?
+  notes     String?
+  coachingPlan String @default("FULL")   // ONLINE | FULL
+  pricePer10 Float?                       // ціна за 10 тренувань (пакет)
+  createdAt DateTime @default(now())
+
+  nutritionPlans NutritionPlan[]
+  trainingPlans  TrainingPlan[]
+  supplements    Supplement[]
+  payments       Payment[]
+  measurements   Measurement[]
+  photos         ProgressPhoto[]
+  checkIns       CheckIn[]
+  achievements   Achievement[]
+  workouts       WorkoutLog[]
+  sessions       WorkoutSession[]
+  reminders      Reminder[]
+  messages       Message[]
+  habits         Habit[]
+}
+
+model NutritionPlan {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  content   String   // markdown / long text with meals
+  notes     String?
+  calories  Int?
+  protein   Int?
+  carbs     Int?
+  fats      Int?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model TrainingPlan {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  content   String   // long text / program
+  notes     String?
+  daysPerWeek Int?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  exercises Exercise[]
+}
+
+model Exercise {
+  id             String   @id @default(cuid())
+  trainingPlanId String
+  trainingPlan   TrainingPlan @relation(fields: [trainingPlanId], references: [id], onDelete: Cascade)
+  name           String
+  day            String   // "Пн", "Вт" ...
+  order          Int      @default(0)
+  targetSets     Int      @default(3)
+  targetReps     String   @default("10") // "8-10"
+  restSec        Int      @default(90)
+  videoUrl       String?
+  notes          String?
+  createdAt      DateTime @default(now())
+}
+
+model WorkoutSession {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())
+  title       String
+  completed   Boolean  @default(false)
+  durationSec Int?
+  notes       String?
+  sets        SessionSet[]
+  createdAt   DateTime @default(now())
+}
+
+model SessionSet {
+  id           String   @id @default(cuid())
+  sessionId    String
+  session      WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exerciseName String
+  setIndex     Int
+  weight       Float?
+  reps         Int?
+  completed    Boolean  @default(false)
+  isPR         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Habit {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  icon      String?  // lucide name
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  logs      HabitLog[]
+}
+
+model HabitLog {
+  id      String   @id @default(cuid())
+  habitId String
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date    DateTime // day only (set to 00:00 UTC)
+  done    Boolean  @default(true)
+  @@unique([habitId, date])
+}
+
+model Supplement {
+  id       String  @id @default(cuid())
+  clientId String
+  client   User    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name     String
+  dosage   String?
+  schedule String? // "morning, before training"
+  notes    String?
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id       String   @id @default(cuid())
+  clientId String
+  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  amount   Float
+  currency String   @default("UAH")
+  date     DateTime
+  method   String?  // card / cash
+  status   String   @default("paid") // paid | pending | overdue
+  notes    String?
+  createdAt DateTime @default(now())
+}
+
+model Measurement {
+  id       String   @id @default(cuid())
+  clientId String
+  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date     DateTime
+  weight   Float?
+  chest    Float?
+  waist    Float?
+  hips     Float?
+  arm      Float?
+  leg      Float?
+  bodyFat  Float?
+  notes    String?
+  createdAt DateTime @default(now())
+}
+
+model ProgressPhoto {
+  id       String   @id @default(cuid())
+  clientId String
+  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date     DateTime
+  url      String
+  angle    String? // front / side / back
+  notes    String?
+  createdAt DateTime @default(now())
+}
+
+model CheckIn {
+  id       String   @id @default(cuid())
+  clientId String
+  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date     DateTime
+  sleep    Float?   // hours
+  mood     Int?     // 1..5
+  energy   Int?     // 1..5
+  weight   Float?
+  water    Float?   // liters
+  steps    Int?
+  notes    String?
+  createdAt DateTime @default(now())
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  icon        String?  // lucide name
+  earnedAt    DateTime @default(now())
+}
+
+model WorkoutLog {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date      DateTime
+  title     String
+  completed Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  type      String   // training | supplement | checkin | other
+  datetime  DateTime
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  clientId  String   // about which client (thread)
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  authorRole String  // CLIENT | TRAINER
+  body      String
+  createdAt DateTime @default(now())
+}

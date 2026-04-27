@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Dark theme (default) — blue-violet */
+:root, [data-theme="dark"] {
+  --bg: 9 11 26;               /* deep navy-indigo */
+  --surface: 16 20 42;         /* indigo-blue surface */
+  --card: 22 26 54;            /* blue-violet card */
+  --border: 48 54 110;         /* indigo border */
+  --muted: 148 152 190;
+  --text: 232 234 252;
+  --accent: 99 102 241;        /* indigo-500 (blue-violet) */
+  --accent2: 56 132 255;       /* vibrant blue */
+  --accent-soft: 167 139 250;  /* violet-400 */
+  --danger: 244 63 94;
+  --success: 52 211 153;
+  --scroll-track: 9 11 26;
+  --scroll-thumb: 60 66 120;
+  color-scheme: dark;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: 244 246 255;
+  --surface: 255 255 255;
+  --card: 255 255 255;
+  --border: 220 224 244;
+  --muted: 98 102 138;
+  --text: 18 22 48;
+  --accent: 79 70 229;         /* indigo-600 */
+  --accent2: 37 99 235;        /* blue-600 */
+  --accent-soft: 124 58 237;
+  --danger: 225 29 72;
+  --success: 16 185 129;
+  --scroll-track: 244 246 255;
+  --scroll-thumb: 198 204 230;
+  color-scheme: light;
+}
+
+html, body {
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  transition: background-color .35s ease, color .35s ease;
+}
+
+/* Ambient background glow */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(800px 500px at 10% -10%, rgb(var(--accent) / .18), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgb(var(--accent2) / .14), transparent 60%),
+    radial-gradient(600px 400px at 50% 120%, rgb(var(--accent) / .08), transparent 60%);
+  transition: opacity .4s ease;
+}
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(800px 500px at 10% -10%, rgb(var(--accent) / .10), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgb(var(--accent2) / .08), transparent 60%);
+}
+body > * { position: relative; z-index: 1; }
+
+* { box-sizing: border-box; }
+
+/* Smooth global interactive transitions */
+a, button, [role="button"], input, select, textarea, .card {
+  transition: background-color .25s ease, border-color .25s ease, color .25s ease,
+              transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, opacity .2s ease;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: rgb(var(--scroll-track)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--scroll-thumb)); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--accent) / .7); }
+
+.scrollbar-thin::-webkit-scrollbar { height: 4px; }
+
+@media (max-width: 767px) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card/80 backdrop-blur-sm border border-border rounded-2xl;
+    box-shadow: 0 1px 0 rgb(var(--text) / .02), 0 10px 30px -20px rgb(0 0 0 / .4);
+  }
+  .card-hover { @apply hover:-translate-y-0.5 hover:border-accent/40; }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium
+           border border-border bg-surface hover:bg-card text-text disabled:opacity-50 disabled:pointer-events-none
+           active:scale-[.97];
+  }
+  .btn:hover { box-shadow: 0 8px 24px -12px rgb(var(--accent) / .35); }
+  .btn-primary {
+    @apply text-white border-transparent;
+    background: linear-gradient(135deg, rgb(var(--accent)) 0%, rgb(var(--accent2)) 100%);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+  }
+  .btn-primary:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 10px 30px -10px rgb(var(--accent) / .55);
+  }
+  .btn-danger {
+    @apply bg-danger text-white border-transparent hover:brightness-110;
+  }
+  .input, .textarea, .select {
+    @apply w-full bg-surface border border-border rounded-xl px-3 py-2 text-text
+           placeholder:text-muted outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/25;
+  }
+  .label {
+    @apply block text-xs font-medium text-muted uppercase tracking-wider mb-1.5;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface border border-border;
+  }
+  .h-gradient {
+    background: radial-gradient(600px 300px at 10% 0%, rgb(var(--accent) / .18), transparent 60%),
+                radial-gradient(600px 300px at 90% 0%, rgb(var(--accent2) / .14), transparent 60%);
+  }
+}
+
+/* Gradient accent shine — blue → violet */
+.accent-shine {
+  background: linear-gradient(135deg, rgb(var(--accent2)) 0%, rgb(var(--accent)) 55%, rgb(var(--accent-soft)) 100%);
+  background-size: 200% 200%;
+  animation: gradient-spin 10s ease infinite;
+  color: white;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent2)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Page enter animation */
+.page-enter { animation: fade-up .45s cubic-bezier(.2,.7,.2,1) both; }
+
+/* Stagger utility (set --i on children) */
+.stagger > * { animation: fade-up .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }

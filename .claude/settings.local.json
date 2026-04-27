@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsx *)",
+      "Bash(npx next *)",
+      "Bash(where cloudflared *)",
+      "Bash(where ngrok *)",
+      "Bash(npx --version)",
+      "Bash(cloudflared tunnel *)",
+      "Bash(npm run *)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(find src *)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force; Write-Output done\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Write-Output restarted\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Write-Output ok\")",
+      "WebFetch(domain:site-py-lemon.vercel.app)",
+      "Bash(powershell -Command \"Get-Process node,cloudflared -ErrorAction SilentlyContinue | Select-Object ProcessName,Id\")",
+      "Bash(gh auth *)",
+      "Bash(vercel --version)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Initial commit: Koval Coach platform\")"
+    ]
+  }
+}
