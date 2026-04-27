@@ -5,12 +5,14 @@ import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Trophy, Flame as FlameI, CheckCircle2, Activity } from "lucide-react";
 
-export default async function AdminHome() {
+export default async function AdminHome({ searchParams }: { searchParams: { format?: string } }) {
   const since = new Date(Date.now() - 3 * 86400000);
+  const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
+  const planFilter = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
 
-  const [clients, recentSessions, recentCheckIns, recentPRs, awaiting] = await Promise.all([
+  const [clients, recentSessions, recentCheckIns, recentPRs, awaiting, planCounts] = await Promise.all([
     prisma.user.findMany({
-      where: { role: "CLIENT" },
+      where: { role: "CLIENT", ...planFilter },
       include: {
         measurements: { orderBy: { date: "desc" }, take: 1 },
         checkIns: { orderBy: { date: "desc" }, take: 7 },
@@ -47,7 +49,12 @@ export default async function AdminHome() {
       include: { client: { select: { firstName: true, lastName: true, id: true } } },
       orderBy: { scheduledAt: "desc" },
     }),
+    prisma.user.groupBy({ by: ["coachingPlan"], where: { role: "CLIENT" }, _count: { _all: true } }),
   ]);
+
+  const onlineCount = planCounts.find(p => p.coachingPlan === "ONLINE")?._count._all ?? 0;
+  const offlineCount = planCounts.find(p => p.coachingPlan === "FULL")?._count._all ?? 0;
+  const totalAll = onlineCount + offlineCount;
 
   type FeedItem = { id: string; t: Date; type: "session" | "checkin" | "pr"; clientId: string; name: string; text: string };
   const feed: FeedItem[] = [
@@ -70,6 +77,13 @@ export default async function AdminHome() {
           </Link>
         }
       />
+
+      {/* Format filter */}
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
+        <FilterChip href="/admin" label="Усі" count={totalAll} active={format === "all"} />
+        <FilterChip href="/admin?format=online" label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
+        <FilterChip href="/admin?format=offline" label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
+      </div>
 
       {/* Awaiting confirmation */}
       {awaiting.length > 0 && (
@@ -146,7 +160,7 @@ export default async function AdminHome() {
                   <div className="font-semibold truncate flex items-center gap-2">
                     {c.firstName} {c.lastName}
                     <span className={`chip text-[10px] shrink-0 ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
-                      {isOnline ? <><Wifi className="w-2.5 h-2.5" /> Online</> : <><Crown className="w-2.5 h-2.5" /> Full</>}
+                      {isOnline ? <><Wifi className="w-2.5 h-2.5" /> Онлайн</> : <><Crown className="w-2.5 h-2.5" /> Офлайн</>}
                     </span>
                   </div>
                   <div className="text-xs text-muted truncate flex items-center gap-1">
@@ -216,5 +230,23 @@ export default async function AdminHome() {
         </div>
       )}
     </div>
+  );
+}
+
+function FilterChip({ href, label, count, active, icon }: { href: string; label: string; count: number; active: boolean; icon?: "wifi" | "crown" }) {
+  const Icon = icon === "wifi" ? Wifi : icon === "crown" ? Crown : null;
+  return (
+    <Link
+      href={href}
+      className={`shrink-0 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm border transition active:scale-95 ${
+        active
+          ? "accent-shine text-white border-transparent shadow-glow"
+          : "bg-surface border-border hover:border-accent/40"
+      }`}
+    >
+      {Icon && <Icon className="w-3.5 h-3.5" />}
+      {label}
+      <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ${active ? "bg-white/20" : "bg-card text-muted"}`}>{count}</span>
+    </Link>
   );
 }

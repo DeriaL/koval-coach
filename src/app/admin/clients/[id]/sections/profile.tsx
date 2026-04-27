@@ -44,7 +44,7 @@ export function ProfileTab({ client }: { client: any }) {
         <Field label="Ціль" name="goal" defaultValue={client.goal ?? ""} />
 
         <div>
-          <label className="label">Тип ведення</label>
+          <label className="label">Формат ведення</label>
           <div className="grid sm:grid-cols-2 gap-2">
             <button type="button" onClick={() => setPlan("ONLINE")}
               className={`p-3 rounded-xl border text-left flex items-center gap-3 transition ${plan === "ONLINE" ? "border-accent bg-accent/10 -translate-y-0.5 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
@@ -54,7 +54,7 @@ export function ProfileTab({ client }: { client: any }) {
             <button type="button" onClick={() => setPlan("FULL")}
               className={`p-3 rounded-xl border text-left flex items-center gap-3 transition ${plan === "FULL" ? "border-accent bg-accent/10 -translate-y-0.5 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${plan === "FULL" ? "accent-shine text-white" : "bg-card text-accent"}`}><Crown className="w-4 h-4" /></div>
-              <div><div className="font-medium text-sm">Повне ведення</div><div className="text-xs text-muted">зал + чат</div></div>
+              <div><div className="font-medium text-sm">Офлайн</div><div className="text-xs text-muted">в залі особисто</div></div>
             </button>
           </div>
         </div>

@@ -186,34 +186,60 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* PRICING / PLANS */}
+      {/* SERVICE / FORMATS */}
       <section id="pricing" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Тарифи</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Обери своє ведення</h2>
-            <p className="text-muted mt-3">Пакетами по 10 тренувань. Без прихованих платежів.</p>
+            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуга</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Один сервіс — два формати</h2>
+            <p className="text-muted mt-3">Однакове ведення і всі можливості. Обираєш лише, як тренуватись: віддалено або зі мною в залі.</p>
           </div>
         </Reveal>
-        <div className="grid md:grid-cols-2 gap-4 md:gap-5">
-          <Reveal delay={0}>
-            <PlanCard
-              icon={Wifi}
-              title="Онлайн ведення"
-              desc="Програма + чат + аналітика. Тренуєшся самостійно."
-              perks={["Персональна програма", "План харчування", "Чат і звіти", "Щоденний check-in", "Аналітика прогресу"]}
-            />
-          </Reveal>
-          <Reveal delay={120}>
-            <PlanCard
-              icon={Crown}
-              title="Повне ведення"
-              desc="Все з онлайну + особисті тренування з тренером."
-              perks={["Особисті тренування", "Корекція техніки", "Пріоритетний чат", "Заплановані сесії", "Все з онлайн ведення"]}
-              featured
-            />
-          </Reveal>
-        </div>
+
+        <Reveal>
+          <div className="card p-6 md:p-10 max-w-3xl mx-auto">
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 rounded-2xl border border-accent2/40 bg-accent2/5 text-center">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-accent2/15 text-accent2 flex items-center justify-center mb-2"><Wifi className="w-5 h-5" /></div>
+                <div className="font-bold">Онлайн</div>
+                <div className="text-xs text-muted mt-1">тренуєшся сам — я веду в кабінеті</div>
+              </div>
+              <div className="p-4 rounded-2xl border border-accent/40 bg-accent/5 text-center">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-accent/15 text-accent flex items-center justify-center mb-2"><Crown className="w-5 h-5" /></div>
+                <div className="font-bold">Офлайн</div>
+                <div className="text-xs text-muted mt-1">тренуєшся зі мною в залі особисто</div>
+              </div>
+            </div>
+
+            <div className="text-center text-sm text-muted mb-4">У кожному форматі ти отримуєш повний доступ:</div>
+            <ul className="grid sm:grid-cols-2 gap-2.5">
+              {[
+                "Персональна програма",
+                "План харчування + БЖУ",
+                "Підбір добавок",
+                "Особистий кабінет 24/7",
+                "Щоденний check-in",
+                "Аналітика прогресу",
+                "Чат і звіти",
+                "Заплановані сесії",
+                "Фото-прогрес",
+                "PR-трекер у залі",
+              ].map(p => (
+                <li key={p} className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-accent shrink-0" /> {p}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 pt-6 border-t border-border text-center">
+              <div className="text-xs uppercase tracking-wider text-muted">Оплата</div>
+              <div className="font-bold mt-1">Пакетами по 10 тренувань · без прихованих платежів</div>
+              <Link href="/login" className="btn btn-primary mt-5 inline-flex">
+                Дізнатись більше <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* TESTIMONIALS */}
@@ -290,28 +316,3 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-function PlanCard({ icon: Icon, title, desc, perks, featured }: any) {
-  return (
-    <div className={`card p-6 md:p-8 h-full relative overflow-hidden ${featured ? "border-accent/50 shadow-glow" : ""} card-hover`}>
-      {featured && (
-        <div className="absolute top-4 right-4 chip text-[10px] border-accent/40 text-accent">⭐ популярний</div>
-      )}
-      {featured && <div aria-hidden className="absolute inset-0 -z-10 opacity-20 bg-gradient-to-br from-accent/30 to-accent2/30" />}
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${featured ? "accent-shine text-white shadow-glow" : "bg-accent/10 text-accent border border-accent/20"}`}>
-        <Icon className="w-6 h-6" />
-      </div>
-      <h3 className="font-black text-2xl">{title}</h3>
-      <p className="text-muted text-sm mt-2">{desc}</p>
-      <ul className="mt-5 space-y-2">
-        {perks.map((p: string) => (
-          <li key={p} className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-accent shrink-0" /> {p}
-          </li>
-        ))}
-      </ul>
-      <Link href="/login" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
-        Дізнатись більше <ArrowRight className="w-4 h-4" />
-      </Link>
-    </div>
-  );
-}

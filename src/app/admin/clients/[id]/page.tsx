@@ -66,7 +66,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
               <div className="text-2xl font-bold flex items-center gap-2 flex-wrap">
                 {client.firstName} {client.lastName}
                 <span className={`chip text-xs ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
-                  {isOnline ? <><Wifi className="w-3 h-3" /> Онлайн ведення</> : <><Crown className="w-3 h-3" /> Повне ведення</>}
+                  {isOnline ? <><Wifi className="w-3 h-3" /> Онлайн</> : <><Crown className="w-3 h-3" /> Офлайн</>}
                 </span>
               </div>
               <div className="flex flex-wrap gap-3 text-sm text-muted mt-1">

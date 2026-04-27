@@ -3,13 +3,13 @@ import { useState, useTransition } from "react";
 import { createClient } from "../actions";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { Loader2, Wifi, Crown, Check } from "lucide-react";
+import { Loader2, Wifi, Crown } from "lucide-react";
 
 export default function NewClientPage() {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
-  const [plan, setPlan] = useState<"ONLINE" | "FULL">("FULL");
+  const [plan, setPlan] = useState<"ONLINE" | "FULL">("ONLINE");
 
   function submit(fd: FormData) {
     fd.set("coachingPlan", plan);
@@ -27,25 +27,24 @@ export default function NewClientPage() {
     <div className="max-w-3xl">
       <PageHeader title="Новий клієнт" subtitle="Заповни основні дані та обери тариф" />
       <form action={submit} className="space-y-4">
-        {/* Plan selector */}
+        {/* Format selector */}
         <div className="card p-5 animate-fade-up">
-          <div className="label mb-3">Тип ведення</div>
+          <div className="label mb-1">Формат ведення</div>
+          <div className="text-xs text-muted mb-3">Послуги однакові — обери лише, як клієнт тренується.</div>
           <div className="grid sm:grid-cols-2 gap-3">
-            <PlanCard
+            <FormatCard
               active={plan === "ONLINE"}
               onClick={() => setPlan("ONLINE")}
               icon={Wifi}
-              title="Онлайн ведення"
-              desc="Програма, чат, перевірка прогресу. Клієнт тренується самостійно."
-              perks={["Програма тренувань", "Харчування", "Чат і звіти", "Check-in"]}
+              title="Онлайн"
+              desc="Тренується самостійно — ведеш у кабінеті."
             />
-            <PlanCard
+            <FormatCard
               active={plan === "FULL"}
               onClick={() => setPlan("FULL")}
               icon={Crown}
-              title="Повне ведення"
-              desc="Все з онлайну + особисті тренування в залі та індивідуальний супровід."
-              perks={["Особисті тренування", "Персональний план", "Корекція техніки", "Пріоритетний чат"]}
+              title="Офлайн"
+              desc="Тренується з тобою в залі особисто."
             />
           </div>
         </div>
@@ -113,37 +112,28 @@ export default function NewClientPage() {
   );
 }
 
-function PlanCard({ active, onClick, icon: Icon, title, desc, perks }: any) {
+function FormatCard({ active, onClick, icon: Icon, title, desc }: any) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`relative text-left p-4 rounded-2xl border transition-all duration-300 overflow-hidden ${
+      className={`relative text-left p-4 rounded-2xl border transition-all duration-300 overflow-hidden flex items-center gap-3 ${
         active
           ? "border-accent bg-accent/10 shadow-glow -translate-y-0.5"
           : "border-border bg-surface hover:border-accent/40 hover:-translate-y-0.5"
       }`}
     >
       {active && <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-accent/10 via-transparent to-accent2/10" />}
-      <div className="relative flex items-start gap-3">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${active ? "accent-shine text-white" : "bg-card border border-border text-accent"}`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold flex items-center gap-2">
-            {title}
-            {active && <span className="chip text-[10px] border-accent/40 text-accent">обрано</span>}
-          </div>
-          <div className="text-xs text-muted mt-1">{desc}</div>
-        </div>
+      <div className={`relative w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${active ? "accent-shine text-white" : "bg-card border border-border text-accent"}`}>
+        <Icon className="w-5 h-5" />
       </div>
-      <ul className="relative mt-3 grid grid-cols-2 gap-1.5">
-        {perks.map((p: string) => (
-          <li key={p} className="text-xs flex items-center gap-1.5 text-text/80">
-            <Check className={`w-3 h-3 ${active ? "text-accent" : "text-muted"}`} /> {p}
-          </li>
-        ))}
-      </ul>
+      <div className="relative flex-1 min-w-0">
+        <div className="font-semibold flex items-center gap-2">
+          {title}
+          {active && <span className="chip text-[10px] border-accent/40 text-accent">обрано</span>}
+        </div>
+        <div className="text-xs text-muted mt-0.5">{desc}</div>
+      </div>
     </button>
   );
 }
