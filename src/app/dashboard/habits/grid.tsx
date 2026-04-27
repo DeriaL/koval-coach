@@ -1,8 +1,11 @@
 "use client";
 import { useState, useTransition } from "react";
-import * as LucideIcons from "lucide-react";
-import { Check, Target } from "lucide-react";
+import { Check, Target, Droplet, Moon, Footprints, Ban, Pill, Apple, Dumbbell, Flame, Sun, Coffee, Book } from "lucide-react";
 import { toggleHabit } from "./actions";
+
+const ICON_MAP: Record<string, any> = {
+  Target, Droplet, Moon, Footprints, Ban, Pill, Apple, Dumbbell, Flame, Sun, Coffee, Book,
+};
 
 type Habit = { id: string; title: string; icon: string; logs: { date: string; done: boolean }[]; doneToday: boolean };
 
@@ -54,7 +57,7 @@ export function HabitGrid({ habits: initial }: { habits: Habit[] }) {
 
       <div className="space-y-3">
         {habits.map((h) => {
-          const Icon = (LucideIcons as any)[h.icon] ?? Target;
+          const Icon = ICON_MAP[h.icon] ?? Target;
           const logSet = new Set(h.logs.filter(l => l.done).map(l => l.date));
           return (
             <div key={h.id} className="card p-4">
