@@ -6,6 +6,7 @@ import { Calendar, AlertTriangle, CheckCircle2, Clock, Sparkles, Dumbbell, Wifi,
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { SessionRowActions } from "./row-actions";
+import { ScheduleButton } from "./schedule-button";
 
 export default async function AdminSessions({ searchParams }: { searchParams: { format?: string; client?: string } }) {
   await requireTrainer();
@@ -46,7 +47,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       orderBy: { date: "desc" },
       take: 50,
     }),
-    prisma.user.findMany({ where: { role: "CLIENT" }, select: { id: true, firstName: true, lastName: true }, orderBy: { firstName: "asc" } }),
+    prisma.user.findMany({ where: { role: "CLIENT" }, select: { id: true, firstName: true, lastName: true, coachingPlan: true }, orderBy: { firstName: "asc" } }),
     prisma.workoutSession.count({
       where: {
         scheduledAt: { gte: todayStart, lt: new Date(todayStart.getTime() + 86400000) },
@@ -65,7 +66,11 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
 
   return (
     <div className="max-w-6xl">
-      <PageHeader title="Тренування" subtitle="Розклад сесій з усіма клієнтами" />
+      <PageHeader
+        title="Тренування"
+        subtitle="Розклад сесій з усіма клієнтами"
+        action={<ScheduleButton clients={allClients} defaultClientId={clientFilter || undefined} />}
+      />
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-5">
@@ -145,7 +150,8 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
             <Calendar className="w-7 h-7" />
           </div>
           <h3 className="font-bold text-lg">Сесій ще немає</h3>
-          <p className="text-muted text-sm mt-1">Заплануй першу — відкрий клієнта, вкладка «Сесії» → «Запланувати».</p>
+          <p className="text-muted text-sm mt-1">Натисни «Запланувати» вгорі — і додай першу сесію.</p>
+          <div className="mt-4 inline-block"><ScheduleButton clients={allClients} /></div>
         </div>
       )}
     </div>

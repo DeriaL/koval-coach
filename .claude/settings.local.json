@@ -67,7 +67,8 @@
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Landing redesign + Reveal animations + mobile polish\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Unify Online/Offline as same service with format filter on admin\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Fix ProgressRing: replace broken RadialBar with accurate SVG circle\")",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Add /admin/sessions: timeline view of all client workouts\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Add /admin/sessions: timeline view of all client workouts\")",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Add 'Запланувати' modal directly on /admin/sessions\")"
     ]
   }
 }
