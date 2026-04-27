@@ -67,18 +67,35 @@ export function BarsChart({ data, color = "#6366f1", dataKey = "v" }: { data: an
 }
 
 export function ProgressRing({ value, max, color, label, size = 120 }: { value: number; max: number; color: string; label: string; size?: number }) {
-  const pct = Math.min(100, (value / max) * 100);
-  const data = [{ name: label, v: pct, fill: color }];
+  const safeMax = max > 0 ? max : 1;
+  const pct = Math.max(0, Math.min(1, value / safeMax));
+  const stroke = Math.max(8, Math.round(size * 0.1));
+  const r = (size - stroke) / 2;
+  const C = 2 * Math.PI * r;
+  const dash = pct * C;
+  const display = value >= 1000 ? `${(value/1000).toFixed(value % 1000 === 0 ? 0 : 1)}k` : String(Math.round(value));
+  const maxDisplay = max >= 1000 ? `${(max/1000).toFixed(max % 1000 === 0 ? 0 : 1)}k` : String(max);
+
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <ResponsiveContainer>
-        <RadialBarChart innerRadius="72%" outerRadius="100%" data={data} startAngle={90} endAngle={-270}>
-          <RadialBar background={{ fill: "#24242c" } as any} dataKey="v" cornerRadius={12} />
-        </RadialBarChart>
-      </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="text-lg font-bold">{Math.round(value)}<span className="text-muted text-xs">/{max}</span></div>
-        <div className="text-[10px] text-muted uppercase tracking-wider">{label}</div>
+      <svg width={size} height={size} className="-rotate-90 overflow-visible">
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke="rgb(var(--border))" strokeWidth={stroke}
+        />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke={color} strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${C}`}
+          style={{ transition: "stroke-dasharray .8s cubic-bezier(.2,.7,.2,1)", filter: `drop-shadow(0 0 6px ${color}66)` }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <div className="text-base md:text-lg font-bold leading-none">
+          {display}<span className="text-muted text-xs font-medium">/{maxDisplay}</span>
+        </div>
+        <div className="text-[9px] md:text-[10px] text-muted uppercase tracking-wider mt-1">{label}</div>
       </div>
     </div>
   );
