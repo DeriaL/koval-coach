@@ -1,5 +1,6 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { scheduleSession } from "../clients/actions";
 import { Plus, X, Save, Loader2, Calendar, User } from "lucide-react";
 
@@ -7,9 +8,19 @@ type Client = { id: string; firstName: string; lastName: string; coachingPlan: s
 
 export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]; defaultClientId?: string }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [pending, start] = useTransition();
   const [clientId, setClientId] = useState(defaultClientId ?? clients[0]?.id ?? "");
   const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
+  }, [open]);
 
   // sensible default datetime (next hour, rounded)
   const def = new Date(Math.ceil(Date.now() / 3600000) * 3600000);
@@ -37,8 +48,8 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
         <Plus className="w-4 h-4" /> Запланувати
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+      {open && mounted && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
           onClick={() => setOpen(false)}>
           <div onClick={(e) => e.stopPropagation()}
             className="card w-full md:max-w-lg p-5 md:p-6 rounded-t-3xl md:rounded-3xl border-accent/30 animate-slide-in-up md:animate-pop max-h-[92vh] overflow-y-auto">
@@ -108,7 +119,8 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
