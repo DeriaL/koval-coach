@@ -10,3 +10,7 @@ out
 .vercel
 
 .vercel
+
+page.html
+cookies.txt
+*.log

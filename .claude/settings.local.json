@@ -60,7 +60,9 @@
       "Bash(rm -f cookies2.txt)",
       "Bash(curl -s -c cookies2.txt https://koval-coach.vercel.app/api/auth/csrf)",
       "Bash(npm i *)",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Perf: Neon HTTP adapter + tree-shake lucide + loading skeletons\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Perf: Neon HTTP adapter + tree-shake lucide + loading skeletons\")",
+      "Bash(git rm *)",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Remove stray test artifacts\")"
     ]
   }
 }
