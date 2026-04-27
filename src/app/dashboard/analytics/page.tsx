@@ -31,12 +31,15 @@ export default async function AnalyticsPage() {
 
   const fmt = (d: Date) => new Date(d).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" });
 
-  // ---- Weight ----
-  const wSeries = checkIns.filter(c => c.weight).map(c => ({ d: c.date, v: c.weight! }));
+  // ---- Weight (merge check-ins + measurements, sort by date) ----
+  const wSeries = [
+    ...checkIns.filter(c => c.weight).map(c => ({ d: c.date, v: c.weight! })),
+    ...measurements.filter(m => m.weight).map(m => ({ d: m.date, v: m.weight! })),
+  ].sort((a, b) => a.d.getTime() - b.d.getTime());
   const wAvg = movingAverage(wSeries, (x) => x.v, 7);
-  const wData = wSeries.map((p, i) => ({ date: fmt(p.d), weight: Number(p.v.toFixed(1)), avg: Number(wAvg[i].toFixed(2)) }));
+  const wData = wSeries.map((p, i) => ({ date: fmt(p.d), weight: Number(p.v.toFixed(1)), avg: Number(wAvg[i].toFixed(1)) }));
 
-  const latestWeight = wSeries.at(-1)?.v ?? measurements.at(-1)?.weight ?? null;
+  const latestWeight = wSeries.at(-1)?.v ?? null;
   const firstWeight = user.startWeight ?? wSeries[0]?.v ?? measurements[0]?.weight ?? null;
   const delta = latestWeight && firstWeight ? latestWeight - firstWeight : 0;
 
@@ -291,10 +294,10 @@ export default async function AnalyticsPage() {
                   <tr key={x.id} className="border-t border-border">
                     <td className="py-2">{x.date.toLocaleDateString("uk-UA")}</td>
                     <td className="text-right">{x.weight?.toFixed(1) ?? "—"}</td>
-                    <td className="text-right">{x.waist ?? "—"}</td>
-                    <td className="text-right">{x.chest ?? "—"}</td>
-                    <td className="text-right">{x.hips ?? "—"}</td>
-                    <td className="text-right">{x.arm ?? "—"}</td>
+                    <td className="text-right">{x.waist?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.chest?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.hips?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.arm?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.bodyFat?.toFixed(1) ?? "—"}</td>
                   </tr>
                 ))}

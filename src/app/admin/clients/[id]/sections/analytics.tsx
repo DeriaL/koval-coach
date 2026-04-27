@@ -78,10 +78,10 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
                 <td className="p-3">{new Date(m.date).toLocaleDateString("uk-UA")}</td>
                 <td className="text-right">{m.weight?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.bodyFat?.toFixed(1) ?? "—"}</td>
-                <td className="text-right">{m.waist ?? "—"}</td>
-                <td className="text-right">{m.chest ?? "—"}</td>
-                <td className="text-right">{m.hips ?? "—"}</td>
-                <td className="text-right">{m.arm ?? "—"}</td>
+                <td className="text-right">{m.waist?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.chest?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.hips?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.arm?.toFixed(1) ?? "—"}</td>
                 <td className="text-right p-3"><div className="flex gap-1 justify-end">
                   <button onClick={() => setEditing(m)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
                   <button onClick={() => del(m.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>

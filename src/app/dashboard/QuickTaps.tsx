@@ -27,7 +27,7 @@ export function QuickTaps({ water, steps }: { water: number; steps: number }) {
             <Droplet className="w-3.5 h-3.5" /> Вода
           </div>
           <div className={`text-lg font-bold transition-transform ${bumpedW ? "scale-125 text-accent" : ""}`}>
-            {water.toFixed(2)} л
+            {water.toFixed(1)} л
           </div>
         </div>
         <div className="grid grid-cols-3 gap-1.5 mt-3">

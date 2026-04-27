@@ -31,7 +31,12 @@ export default async function DashboardHome() {
   });
 
   const streak = calcStreak(checkIns.map(c => c.date));
-  const latestWeight = checkIns.find(c => c.weight)?.weight ?? measurements.at(-1)?.weight;
+  // latest weight across check-ins and measurements
+  const allW = [
+    ...checkIns.filter(c => c.weight).map(c => ({ d: c.date, v: c.weight! })),
+    ...measurements.filter(m => m.weight).map(m => ({ d: m.date, v: m.weight! })),
+  ].sort((a, b) => b.d.getTime() - a.d.getTime());
+  const latestWeight = allW[0]?.v;
   const firstWeight = client?.startWeight ?? measurements[0]?.weight;
   const delta = latestWeight && firstWeight ? latestWeight - firstWeight : 0;
 

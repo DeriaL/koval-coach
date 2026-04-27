@@ -59,8 +59,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   type FeedItem = { id: string; t: Date; type: "session" | "checkin" | "pr"; clientId: string; name: string; text: string };
   const feed: FeedItem[] = [
     ...recentSessions.map(s => ({ id: "s" + s.id, t: s.date, type: "session" as const, clientId: s.clientId, name: `${s.client.firstName} ${s.client.lastName}`, text: `завершив(ла) тренування «${s.title}»` })),
-    ...recentCheckIns.map(c => ({ id: "c" + c.id, t: c.date, type: "checkin" as const, clientId: c.clientId, name: `${c.client.firstName} ${c.client.lastName}`, text: `зробив(ла) check-in${c.weight ? ` · ${c.weight} кг` : ""}` })),
-    ...recentPRs.map(p => ({ id: "p" + p.id, t: p.session.date, type: "pr" as const, clientId: p.session.clientId, name: `${p.session.client.firstName} ${p.session.client.lastName}`, text: `🏆 рекорд: ${p.exerciseName} ${p.weight}×${p.reps}` })),
+    ...recentCheckIns.map(c => ({ id: "c" + c.id, t: c.date, type: "checkin" as const, clientId: c.clientId, name: `${c.client.firstName} ${c.client.lastName}`, text: `зробив(ла) check-in${c.weight ? ` · ${c.weight.toFixed(1)} кг` : ""}` })),
+    ...recentPRs.map(p => ({ id: "p" + p.id, t: p.session.date, type: "pr" as const, clientId: p.session.clientId, name: `${p.session.client.firstName} ${p.session.client.lastName}`, text: `🏆 рекорд: ${p.exerciseName} ${p.weight ? p.weight.toFixed(1) : "?"}×${p.reps}` })),
   ].sort((a, b) => b.t.getTime() - a.t.getTime()).slice(0, 12);
 
   const totalSessions = clients.reduce((a, c) => a + c._count.sessions, 0);
