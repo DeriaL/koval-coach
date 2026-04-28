@@ -4,6 +4,7 @@ import { requireTrainer } from "@/lib/session";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { notifyUser } from "@/lib/telegram";
 
 function toDate(v: any) { return v ? new Date(v) : null; }
 function toNum(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
@@ -289,6 +290,10 @@ export async function scheduleSession(clientId: string, data: { title: string; s
       notes: data.notes || null,
     },
   });
+  if (!alreadyDone) {
+    const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" });
+    notifyUser(clientId, `📅 <b>Тренер запланував тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
+  }
   // If backfilled as done, check milestone
   if (alreadyDone) {
     const total = await prisma.workoutSession.count({
@@ -318,10 +323,11 @@ export async function scheduleSession(clientId: string, data: { title: string; s
 export async function confirmSession(sessionId: string, clientId: string, happened: boolean) {
   await requireTrainer();
   if (happened) {
-    await prisma.workoutSession.update({
+    const s = await prisma.workoutSession.update({
       where: { id: sessionId },
       data: { confirmedByTrainer: true, completed: true },
     });
+    notifyUser(clientId, `✅ <b>Тренер підтвердив тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
     // Check milestone (every 10)
     const total = await prisma.workoutSession.count({
       where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
@@ -338,6 +344,7 @@ export async function confirmSession(sessionId: string, clientId: string, happen
       await prisma.reminder.create({
         data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
       });
+      notifyUser(clientId, `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
     }
   } else {
     await prisma.workoutSession.delete({ where: { id: sessionId } });
@@ -359,15 +366,17 @@ export async function cancelSessionByTrainer(sessionId: string, clientId: string
     where: { id: sessionId },
     data: { cancelledAt: new Date(), cancelledBy: "TRAINER", cancelReason: reason || "Без причини" },
   });
+  const when = s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "";
   await prisma.reminder.create({
     data: {
       clientId,
-      title: `❌ Тренер скасував тренування «${s.title}» на ${s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : ""} — ${reason || "без причини"}`,
+      title: `❌ Тренер скасував тренування «${s.title}» на ${when} — ${reason || "без причини"}`,
       type: "cancel",
       datetime: new Date(),
       done: false,
     },
   });
+  notifyUser(clientId, `❌ <b>Тренер скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}`).catch(()=>{});
   revalidatePath(`/admin/clients/${clientId}`);
   revalidatePath("/admin/sessions");
   revalidatePath("/admin");

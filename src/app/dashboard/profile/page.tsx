@@ -2,6 +2,7 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { User, Mail, Phone, Calendar, Target, Ruler, Scale, StickyNote } from "lucide-react";
+import { TelegramConnect } from "@/components/TelegramConnect";
 
 export default async function ProfilePage() {
   const u = await requireClient();
@@ -36,7 +37,11 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-3 mt-6">
+      <div className="mt-6">
+        <TelegramConnect initialLinked={!!user.telegramChatId} initialUsername={user.telegramUsername} />
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-3 mt-4">
         {row(Mail, "Email", user.email)}
         {row(Phone, "Телефон", user.phone)}
         {row(Calendar, "День народження", user.birthday?.toLocaleDateString("uk-UA"))}

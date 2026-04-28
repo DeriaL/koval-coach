@@ -24,6 +24,9 @@ model User {
   notes     String?
   coachingPlan String @default("FULL")   // ONLINE | FULL
   pricePer10 Float?                       // ціна за 10 тренувань (пакет)
+  telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
+  telegramUsername String?
+  telegramLinkCode String?  @unique       // тимчасовий код для прив'язки бота
   createdAt DateTime @default(now())
 
   nutritionPlans NutritionPlan[]
