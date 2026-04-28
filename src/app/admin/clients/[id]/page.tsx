@@ -57,40 +57,47 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         const isOnline = client.coachingPlan === "ONLINE";
         const toNext = 10 - (sessions % 10);
         return (
-          <div className="card p-6 flex flex-wrap items-center gap-5 relative overflow-hidden">
+          <div className="card p-4 md:p-6 relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-br from-accent/20 via-transparent to-accent2/20" />
-            <div className="relative w-20 h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-3xl font-black">
-              {client.firstName[0]}{client.lastName[0]}
-            </div>
-            <div className="relative flex-1 min-w-0">
-              <div className="text-2xl font-bold flex items-center gap-2 flex-wrap">
-                {client.firstName} {client.lastName}
-                <span className={`chip text-xs ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
-                  {isOnline ? <><Wifi className="w-3 h-3" /> Онлайн</> : <><Crown className="w-3 h-3" /> Офлайн</>}
-                </span>
+
+            <div className="relative flex items-start gap-3 md:gap-5">
+              <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-xl md:text-3xl font-black shrink-0">
+                {client.firstName[0]}{client.lastName[0]}
               </div>
-              <div className="flex flex-wrap gap-3 text-sm text-muted mt-1">
-                <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> {client.email}</span>
-                {client.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {client.phone}</span>}
-                {client.goal && <span className="flex items-center gap-1"><Target className="w-3.5 h-3.5" /> {client.goal}</span>}
+              <div className="min-w-0 flex-1">
+                <div className="text-lg md:text-2xl font-bold leading-tight">
+                  {client.firstName} {client.lastName}
+                </div>
+                <div className="mt-1.5">
+                  <span className={`chip text-[10px] md:text-xs ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
+                    {isOnline ? <><Wifi className="w-3 h-3" /> Онлайн</> : <><Crown className="w-3 h-3" /> Офлайн</>}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1 text-xs md:text-sm text-muted mt-2">
+                  <span className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{client.email}</span></span>
+                  {client.phone && <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {client.phone}</span>}
+                  {client.goal && <span className="flex items-start gap-1.5"><Target className="w-3.5 h-3.5 shrink-0 mt-0.5" /> <span className="line-clamp-2">{client.goal}</span></span>}
+                </div>
               </div>
             </div>
-            <div className="relative flex gap-3">
-              <div className="p-3 rounded-xl bg-surface border border-border min-w-[90px]">
+
+            {/* Stats — full width row on mobile, side-by-side on desktop */}
+            <div className="relative grid grid-cols-2 gap-2 md:gap-3 mt-4 md:mt-3 md:absolute md:top-6 md:right-6 md:w-auto md:flex">
+              <div className="p-2.5 md:p-3 rounded-xl bg-surface border border-border md:min-w-[90px]">
                 <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Dumbbell className="w-3 h-3" /> Тренувань</div>
-                <div className="text-xl font-black">{sessions}</div>
+                <div className="text-lg md:text-xl font-black">{sessions}</div>
                 <div className="text-[10px] text-muted">до оплати: {toNext}</div>
               </div>
               {pendingPay ? (
-                <div className="p-3 rounded-xl bg-accent2/10 border border-accent2/40 min-w-[90px] animate-pulse-ring">
+                <div className="p-2.5 md:p-3 rounded-xl bg-accent2/10 border border-accent2/40 md:min-w-[90px] animate-pulse-ring">
                   <div className="text-[10px] uppercase text-accent2 flex items-center gap-1"><Wallet className="w-3 h-3" /> Оплата</div>
-                  <div className="text-xl font-black text-accent2">{pendingPay.amount} ₴</div>
+                  <div className="text-lg md:text-xl font-black text-accent2">{pendingPay.amount} ₴</div>
                   <div className="text-[10px] text-muted">очікує</div>
                 </div>
               ) : client.pricePer10 ? (
-                <div className="p-3 rounded-xl bg-surface border border-border min-w-[90px]">
+                <div className="p-2.5 md:p-3 rounded-xl bg-surface border border-border md:min-w-[90px]">
                   <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Wallet className="w-3 h-3" /> Пакет</div>
-                  <div className="text-xl font-black">{client.pricePer10} ₴</div>
+                  <div className="text-lg md:text-xl font-black">{client.pricePer10} ₴</div>
                   <div className="text-[10px] text-muted">за 10 трен.</div>
                 </div>
               ) : null}
