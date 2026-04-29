@@ -190,7 +190,7 @@ function QuickAction({ href, icon: Icon, title, accent, done }: any) {
 function KPI({ icon: Icon, label, value, sub }: any) {
   return (
     <div className="card p-4">
-      <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider"><Icon className="w-3.5 h-3.5" /> {label}</div>
+      <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider"><Icon className="w-5 h-5 text-accent" /> {label}</div>
       <div className="text-xl md:text-2xl font-bold mt-1">{value}</div>
       {sub && <div className="text-xs text-muted mt-0.5">{sub}</div>}
     </div>

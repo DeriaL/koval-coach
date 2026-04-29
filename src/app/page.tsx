@@ -16,12 +16,12 @@ export default async function Home() {
   }
 
   const features = [
-    { icon: Apple, title: "Харчування", text: "Повний план з калоріями та БЖУ, нотатки тренера." },
-    { icon: Dumbbell, title: "Тренування", text: "Програма, сплит, техніка — завжди під рукою." },
-    { icon: Pill, title: "Добавки", text: "Що, коли і скільки — без плутанини." },
-    { icon: LineChart, title: "Аналітика", text: "Вага, заміри, % жиру — графіки динаміки." },
+    { icon: Apple, title: "Харчування", text: "Персональний план харчування під індивідуальні цілі клієнта, нотатки тренера." },
+    { icon: Dumbbell, title: "Тренування", text: "Програма, спліт, техніка, завжди під рукою." },
+    { icon: Pill, title: "Добавки", text: "Що, коли і скільки. Без плутанини." },
+    { icon: LineChart, title: "Аналітика", text: "Вага, заміри, % жиру. Графіки динаміки." },
     { icon: Camera, title: "Фото-прогрес", text: "Таймлайн до/після зі слайдером порівняння." },
-    { icon: Flame, title: "Щоденний check-in", text: "Сон, енергія, настрій — тренер бачить все." },
+    { icon: Flame, title: "Щоденний check-in", text: "Сон, енергія, настрій. Тренер бачить все." },
     { icon: Trophy, title: "Досягнення", text: "Streak, віхи ваги, ачівки для мотивації." },
     { icon: MessageCircle, title: "Чат з тренером", text: "Пряме спілкування в особистому кабінеті." },
     { icon: Wallet, title: "Оплати", text: "Історія платежів і статус підписки." },
@@ -30,13 +30,13 @@ export default async function Home() {
   const steps = [
     { n: 1, title: "Знайомство", text: "Розповідаєш про себе, цілі та обмеження. Тренер обирає тариф під тебе." },
     { n: 2, title: "План під ключ", text: "Отримуєш програму, харчування, добавки і доступ до особистого кабінету." },
-    { n: 3, title: "Прогрес щодня", text: "Щодня — check-in, тренування, прогрес. Тренер усе бачить і коригує." },
+    { n: 3, title: "Прогрес щодня", text: "Щодня check-in, тренування, прогрес. Тренер усе бачить і коригує." },
   ];
 
   const testimonials = [
-    { name: "Олег", role: "схуднув 12 кг за 4 міс.", text: "Реально працює. Аналітика мотивує — бачу, що щодня роблю крок до цілі.", rating: 5 },
-    { name: "Ірина", role: "набір маси", text: "Подобається, що все в одному місці. Тренер бачить, де я халтурю — нікуди не сховаєшся 😅", rating: 5 },
-    { name: "Денис", role: "пауерліфтинг", text: "PR-трекер і таймери у залі — найзручніше що пробував. Ще й на телефоні швидко.", rating: 5 },
+    { name: "Олег", role: "схуднув 12 кг за 4 міс.", text: "Реально працює. Аналітика мотивує, бачу, що щодня роблю крок до цілі.", rating: 5 },
+    { name: "Ірина", role: "рекомпозиція", text: "Подобається, що все в одному місці. Тренер бачить, де я халтурю, нікуди не сховаєшся 😅", rating: 5 },
+    { name: "Денис", role: "бодібілдинг", text: "PR-трекер і таймери у залі — найзручніше що пробував. Ще й на телефоні швидко.", rating: 5 },
   ];
 
   return (
@@ -82,13 +82,12 @@ export default async function Home() {
               <Reveal delay={80}>
                 <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05]">
                   <span className="block">Твій шлях.</span>
-                  <span className="block text-gradient">Твої результати.</span>
+                  <span className="block text-gradient">Твої результати!</span>
                 </h1>
               </Reveal>
               <Reveal delay={160}>
                 <p className="text-muted mt-5 md:mt-6 max-w-xl text-base md:text-lg">
-                  Кабінет клієнта з усім, що потрібно — харчування, тренування,
-                  добавки, прогрес та живий контроль тренера.
+                  Кабінет клієнта з усім, що потрібно: персональний раціон харчування, індивідуальний план тренувань, супровід з аналізами крові та добавками для корекції дефіцитів організму, прогрес та живий контроль тренера.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -129,7 +128,7 @@ export default async function Home() {
                   <Trophy className="w-3 h-3 text-accent2" /> Сертифікований
                 </div>
                 <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 chip bg-card/95 backdrop-blur shadow-glow text-xs animate-fade-up" style={{ animationDelay: "600ms" }}>
-                  <Flame className="w-3 h-3 text-accent" /> Онлайн та офлайн ведення
+                  <Flame className="w-3 h-3 text-accent" /> Онлайн та офлайн супровід
                 </div>
               </div>
             </Reveal>
@@ -191,53 +190,47 @@ export default async function Home() {
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
             <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуга</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Один сервіс — два формати</h2>
-            <p className="text-muted mt-3">Однакове ведення і всі можливості. Обираєш лише, як тренуватись: віддалено або зі мною в залі.</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Два формати супроводу</h2>
+            <p className="text-muted mt-3">Обери формат, який підходить твоєму ритму життя.</p>
           </div>
         </Reveal>
 
-        <Reveal>
-          <div className="card p-6 md:p-10 max-w-3xl mx-auto">
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
-              <div className="p-4 rounded-2xl border border-accent2/40 bg-accent2/5 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-accent2/15 text-accent2 flex items-center justify-center mb-2"><Wifi className="w-5 h-5" /></div>
-                <div className="font-bold">Онлайн</div>
-                <div className="text-xs text-muted mt-1">тренуєшся сам — я веду в кабінеті</div>
-              </div>
-              <div className="p-4 rounded-2xl border border-accent/40 bg-accent/5 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-accent/15 text-accent flex items-center justify-center mb-2"><Crown className="w-5 h-5" /></div>
-                <div className="font-bold">Офлайн</div>
-                <div className="text-xs text-muted mt-1">тренуєшся зі мною в залі особисто</div>
-              </div>
-            </div>
-
-            <div className="text-center text-sm text-muted mb-4">У кожному форматі ти отримуєш повний доступ:</div>
-            <ul className="grid sm:grid-cols-2 gap-2.5">
-              {[
-                "Персональна програма",
-                "План харчування + БЖУ",
+        <div className="grid md:grid-cols-2 gap-4 md:gap-5">
+          <Reveal delay={0}>
+            <PlanCard
+              icon={Wifi}
+              title="Онлайн"
+              tag="тренуєшся сам, я веду в кабінеті"
+              perks={[
+                "Персональна програма тренувань та харчування",
+                "Моніторинг аналізів",
                 "Підбір добавок",
-                "Особистий кабінет 24/7",
                 "Щоденний check-in",
-                "Аналітика прогресу",
                 "Чат і звіти",
-                "Заплановані сесії",
                 "Фото-прогрес",
+              ]}
+            />
+          </Reveal>
+          <Reveal delay={120}>
+            <PlanCard
+              icon={Crown}
+              title="Офлайн"
+              tag="тренуєшся зі мною в залі особисто!"
+              perks={[
+                "Персональний план харчування",
+                "Особистий кабінет 24/7",
+                "Аналітика прогресу",
+                "Заплановані сесії",
                 "PR-трекер у залі",
-              ].map(p => (
-                <li key={p} className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-accent shrink-0" /> {p}
-                </li>
-              ))}
-            </ul>
+              ]}
+              featured
+            />
+          </Reveal>
+        </div>
 
-            <div className="mt-6 pt-6 border-t border-border text-center">
-              <div className="text-xs uppercase tracking-wider text-muted">Оплата</div>
-              <div className="font-bold mt-1">Пакетами по 10 тренувань · без прихованих платежів</div>
-              <Link href="/login" className="btn btn-primary mt-5 inline-flex">
-                Дізнатись більше <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+        <Reveal delay={200}>
+          <div className="text-center mt-8 text-sm text-muted">
+            Оплата пакетами по 10 тренувань. Без прихованих платежів.
           </div>
         </Reveal>
       </section>
@@ -281,7 +274,7 @@ export default async function Home() {
             <div aria-hidden className="absolute inset-0 -z-10 opacity-50 bg-gradient-to-br from-accent/30 via-transparent to-accent2/30 animate-gradient-spin" />
             <div aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-40 blur-3xl bg-accent/40" />
             <h2 className="text-3xl md:text-5xl font-black tracking-tight">Готовий почати?</h2>
-            <p className="text-muted mt-3 max-w-lg mx-auto">Доступ до кабінету видає тренер. Зв'яжись — і вже завтра у тебе буде особистий план.</p>
+            <p className="text-muted mt-3 max-w-lg mx-auto">Доступ до кабінету видає тренер. Зв'яжись, і вже завтра у тебе буде особистий план.</p>
             <Link href="/login" className="btn btn-primary px-6 py-3 mt-6 inline-flex group">
               Увійти в кабінет <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -312,6 +305,32 @@ function Stat({ value, label }: { value: string; label: string }) {
     <div className="card p-3 text-center card-hover">
       <div className="text-xl md:text-2xl font-black text-gradient">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-muted mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function PlanCard({ icon: Icon, title, tag, perks, featured }: any) {
+  return (
+    <div className={`card p-6 md:p-8 h-full relative overflow-hidden ${featured ? "border-accent/50 shadow-glow" : ""} card-hover`}>
+      {featured && (
+        <div className="absolute top-4 right-4 chip text-[10px] border-accent/40 text-accent">⭐ популярний</div>
+      )}
+      {featured && <div aria-hidden className="absolute inset-0 -z-10 opacity-20 bg-gradient-to-br from-accent/30 to-accent2/30" />}
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${featured ? "accent-shine text-white shadow-glow" : "bg-accent/10 text-accent border border-accent/20"}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <h3 className="font-black text-2xl">{title}</h3>
+      <p className="text-muted text-sm mt-1">{tag}</p>
+      <ul className="mt-5 space-y-2.5">
+        {perks.map((p: string) => (
+          <li key={p} className="flex items-start gap-2 text-sm">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" /> <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+      <Link href="/login" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
+        Дізнатись більше <ArrowRight className="w-4 h-4" />
+      </Link>
     </div>
   );
 }

@@ -4,7 +4,16 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 mb-6 animate-fade-down">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gradient">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          {(() => {
+            const s = String(title);
+            const parts = s.split(/(\p{Extended_Pictographic}+)/gu).filter(Boolean);
+            const isEmoji = (p: string) => /^\p{Extended_Pictographic}+$/u.test(p);
+            return parts.map((p, i) => isEmoji(p)
+              ? <span key={i}>{p}</span>
+              : <span key={i} className="text-gradient">{p}</span>);
+          })()}
+        </h1>
         {subtitle && <p className="text-muted mt-1 text-sm md:text-base">{subtitle}</p>}
       </div>
       {action}
