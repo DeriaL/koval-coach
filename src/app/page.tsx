@@ -48,7 +48,7 @@ export default async function Home() {
             <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition">
               <Dumbbell className="w-5 h-5" />
             </div>
-            Koval<span className="text-gradient">fit</span>
+            <span>Koval<span className="text-gradient">fit</span></span>
           </Link>
           <div className="flex items-center gap-2">
             <a href="#pricing" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Тарифи</a>
@@ -289,7 +289,7 @@ export default async function Home() {
             <div className="w-7 h-7 rounded-lg accent-shine flex items-center justify-center text-white">
               <Dumbbell className="w-4 h-4" />
             </div>
-            Koval<span className="text-gradient">fit</span>
+            <span>Koval<span className="text-gradient">fit</span></span>
           </div>
           <div className="text-muted text-xs text-center">
             © {new Date().getFullYear()} Kovalfit · Усі права захищено
