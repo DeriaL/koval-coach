@@ -34,6 +34,12 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
   const [err, setErr] = useState<string | null>(null);
   const today = new Date().toISOString().slice(0, 10);
 
+  // Used categories from existing entries (latest first)
+  const usedIncomeCats = Array.from(new Set(entries.filter(e => e.type === "income" && e.category).map(e => e.category!)));
+  const usedExpenseCats = Array.from(new Set(entries.filter(e => e.type === "expense" && e.category).map(e => e.category!)));
+  const incomeSuggestions = Array.from(new Set([...usedIncomeCats, ...INCOME_CATEGORIES]));
+  const expenseSuggestions = Array.from(new Set([...usedExpenseCats, ...EXPENSE_CATEGORIES]));
+
   function submit(fd: FormData) {
     setErr(null);
     const data: any = {
@@ -129,10 +135,19 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
             </div>
             <div>
               <label className="label">Категорія</label>
-              <select name="category" className="select">
-                <option value="">—</option>
-                {(adding === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <input
+                name="category"
+                list={`cats-${adding}`}
+                className="input"
+                placeholder="Обери або введи свою"
+                autoComplete="off"
+              />
+              <datalist id={`cats-${adding}`}>
+                {(adding === "income" ? incomeSuggestions : expenseSuggestions).map(c =>
+                  <option key={c} value={c} />
+                )}
+              </datalist>
+              <div className="text-[10px] text-muted mt-1">↓ кліч стрілкою або просто пиши свою</div>
             </div>
           </div>
           <div>
