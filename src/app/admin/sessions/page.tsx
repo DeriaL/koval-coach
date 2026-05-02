@@ -9,6 +9,7 @@ import { SessionRowActions } from "./row-actions";
 import { ScheduleButton } from "./schedule-button";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { CalendarPlus, Download } from "lucide-react";
+import { SessionsCalendar } from "./calendar";
 
 export default async function AdminSessions({ searchParams }: { searchParams: { format?: string; client?: string } }) {
   await requireTrainer();
@@ -22,7 +23,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   const planWhere = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
   const clientWhere = { role: "CLIENT", ...planWhere, ...(clientFilter ? { id: clientFilter } : {}) };
 
-  const [awaiting, upcoming, completed, cancelled, allClients, todaySessions] = await Promise.all([
+  const [awaiting, upcoming, completed, cancelled, allClients, todaySessions, calSessions] = await Promise.all([
     prisma.workoutSession.findMany({
       where: {
         scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null,
@@ -62,6 +63,17 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         scheduledAt: { gte: todayStart, lt: new Date(todayStart.getTime() + 86400000) },
         client: { role: "CLIENT" },
       },
+    }),
+    prisma.workoutSession.findMany({
+      where: {
+        OR: [
+          { scheduledAt: { gte: new Date(now.getTime() - 60 * 86400000), lte: new Date(now.getTime() + 60 * 86400000) } },
+          { date: { gte: new Date(now.getTime() - 60 * 86400000), lte: new Date(now.getTime() + 60 * 86400000) } },
+        ],
+        client: clientWhere as any,
+      },
+      include: { client: { select: { firstName: true, lastName: true, coachingPlan: true } } },
+      orderBy: { date: "asc" },
     }),
   ]);
 
@@ -114,6 +126,20 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
           </form>
         </div>
       </div>
+
+      {/* CALENDAR */}
+      <SessionsCalendar sessions={calSessions.map(s => ({
+        id: s.id,
+        title: s.title,
+        date: s.date.toISOString(),
+        scheduledAt: s.scheduledAt ? s.scheduledAt.toISOString() : null,
+        completed: s.completed,
+        confirmedByTrainer: s.confirmedByTrainer,
+        cancelledAt: s.cancelledAt ? s.cancelledAt.toISOString() : null,
+        cancelledBy: s.cancelledBy,
+        durationSec: s.durationSec,
+        client: { firstName: s.client.firstName, lastName: s.client.lastName, coachingPlan: s.client.coachingPlan },
+      }))} />
 
       {/* AWAITING */}
       {awaiting.length > 0 && (
