@@ -84,7 +84,7 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
       <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition-transform duration-300">
         <Dumbbell className="w-5 h-5" />
       </div>
-      K<span className="text-gradient">Coach</span>
+      Koval<span className="text-gradient">fit</span>
     </Link>
   );
 

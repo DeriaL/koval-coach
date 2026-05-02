@@ -1,6 +1,6 @@
 {
-  "name": "KCoach",
-  "short_name": "KCoach",
+  "name": "Kovalfit",
+  "short_name": "Kovalfit",
   "description": "Кабінет клієнта: тренування, прогрес, аналітика",
   "start_url": "/dashboard",
   "display": "standalone",

@@ -34,7 +34,7 @@ export default function LoginPage() {
           <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white">
             <Dumbbell className="w-5 h-5" />
           </div>
-          K<span className="text-gradient">Coach</span>
+          Koval<span className="text-gradient">fit</span>
         </Link>
 
         <div className="card p-8">
