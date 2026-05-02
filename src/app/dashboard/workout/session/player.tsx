@@ -126,7 +126,7 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
                 <h2 className="text-2xl font-black text-gradient">🎉 {celebrate.count} тренувань!</h2>
                 <p className="text-muted text-sm mt-2">
                   Круто! Ти пройшов черговий пакет із 10 тренувань.
-                  {celebrate.amount ? ` Автоматично сформовано рахунок на ${celebrate.amount} ₴.` : " Тренер додасть рахунок."}
+                  {celebrate.amount ? ` Автоматично сформовано рахунок на ${celebrate.amount} ₴.` : " Я додам рахунок."}
                 </p>
                 <div className="mt-4 p-3 rounded-xl bg-accent/10 border border-accent/30 text-sm flex items-center gap-2 justify-center">
                   <Wallet className="w-4 h-4 text-accent" /> Перевір вкладку «Оплати»

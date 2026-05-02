@@ -17,7 +17,7 @@ export default async function CheckInPage() {
 
   return (
     <div>
-      <PageHeader title="Щоденний check-in" subtitle="30 секунд — і тренер у курсі" />
+      <PageHeader title="Щоденний check-in" subtitle="30 секунд, і я в курсі" />
 
       <div className="card p-6">
         {existing ? (

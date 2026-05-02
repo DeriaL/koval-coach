@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Koval Coach — Персональні тренування",
-  description: "Платформа тренера: харчування, тренування, прогрес, аналітика.",
+  title: "KCoach — Персональні тренування",
+  description: "Кабінет клієнта: харчування, тренування, прогрес, аналітика.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Koval" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "KCoach" },
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
 };
 

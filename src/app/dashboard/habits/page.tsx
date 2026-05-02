@@ -16,7 +16,7 @@ export default async function HabitsPage() {
     return (
       <div>
         <PageHeader title="Звички" />
-        <EmptyState icon={Target} title="Звичок ще немає" text="Тренер додасть щоденні цілі — і вони зʼявляться тут" />
+        <EmptyState icon={Target} title="Звичок ще немає" text="Я додам щоденні цілі, і вони зʼявляться тут" />
       </div>
     );
 

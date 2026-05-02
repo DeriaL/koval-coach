@@ -12,7 +12,7 @@ export default async function PhotosPage() {
     return (
       <div>
         <PageHeader title="Фото-прогрес" />
-        <EmptyState icon={Camera} title="Фото ще не додано" text="Тренер завантажить фото після першої сесії" />
+        <EmptyState icon={Camera} title="Фото ще не додано" text="Я завантажу фото після першої сесії" />
       </div>
     );
 

@@ -12,7 +12,7 @@ export default async function AchievementsPage() {
     return (
       <div>
         <PageHeader title="Досягнення" />
-        <EmptyState icon={Trophy} title="Попереду перші ачівки!" text="Вони зʼявляться автоматично або від тренера" />
+        <EmptyState icon={Trophy} title="Попереду перші ачівки!" text="Зʼявляться автоматично або від мене" />
       </div>
     );
 

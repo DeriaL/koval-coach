@@ -32,7 +32,7 @@ export function googleCalendarUrl(s: Sess): string {
   const details = [
     s.notes ? `Нотатка: ${s.notes}` : null,
     s.client ? `Клієнт: ${s.client.firstName} ${s.client.lastName}` : null,
-    "Створено через Koval Coach",
+    "Створено через KCoach",
   ].filter(Boolean).join("\n");
   const params = new URLSearchParams({
     action: "TEMPLATE",
@@ -44,7 +44,7 @@ export function googleCalendarUrl(s: Sess): string {
 }
 
 /** Generate ICS text for one or more sessions */
-export function buildICS(sessions: Sess[], calName = "Koval Coach"): string {
+export function buildICS(sessions: Sess[], calName = "KCoach"): string {
   const now = toICSDate(new Date());
   const events = sessions.map((s) => {
     const { start, end } = startEnd(s);
@@ -52,7 +52,7 @@ export function buildICS(sessions: Sess[], calName = "Koval Coach"): string {
     const desc = [
       s.notes ? `Нотатка: ${s.notes}` : null,
       s.client ? `Клієнт: ${s.client.firstName} ${s.client.lastName}` : null,
-      "Створено через Koval Coach",
+      "Створено через KCoach",
     ].filter(Boolean).join("\\n");
     return [
       "BEGIN:VEVENT",
@@ -69,7 +69,7 @@ export function buildICS(sessions: Sess[], calName = "Koval Coach"): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    `PRODID:-//Koval Coach//${calName}//UK`,
+    `PRODID:-//KCoach//${calName}//UK`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeICS(calName)}`,

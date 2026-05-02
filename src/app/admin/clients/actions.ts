@@ -292,7 +292,7 @@ export async function scheduleSession(clientId: string, data: { title: string; s
   });
   if (!alreadyDone) {
     const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" });
-    notifyUser(clientId, `📅 <b>Тренер запланував тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
+    notifyUser(clientId, `📅 <b>Я запланував для тебе тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
   }
   // If backfilled as done, check milestone
   if (alreadyDone) {
@@ -327,7 +327,7 @@ export async function confirmSession(sessionId: string, clientId: string, happen
       where: { id: sessionId },
       data: { confirmedByTrainer: true, completed: true },
     });
-    notifyUser(clientId, `✅ <b>Тренер підтвердив тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
+    notifyUser(clientId, `✅ <b>Я підтвердив твоє тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
     // Check milestone (every 10)
     const total = await prisma.workoutSession.count({
       where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
@@ -370,13 +370,13 @@ export async function cancelSessionByTrainer(sessionId: string, clientId: string
   await prisma.reminder.create({
     data: {
       clientId,
-      title: `❌ Тренер скасував тренування «${s.title}» на ${when} — ${reason || "без причини"}`,
+      title: `❌ Я скасував тренування «${s.title}» на ${when} — ${reason || "без причини"}`,
       type: "cancel",
       datetime: new Date(),
       done: false,
     },
   });
-  notifyUser(clientId, `❌ <b>Тренер скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}`).catch(()=>{});
+  notifyUser(clientId, `❌ <b>Я скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}`).catch(()=>{});
   revalidatePath(`/admin/clients/${clientId}`);
   revalidatePath("/admin/sessions");
   revalidatePath("/admin");

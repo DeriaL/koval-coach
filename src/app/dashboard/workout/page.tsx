@@ -50,7 +50,7 @@ export default async function WorkoutHome() {
           </div>
           <div className="space-y-2">
             {upcoming.map((s) => {
-              const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(s.title)}&dates=${formatGCalDate(new Date(s.scheduledAt!))}/${formatGCalDate(new Date(new Date(s.scheduledAt!).getTime() + 60*60*1000))}&details=${encodeURIComponent(s.notes ?? "Тренування з тренером")}`;
+              const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(s.title)}&dates=${formatGCalDate(new Date(s.scheduledAt!))}/${formatGCalDate(new Date(new Date(s.scheduledAt!).getTime() + 60*60*1000))}&details=${encodeURIComponent(s.notes ?? "Тренування зі мною")}`;
               return (
                 <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border gap-2">
                   <div className="min-w-0 flex-1">
@@ -72,7 +72,7 @@ export default async function WorkoutHome() {
       )}
 
       {!plan || plan.exercises.length === 0 ? (
-        <EmptyState icon={Dumbbell} title="Ще немає структурованої програми" text="Попроси тренера додати вправи — після цього тут з’явиться «в залі» режим з таймерами." />
+        <EmptyState icon={Dumbbell} title="Ще немає структурованої програми" text="Я додам вправи незабаром, потім тут зʼявиться режим «в залі» з таймерами." />
       ) : (
         <div className="grid md:grid-cols-2 gap-3 md:gap-4">
           {Object.entries(days).map(([day, exs]) => (

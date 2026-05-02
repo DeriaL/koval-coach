@@ -8,7 +8,7 @@ export default async function ChatPage() {
   const messages = await prisma.message.findMany({ where: { clientId: u.id }, orderBy: { createdAt: "asc" } });
   return (
     <div>
-      <PageHeader title="Чат з тренером" subtitle="Пиши, якщо щось незрозуміло" />
+      <PageHeader title="Прямий чат" subtitle="Пиши мені, якщо щось незрозуміло" />
       <ChatThread clientId={u.id} meRole="CLIENT" initial={messages.map(m => ({ ...m, createdAt: m.createdAt.toISOString() }))} />
     </div>
   );

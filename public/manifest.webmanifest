@@ -1,7 +1,7 @@
 {
-  "name": "Koval Coach",
-  "short_name": "Koval",
-  "description": "Платформа тренера: тренування, прогрес, аналітика",
+  "name": "KCoach",
+  "short_name": "KCoach",
+  "description": "Кабінет клієнта: тренування, прогрес, аналітика",
   "start_url": "/dashboard",
   "display": "standalone",
   "orientation": "portrait",

@@ -16,21 +16,21 @@ export default async function Home() {
   }
 
   const features = [
-    { icon: Apple, title: "Харчування", text: "Персональний план харчування під індивідуальні цілі клієнта, нотатки тренера." },
+    { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
     { icon: Dumbbell, title: "Тренування", text: "Програма, спліт, техніка, завжди під рукою." },
     { icon: Pill, title: "Добавки", text: "Що, коли і скільки. Без плутанини." },
     { icon: LineChart, title: "Аналітика", text: "Вага, заміри, % жиру. Графіки динаміки." },
     { icon: Camera, title: "Фото-прогрес", text: "Таймлайн до/після зі слайдером порівняння." },
-    { icon: Flame, title: "Щоденний check-in", text: "Сон, енергія, настрій. Тренер бачить все." },
+    { icon: Flame, title: "Щоденний check-in", text: "Сон, енергія, настрій. Я бачу все." },
     { icon: Trophy, title: "Досягнення", text: "Streak, віхи ваги, ачівки для мотивації." },
-    { icon: MessageCircle, title: "Чат з тренером", text: "Пряме спілкування в особистому кабінеті." },
+    { icon: MessageCircle, title: "Прямий чат", text: "Пиши мені напряму у кабінеті." },
     { icon: Wallet, title: "Оплати", text: "Історія платежів і статус підписки." },
   ];
 
   const steps = [
-    { n: 1, title: "Знайомство", text: "Розповідаєш про себе, цілі та обмеження. Тренер обирає тариф під тебе." },
+    { n: 1, title: "Знайомство", text: "Розповідаєш про себе, цілі та обмеження. Я підбираю формат під тебе." },
     { n: 2, title: "План під ключ", text: "Отримуєш програму, харчування, добавки і доступ до особистого кабінету." },
-    { n: 3, title: "Прогрес щодня", text: "Щодня check-in, тренування, прогрес. Тренер усе бачить і коригує." },
+    { n: 3, title: "Прогрес щодня", text: "Щодня check-in, тренування, прогрес. Я все бачу і коригую." },
   ];
 
   const testimonials = [
@@ -48,7 +48,7 @@ export default async function Home() {
             <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition">
               <Dumbbell className="w-5 h-5" />
             </div>
-            KOVAL<span className="text-gradient">.coach</span>
+            K<span className="text-gradient">Coach</span>
           </Link>
           <div className="flex items-center gap-2">
             <a href="#pricing" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Тарифи</a>
@@ -87,7 +87,7 @@ export default async function Home() {
               </Reveal>
               <Reveal delay={160}>
                 <p className="text-muted mt-5 md:mt-6 max-w-xl text-base md:text-lg">
-                  Кабінет клієнта з усім, що потрібно: персональний раціон харчування, індивідуальний план тренувань, супровід з аналізами крові та добавками для корекції дефіцитів організму, прогрес та живий контроль тренера.
+                  Твій кабінет з усім, що потрібно: персональний раціон харчування, індивідуальний план тренувань, супровід з аналізами крові та добавками для корекції дефіцитів організму, прогрес і мій живий контроль.
                 </p>
               </Reveal>
               <Reveal delay={240}>
@@ -274,7 +274,7 @@ export default async function Home() {
             <div aria-hidden className="absolute inset-0 -z-10 opacity-50 bg-gradient-to-br from-accent/30 via-transparent to-accent2/30 animate-gradient-spin" />
             <div aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-40 blur-3xl bg-accent/40" />
             <h2 className="text-3xl md:text-5xl font-black tracking-tight">Готовий почати?</h2>
-            <p className="text-muted mt-3 max-w-lg mx-auto">Доступ до кабінету видає тренер. Зв'яжись, і вже завтра у тебе буде особистий план.</p>
+            <p className="text-muted mt-3 max-w-lg mx-auto">Напиши мені, і вже завтра у тебе буде особистий план та доступ до кабінету.</p>
             <Link href="/login" className="btn btn-primary px-6 py-3 mt-6 inline-flex group">
               Увійти в кабінет <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -289,10 +289,10 @@ export default async function Home() {
             <div className="w-7 h-7 rounded-lg accent-shine flex items-center justify-center text-white">
               <Dumbbell className="w-4 h-4" />
             </div>
-            KOVAL<span className="text-gradient">.coach</span>
+            K<span className="text-gradient">Coach</span>
           </div>
           <div className="text-muted text-xs text-center">
-            © {new Date().getFullYear()} Koval Coach · Усі права захищено
+            © {new Date().getFullYear()} KCoach · Усі права захищено
           </div>
         </div>
       </footer>

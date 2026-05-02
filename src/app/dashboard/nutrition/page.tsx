@@ -11,13 +11,13 @@ export default async function NutritionPage() {
     return (
       <div>
         <PageHeader title="Харчування" />
-        <EmptyState icon={Apple} title="План ще не додано" text="Тренер додасть його незабаром" />
+        <EmptyState icon={Apple} title="План ще не додано" text="Я додам його незабаром" />
       </div>
     );
 
   return (
     <div>
-      <PageHeader title="Харчування" subtitle="План, складений твоїм тренером" />
+      <PageHeader title="Харчування" subtitle="План, який я склав для тебе" />
       <div className="space-y-6">
         {plans.map((p) => (
           <div key={p.id} className="card p-6">
@@ -43,7 +43,7 @@ export default async function NutritionPage() {
             {p.notes && (
               <div className="mt-4 p-4 rounded-xl bg-accent/5 border border-accent/20">
                 <div className="text-xs uppercase text-accent tracking-wider flex items-center gap-1.5 mb-1">
-                  <StickyNote className="w-3.5 h-3.5" /> Нотатка тренера
+                  <StickyNote className="w-3.5 h-3.5" /> Моя нотатка
                 </div>
                 <div className="text-sm">{p.notes}</div>
               </div>

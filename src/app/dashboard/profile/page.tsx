@@ -24,7 +24,7 @@ export default async function ProfilePage() {
 
   return (
     <div>
-      <PageHeader title="Мій профіль" subtitle="Дані, які веде твій тренер" />
+      <PageHeader title="Мій профіль" subtitle="Дані, які я веду по тобі" />
 
       <div className="card p-6 flex items-center gap-5">
         <div className="w-20 h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-3xl font-black">
@@ -53,14 +53,14 @@ export default async function ProfilePage() {
       {user.notes && (
         <div className="card p-5 mt-6">
           <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider">
-            <StickyNote className="w-4 h-4" /> Нотатки тренера
+            <StickyNote className="w-4 h-4" /> Мої нотатки
           </div>
           <div className="mt-2 whitespace-pre-wrap">{user.notes}</div>
         </div>
       )}
 
       <div className="mt-6 text-sm text-muted">
-        Щоб змінити дані — звернись до свого тренера.
+        Щоб змінити дані, напиши мені у чат.
       </div>
     </div>
   );

@@ -85,7 +85,7 @@ export function CancelModal({
         </div>
 
         <div className="text-[11px] text-muted mt-2">
-          {who === "CLIENT" ? "Тренер отримає сповіщення про скасування." : "Клієнт отримає сповіщення про скасування."}
+          {who === "CLIENT" ? "Я одразу отримаю сповіщення про скасування." : "Клієнт отримає сповіщення про скасування."}
         </div>
 
         <div className="flex gap-2 pt-4">

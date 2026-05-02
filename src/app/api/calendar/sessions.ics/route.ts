@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     orderBy: { scheduledAt: "asc" },
   });
 
-  const ics = buildICS(sessions, role === "TRAINER" ? "Koval Coach · Тренування" : "Koval Coach · Мої тренування");
+  const ics = buildICS(sessions, role === "TRAINER" ? "KCoach · Тренування" : "KCoach · Мої тренування");
   return new NextResponse(ics, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",

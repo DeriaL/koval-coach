@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     const code = startMatch[1];
     if (!code) {
       await sendTelegram(chatId,
-        `<b>👋 Вітаю у Koval Coach!</b>\n\nЩоб привʼязати акаунт — відкрий цей чат через посилання з кабінету (Профіль → Підключити Telegram).\n\nЯкщо акаунт вже привʼязаний — використовуй команди:\n/help — список команд\n/sessions — найближчі тренування\n/unlink — відʼєднати акаунт`
+        `<b>👋 Вітаю у KCoach!</b>\n\nЩоб привʼязати акаунт, відкрий цей чат через посилання з кабінету (Профіль → Підключити Telegram).\n\nЯкщо акаунт вже привʼязаний — команди:\n/help — список команд\n/sessions — найближчі тренування\n/unlink — відʼєднати акаунт`
       );
       return NextResponse.json({ ok: true });
     }

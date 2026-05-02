@@ -13,7 +13,7 @@ export default async function TrainingPage() {
       <PageHeader title="Тренування" subtitle="Програма і лог тренувань" />
 
       {plans.length === 0 ? (
-        <EmptyState icon={Dumbbell} title="Програму ще не додано" text="Тренер додасть її незабаром" />
+        <EmptyState icon={Dumbbell} title="Програму ще не додано" text="Я додам її незабаром" />
       ) : (
         <div className="space-y-6">
           {plans.map((p) => (
@@ -30,7 +30,7 @@ export default async function TrainingPage() {
               {p.notes && (
                 <div className="mt-4 p-4 rounded-xl bg-accent/5 border border-accent/20">
                   <div className="text-xs uppercase text-accent tracking-wider flex items-center gap-1.5 mb-1">
-                    <StickyNote className="w-3.5 h-3.5" /> Нотатка тренера
+                    <StickyNote className="w-3.5 h-3.5" /> Моя нотатка
                   </div>
                   <div className="text-sm">{p.notes}</div>
                 </div>

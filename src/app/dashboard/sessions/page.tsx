@@ -63,13 +63,13 @@ export default async function ClientSessions() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-5">
         <Kpi icon={Sparkles} label="Всього тренувань" value={total} sub={`до ${nextMilestone}: ${toGo}`} />
         <Kpi icon={Calendar} label="Заплановано" value={upcoming.length} color="accent" />
-        <Kpi icon={AlertCircle} label="Очікують" value={awaiting.length} color="accent2" sub={awaiting.length ? "тренер підтвердить" : "—"} />
+        <Kpi icon={AlertCircle} label="Очікують" value={awaiting.length} color="accent2" sub={awaiting.length ? "я підтверджу" : "—"} />
         <Kpi icon={Activity} label="За 60 днів" value={done.length} color="success" />
       </div>
 
       {/* Awaiting (informational only — trainer confirms) */}
       {awaiting.length > 0 && (
-        <Section icon={AlertCircle} title="Очікують підтвердження тренера" accent="accent2" count={awaiting.length}>
+        <Section icon={AlertCircle} title="Очікують мого підтвердження" accent="accent2" count={awaiting.length}>
           <div className="space-y-2">
             {awaiting.map((s) => (
               <div key={s.id} className="card p-4 border-accent2/30 bg-accent2/5 flex items-center gap-3">
@@ -77,7 +77,7 @@ export default async function ClientSessions() {
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{s.title}</div>
                   <div className="text-xs text-muted">
-                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })} · тренер ще не підтвердив
+                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })} · я ще не підтвердив
                   </div>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export default async function ClientSessions() {
                     <span>{new Date(s.date).toLocaleDateString("uk-UA")}</span>
                     {s.durationSec ? <span>· {Math.round(s.durationSec/60)} хв</span> : null}
                     {s.sets.length > 0 ? <span>· {s.sets.length} підходів</span> : null}
-                    {s.confirmedByTrainer ? <span className="chip text-[9px] py-0 px-1.5">тренер</span> : <span className="chip text-[9px] py-0 px-1.5">сам</span>}
+                    {s.confirmedByTrainer ? <span className="chip text-[9px] py-0 px-1.5">я</span> : <span className="chip text-[9px] py-0 px-1.5">сам</span>}
                   </div>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default async function ClientSessions() {
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate flex items-center gap-2">
                       {s.title}
-                      <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "вами" : "тренером"}</span>
+                      <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "вами" : "мною"}</span>
                     </div>
                     <div className="text-[11px] text-muted">
                       {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
@@ -174,7 +174,7 @@ export default async function ClientSessions() {
             <Calendar className="w-7 h-7" />
           </div>
           <h3 className="font-bold text-lg">Сесій ще немає</h3>
-          <p className="text-muted text-sm mt-1">Тренер запланує найближчу — побачиш тут.</p>
+          <p className="text-muted text-sm mt-1">Запланую тобі найближчу, побачиш тут.</p>
         </div>
       )}
     </div>

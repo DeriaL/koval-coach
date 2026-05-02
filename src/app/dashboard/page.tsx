@@ -99,7 +99,7 @@ export default async function DashboardHome() {
       {/* Upcoming planned sessions */}
       {upcomingSessions.length > 0 && (
         <div className="card p-5 mt-4 border-accent/30">
-          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Найближчі тренування з тренером</h3>
+          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Найближчі тренування зі мною</h3>
           <div className="space-y-2">
             {upcomingSessions.map((s) => (
               <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
