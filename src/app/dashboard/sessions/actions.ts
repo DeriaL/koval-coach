@@ -7,7 +7,7 @@ import { notifyAllTrainers } from "@/lib/telegram";
 export async function cancelSessionByClient(sessionId: string, reason: string) {
   const u = await requireClient();
   const s = await prisma.workoutSession.findUnique({ where: { id: sessionId } });
-  if (!s || s.clientId !== u.id) throw new Error("Сесія не знайдена");
+  if (!s || s.clientId !== u.id) throw new Error("Тренування не знайдено");
   await prisma.workoutSession.update({
     where: { id: sessionId },
     data: { cancelledAt: new Date(), cancelledBy: "CLIENT", cancelReason: reason || "Без причини" },

@@ -20,7 +20,7 @@ export function SessionRowActions({ sessionId, clientId, mode, sessionTitle }: {
     });
   }
   function del() {
-    if (!window.confirm("Видалити сесію назавжди?")) return;
+    if (!window.confirm("Видалити тренування назавжди?")) return;
     start(async () => { await deleteSession(sessionId, clientId); });
   }
   async function doCancel(reason: string) {

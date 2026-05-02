@@ -23,13 +23,13 @@ export default async function RecordsPage() {
     return (
       <div>
         <PageHeader title="Особисті рекорди" />
-        <EmptyState icon={Trophy} title="Рекордів поки немає" text="Почни сесію у «Тренуванні» — PR будуть автоматично" />
+        <EmptyState icon={Trophy} title="Рекордів поки немає" text="Почни тренування у «В залі», PR зафіксуються автоматично" />
       </div>
     );
 
   return (
     <div>
-      <PageHeader title="Особисті рекорди" subtitle="Автоматично фіксуються під час сесій" />
+      <PageHeader title="Особисті рекорди" subtitle="Автоматично фіксуються під час тренувань" />
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {items.map(([name, b]) => (
           <div key={name} className="card p-5 relative overflow-hidden">

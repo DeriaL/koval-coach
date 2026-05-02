@@ -87,7 +87,8 @@
       "WebFetch(domain:stable-fit.com)",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Custom finance categories + landing FAQ + floating contact\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Update contacts: real IG + TG, remove phone\")",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Remove FAQ section from landing\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Remove FAQ section from landing\")",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Brand: KovalFit \\(capital F\\) + replace сесії with тренування everywhere\")"
     ]
   }
 }

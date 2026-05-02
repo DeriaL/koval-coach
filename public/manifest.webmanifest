@@ -1,6 +1,6 @@
 {
-  "name": "Kovalfit",
-  "short_name": "Kovalfit",
+  "name": "KovalFit",
+  "short_name": "KovalFit",
   "description": "Кабінет клієнта: тренування, прогрес, аналітика",
   "start_url": "/dashboard",
   "display": "standalone",

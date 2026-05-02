@@ -51,7 +51,7 @@ export default async function ClientSessions() {
     <div>
       <PageHeader
         title="Мої тренування"
-        subtitle="Заплановані та пройдені сесії"
+        subtitle="Заплановані та пройдені тренування"
         action={
           <a href="/api/calendar/sessions.ics?scope=mine" download className="btn text-sm">
             <Download className="w-4 h-4" /> <span className="hidden sm:inline">.ics</span>
@@ -173,7 +173,7 @@ export default async function ClientSessions() {
           <div className="w-16 h-16 mx-auto rounded-2xl accent-shine text-white flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7" />
           </div>
-          <h3 className="font-bold text-lg">Сесій ще немає</h3>
+          <h3 className="font-bold text-lg">Тренувань ще немає</h3>
           <p className="text-muted text-sm mt-1">Запланую тобі найближчу, побачиш тут.</p>
         </div>
       )}

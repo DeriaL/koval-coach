@@ -33,7 +33,7 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
   function submit(fd: FormData) {
     setErr(null);
     const data: any = {
-      title: String(fd.get("title") || "Персональна сесія"),
+      title: String(fd.get("title") || "Персональне тренування"),
       scheduledAt: String(fd.get("scheduledAt") || ""),
       notes: String(fd.get("notes") || ""),
       alreadyDone: alreadyDone || (new Date(String(fd.get("scheduledAt") || "")).getTime() < Date.now() && fd.get("alreadyDone") === "on"),
@@ -82,7 +82,7 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Назва</label>
-                  <input name="title" defaultValue="Персональна сесія" className="input" required />
+                  <input name="title" defaultValue="Персональне тренування" className="input" required />
                 </div>
                 <div>
                   <label className="label">Дата і час</label>
@@ -124,7 +124,7 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
                     className="mt-0.5 accent-[rgb(var(--accent))]" />
                   <div className="text-xs">
                     <div className="font-semibold text-accent">Вже відбулось — зарахувати в статистику</div>
-                    <div className="text-muted mt-0.5">Сесія додасться як виконана й увійде в загальний рахунок тренувань (для бекфіл-у).</div>
+                    <div className="text-muted mt-0.5">Тренування додасться як виконане й увійде в загальний рахунок (для бекфілу).</div>
                   </div>
                 </label>
               )}

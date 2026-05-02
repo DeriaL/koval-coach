@@ -6,7 +6,7 @@ import {
 
 const tabs = [
   { id: "profile", label: "Профіль", icon: User },
-  { id: "sessions", label: "Сесії", icon: Calendar },
+  { id: "sessions", label: "Тренування", icon: Calendar },
   { id: "checkins", label: "Check-ins", icon: Flame },
   { id: "habits", label: "Звички", icon: Target },
   { id: "nutrition", label: "Харчування", icon: Apple },

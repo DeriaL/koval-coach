@@ -118,9 +118,9 @@ export default async function WorkoutHome() {
       )}
 
       <div className="card p-5 mt-6">
-        <h3 className="font-semibold mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-accent" /> Останні сесії</h3>
+        <h3 className="font-semibold mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-accent" /> Останні тренування</h3>
         {recentSessions.length === 0 ? (
-          <div className="text-muted text-sm">Сесій поки немає</div>
+          <div className="text-muted text-sm">Тренувань поки немає</div>
         ) : (
           <div className="space-y-2">
             {recentSessions.map((s) => (

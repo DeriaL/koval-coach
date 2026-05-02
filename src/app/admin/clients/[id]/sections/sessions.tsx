@@ -34,7 +34,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
     start(async () => { await confirmSession(id, clientId, happened); });
   }
   function del(id: string) {
-    if (!window.confirm("Видалити сесію?")) return;
+    if (!window.confirm("Видалити тренування?")) return;
     start(async () => { await deleteSession(id, clientId); });
   }
 
@@ -77,7 +77,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
           <div className="grid md:grid-cols-2 gap-3">
             <div>
               <label className="label">Назва</label>
-              <input name="title" required defaultValue="Персональна сесія" className="input" />
+              <input name="title" required defaultValue="Персональне тренування" className="input" />
             </div>
             <div>
               <label className="label">Дата і час</label>
@@ -207,7 +207,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
       )}
 
       {items.length === 0 && !editing && (
-        <div className="card p-8 text-center text-muted text-sm">Сесій ще немає. Запланувати першу?</div>
+        <div className="card p-8 text-center text-muted text-sm">Тренувань ще немає. Запланувати перше?</div>
       )}
     </div>
   );

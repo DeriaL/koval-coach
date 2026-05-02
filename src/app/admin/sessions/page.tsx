@@ -89,7 +89,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     <div className="max-w-6xl">
       <PageHeader
         title="Тренування"
-        subtitle="Розклад сесій з усіма клієнтами"
+        subtitle="Розклад тренувань з усіма клієнтами"
         action={
           <div className="flex items-center gap-2 flex-wrap">
             <a href={`/api/calendar/sessions.ics${clientFilter ? `?clientId=${clientFilter}` : ""}`}
@@ -201,8 +201,8 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
           <div className="w-16 h-16 mx-auto rounded-2xl accent-shine text-white flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7" />
           </div>
-          <h3 className="font-bold text-lg">Сесій ще немає</h3>
-          <p className="text-muted text-sm mt-1">Натисни «Запланувати» вгорі — і додай першу сесію.</p>
+          <h3 className="font-bold text-lg">Тренувань ще немає</h3>
+          <p className="text-muted text-sm mt-1">Натисни «Запланувати» вгорі — і додай перше тренування.</p>
           <div className="mt-4 inline-block"><ScheduleButton clients={allClients} /></div>
         </div>
       )}
