@@ -3,7 +3,6 @@ import Image from "next/image";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { Reveal } from "@/components/Reveal";
-import { FAQ } from "@/components/FAQ";
 import { FloatingContact } from "@/components/FloatingContact";
 import {
   Dumbbell, LineChart, Apple, Pill, Wallet, Camera, Flame, MessageCircle,
@@ -267,20 +266,6 @@ export default async function Home() {
             </Reveal>
           ))}
         </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex">❔ Питання</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Часті запитання</h2>
-            <p className="text-muted mt-3">Якщо твого питання тут немає, напиши мені у чат.</p>
-          </div>
-        </Reveal>
-        <Reveal delay={80}>
-          <FAQ />
-        </Reveal>
       </section>
 
       {/* CTA */}
