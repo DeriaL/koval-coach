@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Send, MessageCircle, Phone, Instagram, X } from "lucide-react";
+import { Send, MessageCircle, Instagram, X } from "lucide-react";
 
-const TELEGRAM = "https://t.me/dmytro_kovalchuk"; // замінити на свій
-const INSTAGRAM = "https://instagram.com/dmytro_kovalchuk"; // замінити на свій
-const PHONE = "+380501112233"; // замінити на свій
+const TELEGRAM = "https://t.me/dmytro_kovalchuk_coach";
+const INSTAGRAM = "https://www.instagram.com/_dmytro_kovalchuk_coach";
 
 export function FloatingContact() {
   const [open, setOpen] = useState(false);
@@ -23,7 +22,6 @@ export function FloatingContact() {
       <div className={`flex flex-col items-end gap-2 mb-2 transition-all duration-300 ${open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
         <ContactBtn href={TELEGRAM} label="Telegram" icon={Send} color="#0088cc" />
         <ContactBtn href={INSTAGRAM} label="Instagram" icon={Instagram} color="#e1306c" />
-        <ContactBtn href={`tel:${PHONE}`} label={PHONE} icon={Phone} color="rgb(var(--success))" />
       </div>
 
       <button
