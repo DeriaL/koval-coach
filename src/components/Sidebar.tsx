@@ -32,6 +32,7 @@ const clientNav: Item[] = [
 const adminNav: Item[] = [
   { href: "/admin", label: "Клієнти", icon: Users },
   { href: "/admin/sessions", label: "Тренування", icon: Dumbbell },
+  { href: "/admin/finance", label: "Фінанси", icon: Wallet },
   { href: "/admin/profile", label: "Мій профіль", icon: Settings },
 ];
 

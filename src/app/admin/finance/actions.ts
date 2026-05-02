@@ -25,7 +25,7 @@ export async function addLedgerEntry(data: {
       notes: data.notes || null,
     },
   });
-  revalidatePath("/admin/profile");
+  revalidatePath("/admin/finance");
 }
 
 export async function deleteLedgerEntry(id: string) {
@@ -33,5 +33,5 @@ export async function deleteLedgerEntry(id: string) {
   const e = await prisma.ledgerEntry.findUnique({ where: { id } });
   if (!e || e.trainerId !== u.id) return;
   await prisma.ledgerEntry.delete({ where: { id } });
-  revalidatePath("/admin/profile");
+  revalidatePath("/admin/finance");
 }

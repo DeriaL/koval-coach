@@ -2,19 +2,16 @@ import { requireTrainer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { TelegramConnect } from "@/components/TelegramConnect";
-import { Ledger } from "./Ledger";
-import { Wallet } from "lucide-react";
+import Link from "next/link";
+import { Wallet, ArrowRight } from "lucide-react";
 
 export default async function TrainerProfile() {
   const u = await requireTrainer();
-  const [user, entries] = await Promise.all([
-    prisma.user.findUnique({ where: { id: u.id } }),
-    prisma.ledgerEntry.findMany({ where: { trainerId: u.id }, orderBy: { date: "desc" } }),
-  ]);
+  const user = await prisma.user.findUnique({ where: { id: u.id } });
   if (!user) return null;
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-2xl">
       <PageHeader title="Мій профіль" />
       <div className="card p-6 flex items-center gap-5">
         <div className="w-20 h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-3xl font-black shrink-0">
@@ -31,19 +28,18 @@ export default async function TrainerProfile() {
         <TelegramConnect initialLinked={!!user.telegramChatId} initialUsername={user.telegramUsername} />
       </div>
 
-      <section className="mt-8">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-9 h-9 rounded-xl accent-shine text-white flex items-center justify-center"><Wallet className="w-4 h-4" /></div>
-          <div>
-            <h2 className="font-bold text-xl">Фінанси</h2>
-            <div className="text-xs text-muted">Дохід, витрати, рентабельність — твій облік</div>
-          </div>
+      <Link href="/admin/finance" className="card p-4 mt-4 flex items-center gap-3 hover:border-accent/40 transition group">
+        <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Wallet className="w-4 h-4" /></div>
+        <div className="flex-1">
+          <div className="font-medium text-sm">Фінансовий облік</div>
+          <div className="text-xs text-muted">Дохід, витрати, рентабельність — окремий розділ</div>
         </div>
-        <Ledger entries={entries.map(e => ({
-          id: e.id, type: e.type, amount: e.amount, currency: e.currency,
-          date: e.date.toISOString(), category: e.category, notes: e.notes,
-        }))} />
-      </section>
+        <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
+      </Link>
+
+      <div className="card p-5 mt-4 text-sm text-muted">
+        Редагування кабінету тренера — у майбутніх оновленнях. Поки що ти можеш керувати клієнтами через вкладку «Клієнти».
+      </div>
     </div>
   );
 }
