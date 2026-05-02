@@ -78,7 +78,8 @@
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Fix mobile layout for client detail header\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Telegram bot integration: link, webhook, notifications\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Landing copy + payments stops + emoji color fix + більший Dumbbell\")",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Add month calendar with day-detail modal on /admin/sessions\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Add month calendar with day-detail modal on /admin/sessions\")",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Trainer ledger: income/expense/profit + manual entry\")"
     ]
   }
 }

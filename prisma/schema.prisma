@@ -229,6 +229,20 @@ model WorkoutLog {
   createdAt DateTime @default(now())
 }
 
+model LedgerEntry {
+  id        String   @id @default(cuid())
+  trainerId String
+  type      String   // income | expense
+  amount    Float
+  currency  String   @default("UAH")
+  date      DateTime
+  category  String?  // тренування / реклама / оренда / курси / інше
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([trainerId, date])
+}
+
 model Reminder {
   id        String   @id @default(cuid())
   clientId  String
