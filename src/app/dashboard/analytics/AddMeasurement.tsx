@@ -61,12 +61,18 @@ export function AddMeasurement() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <Field name="weight" label="Вага (кг)" step="0.1" />
                 <Field name="bodyFat" label="% жиру" step="0.1" />
-                <Field name="waist" label="Талія (см)" step="0.5" />
-                <Field name="chest" label="Груди (см)" step="0.5" />
-                <Field name="hips" label="Стегна (см)" step="0.5" />
-                <Field name="arm" label="Біцепс (см)" step="0.5" />
-                <Field name="leg" label="Стегно ноги (см)" step="0.5" />
+                <Field name="shoulders" label="Плечовий пояс" step="0.5" />
+                <Field name="chest" label="Груди" step="0.5" />
+                <Field name="waist" label="Талія" step="0.5" />
+                <Field name="hips" label="Сідниці" step="0.5" />
+                <Field name="leftArm" label="Ліва рука" step="0.5" />
+                <Field name="rightArm" label="Права рука" step="0.5" />
+                <Field name="leftThigh" label="Ліве стегно" step="0.5" />
+                <Field name="rightThigh" label="Праве стегно" step="0.5" />
+                <Field name="leftCalf" label="Ліва гомілка" step="0.5" />
+                <Field name="rightCalf" label="Права гомілка" step="0.5" />
               </div>
+              <div className="text-[10px] text-muted -mt-1">всі обхвати — у см</div>
 
               <div>
                 <label className="label">Нотатка</label>

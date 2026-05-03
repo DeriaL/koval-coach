@@ -168,10 +168,10 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
           <div className="text-xs text-muted">Дохід vs Витрати</div>
         </div>
         <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={monthly} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+          <BarChart data={monthly} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
             <CartesianGrid stroke="rgb(var(--border))" vertical={false} />
             <XAxis dataKey="label" stroke="rgb(var(--muted))" fontSize={11} />
-            <YAxis stroke="rgb(var(--muted))" fontSize={11} />
+            <YAxis stroke="rgb(var(--muted))" fontSize={11} width={40} />
             <Tooltip contentStyle={{ background: "rgb(var(--card))", border: "1px solid rgb(var(--border))", borderRadius: 12 }} formatter={(v: any) => fmt(Number(v))} />
             <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
             <Bar dataKey="income" fill="rgb(var(--success))" name="Дохід" radius={[6, 6, 0, 0]} />
@@ -184,10 +184,10 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
       <div className="card p-5 mb-5">
         <h3 className="font-semibold flex items-center gap-2 mb-3"><TrendingUp className="w-4 h-4 text-accent" /> Прибуток по місяцях</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={monthly} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+          <LineChart data={monthly} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
             <CartesianGrid stroke="rgb(var(--border))" vertical={false} />
             <XAxis dataKey="label" stroke="rgb(var(--muted))" fontSize={11} />
-            <YAxis stroke="rgb(var(--muted))" fontSize={11} />
+            <YAxis stroke="rgb(var(--muted))" fontSize={11} width={40} />
             <Tooltip contentStyle={{ background: "rgb(var(--card))", border: "1px solid rgb(var(--border))", borderRadius: 12 }} formatter={(v: any) => fmt(Number(v))} />
             <Line type="monotone" dataKey="profit" stroke="rgb(var(--accent))" strokeWidth={3} dot={{ r: 4 }} name="Прибуток" />
           </LineChart>

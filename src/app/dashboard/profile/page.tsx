@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { User, Mail, Phone, Calendar, Target, Ruler, Scale, StickyNote } from "lucide-react";
 import { TelegramConnect } from "@/components/TelegramConnect";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 export default async function ProfilePage() {
   const u = await requireClient();
@@ -27,10 +28,11 @@ export default async function ProfilePage() {
       <PageHeader title="Мій профіль" subtitle="Дані, які я веду по тобі" />
 
       <div className="card p-6 flex items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-3xl font-black">
-          {user.firstName[0]}
-          {user.lastName[0]}
-        </div>
+        <AvatarUpload
+          initialUrl={user.avatarUrl}
+          initials={`${user.firstName[0]}${user.lastName[0]}`}
+          size={80}
+        />
         <div>
           <div className="text-2xl font-bold">{user.firstName} {user.lastName}</div>
           <div className="text-muted">Клієнт з {user.createdAt.toLocaleDateString("uk-UA")}</div>

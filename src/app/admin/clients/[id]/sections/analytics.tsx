@@ -16,7 +16,13 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
 
   const fmt = (d: Date) => new Date(d).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" });
   const wData = items.filter(x => x.weight).map(x => ({ date: fmt(x.date), weight: Number(x.weight.toFixed(1)) }));
-  const gData = items.map(x => ({ date: fmt(x.date), waist: x.waist, chest: x.chest, hips: x.hips, arm: x.arm }));
+  const gData = items.map(x => ({
+    date: fmt(x.date),
+    waist: x.waist, chest: x.chest, hips: x.hips, shoulders: x.shoulders,
+    leftArm: x.leftArm ?? x.arm, rightArm: x.rightArm,
+    leftThigh: x.leftThigh ?? x.leg, rightThigh: x.rightThigh,
+    leftCalf: x.leftCalf, rightCalf: x.rightCalf,
+  }));
 
   return (
     <div>
@@ -31,13 +37,18 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button></div>
           <div className="grid md:grid-cols-4 gap-3">
             <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? new Date(editing.date).toISOString().slice(0,10) : ""} required className="input" /></div>
-            <div><label className="label">Вага</label><input name="weight" type="number" step="0.1" defaultValue={editing.weight ?? ""} className="input" /></div>
+            <div><label className="label">Вага (кг)</label><input name="weight" type="number" step="0.1" defaultValue={editing.weight ?? ""} className="input" /></div>
             <div><label className="label">% жиру</label><input name="bodyFat" type="number" step="0.1" defaultValue={editing.bodyFat ?? ""} className="input" /></div>
-            <div><label className="label">Талія</label><input name="waist" type="number" step="0.1" defaultValue={editing.waist ?? ""} className="input" /></div>
+            <div><label className="label">Плечовий пояс</label><input name="shoulders" type="number" step="0.1" defaultValue={editing.shoulders ?? ""} className="input" /></div>
             <div><label className="label">Груди</label><input name="chest" type="number" step="0.1" defaultValue={editing.chest ?? ""} className="input" /></div>
-            <div><label className="label">Стегна</label><input name="hips" type="number" step="0.1" defaultValue={editing.hips ?? ""} className="input" /></div>
-            <div><label className="label">Біцепс</label><input name="arm" type="number" step="0.1" defaultValue={editing.arm ?? ""} className="input" /></div>
-            <div><label className="label">Нога</label><input name="leg" type="number" step="0.1" defaultValue={editing.leg ?? ""} className="input" /></div>
+            <div><label className="label">Талія</label><input name="waist" type="number" step="0.1" defaultValue={editing.waist ?? ""} className="input" /></div>
+            <div><label className="label">Сідниці</label><input name="hips" type="number" step="0.1" defaultValue={editing.hips ?? ""} className="input" /></div>
+            <div><label className="label">Ліва рука</label><input name="leftArm" type="number" step="0.1" defaultValue={editing.leftArm ?? ""} className="input" /></div>
+            <div><label className="label">Права рука</label><input name="rightArm" type="number" step="0.1" defaultValue={editing.rightArm ?? ""} className="input" /></div>
+            <div><label className="label">Ліве стегно</label><input name="leftThigh" type="number" step="0.1" defaultValue={editing.leftThigh ?? ""} className="input" /></div>
+            <div><label className="label">Праве стегно</label><input name="rightThigh" type="number" step="0.1" defaultValue={editing.rightThigh ?? ""} className="input" /></div>
+            <div><label className="label">Ліва гомілка</label><input name="leftCalf" type="number" step="0.1" defaultValue={editing.leftCalf ?? ""} className="input" /></div>
+            <div><label className="label">Права гомілка</label><input name="rightCalf" type="number" step="0.1" defaultValue={editing.rightCalf ?? ""} className="input" /></div>
           </div>
           <div><label className="label">Нотатка</label><input name="notes" defaultValue={editing.notes ?? ""} className="input" /></div>
           <button className="btn btn-primary" disabled={pending}>
@@ -55,10 +66,14 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
           <div className="card p-5">
             <div className="font-semibold mb-3">Заміри</div>
             <MultiLineChart data={gData} keys={[
-              { key: "waist", color: "#6366f1", name: "Талія" },
+              { key: "shoulders", color: "#a78bfa", name: "Плечі" },
               { key: "chest", color: "#3b82f6", name: "Груди" },
-              { key: "hips", color: "#60a5fa", name: "Стегна" },
-              { key: "arm", color: "#f472b6", name: "Біцепс" },
+              { key: "waist", color: "#6366f1", name: "Талія" },
+              { key: "hips", color: "#60a5fa", name: "Сідниці" },
+              { key: "leftArm", color: "#f472b6", name: "Ліва рука" },
+              { key: "rightArm", color: "#fb7185", name: "Права рука" },
+              { key: "leftThigh", color: "#22d3ee", name: "Ліве стегно" },
+              { key: "rightThigh", color: "#34d399", name: "Праве стегно" },
             ]} />
           </div>
         </div>
@@ -66,22 +81,38 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
 
       <div className="card overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="text-muted text-xs uppercase tracking-wider">
-            <th className="text-left p-3">Дата</th><th className="text-right p-3">Вага</th>
-            <th className="text-right p-3">%жиру</th><th className="text-right p-3">Талія</th>
-            <th className="text-right p-3">Груди</th><th className="text-right p-3">Стегна</th>
-            <th className="text-right p-3">Біцепс</th><th className="text-right p-3"></th>
+          <thead><tr className="text-muted text-[10px] uppercase tracking-wider">
+            <th className="text-left p-3">Дата</th>
+            <th className="text-right p-2">Вага</th>
+            <th className="text-right p-2">%жир</th>
+            <th className="text-right p-2">Плечі</th>
+            <th className="text-right p-2">Груди</th>
+            <th className="text-right p-2">Талія</th>
+            <th className="text-right p-2">Сідн</th>
+            <th className="text-right p-2">Л.рук</th>
+            <th className="text-right p-2">П.рук</th>
+            <th className="text-right p-2">Л.ст</th>
+            <th className="text-right p-2">П.ст</th>
+            <th className="text-right p-2">Л.гом</th>
+            <th className="text-right p-2">П.гом</th>
+            <th className="text-right p-3"></th>
           </tr></thead>
           <tbody>
             {items.slice().reverse().map(m => (
-              <tr key={m.id} className="border-t border-border">
-                <td className="p-3">{new Date(m.date).toLocaleDateString("uk-UA")}</td>
+              <tr key={m.id} className="border-t border-border text-xs">
+                <td className="p-3 whitespace-nowrap">{new Date(m.date).toLocaleDateString("uk-UA")}</td>
                 <td className="text-right">{m.weight?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.bodyFat?.toFixed(1) ?? "—"}</td>
-                <td className="text-right">{m.waist?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.shoulders?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.chest?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.waist?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.hips?.toFixed(1) ?? "—"}</td>
-                <td className="text-right">{m.arm?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{(m.leftArm ?? m.arm)?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.rightArm?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{(m.leftThigh ?? m.leg)?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.rightThigh?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.leftCalf?.toFixed(1) ?? "—"}</td>
+                <td className="text-right">{m.rightCalf?.toFixed(1) ?? "—"}</td>
                 <td className="text-right p-3"><div className="flex gap-1 justify-end">
                   <button onClick={() => setEditing(m)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
                   <button onClick={() => del(m.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>

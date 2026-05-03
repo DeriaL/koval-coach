@@ -5,10 +5,7 @@ import { revalidatePath } from "next/cache";
 
 function num(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
 
-export async function saveOwnMeasurement(data: {
-  date: string;
-  weight?: any; chest?: any; waist?: any; hips?: any; arm?: any; leg?: any; bodyFat?: any; notes?: string;
-}) {
+export async function saveOwnMeasurement(data: Record<string, any>) {
   const u = await requireClient();
   await prisma.measurement.create({
     data: {
@@ -18,8 +15,13 @@ export async function saveOwnMeasurement(data: {
       chest: num(data.chest),
       waist: num(data.waist),
       hips: num(data.hips),
-      arm: num(data.arm),
-      leg: num(data.leg),
+      shoulders: num(data.shoulders),
+      leftArm: num(data.leftArm),
+      rightArm: num(data.rightArm),
+      leftThigh: num(data.leftThigh),
+      rightThigh: num(data.rightThigh),
+      leftCalf: num(data.leftCalf),
+      rightCalf: num(data.rightCalf),
       bodyFat: num(data.bodyFat),
       notes: data.notes || null,
     },

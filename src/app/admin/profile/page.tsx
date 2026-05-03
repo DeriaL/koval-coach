@@ -2,6 +2,7 @@ import { requireTrainer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { TelegramConnect } from "@/components/TelegramConnect";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import Link from "next/link";
 import { Wallet, ArrowRight } from "lucide-react";
 
@@ -14,9 +15,11 @@ export default async function TrainerProfile() {
     <div className="max-w-2xl">
       <PageHeader title="Мій профіль" />
       <div className="card p-6 flex items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-3xl font-black shrink-0">
-          {user.firstName[0]}{user.lastName[0]}
-        </div>
+        <AvatarUpload
+          initialUrl={user.avatarUrl}
+          initials={`${user.firstName[0]}${user.lastName[0]}`}
+          size={80}
+        />
         <div className="min-w-0">
           <div className="text-2xl font-bold">{user.firstName} {user.lastName}</div>
           <div className="text-muted truncate">{user.email}</div>

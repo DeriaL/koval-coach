@@ -1,7 +1,8 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, EmptyState } from "@/components/ui";
-import { Wallet, CheckCircle2, Clock, AlertTriangle, Flag, Check } from "lucide-react";
+import { Wallet, CheckCircle2, Clock, AlertTriangle, Flag, Check, CreditCard } from "lucide-react";
+import { PaymentDetails } from "./PaymentDetails";
 
 const TOTAL_STOPS = 10;
 
@@ -91,6 +92,8 @@ export default async function PaymentsPage() {
           </div>
         )}
       </div>
+
+      <PaymentDetails />
 
       {list.length === 0 ? (
         <EmptyState icon={Wallet} title="Платежів поки немає" />

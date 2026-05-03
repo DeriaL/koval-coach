@@ -167,18 +167,25 @@ model Payment {
 }
 
 model Measurement {
-  id       String   @id @default(cuid())
-  clientId String
-  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  date     DateTime
-  weight   Float?
-  chest    Float?
-  waist    Float?
-  hips     Float?
-  arm      Float?
-  leg      Float?
-  bodyFat  Float?
-  notes    String?
+  id        String   @id @default(cuid())
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date      DateTime
+  weight    Float?
+  chest     Float?
+  waist     Float?
+  hips      Float?    // сідниці
+  shoulders Float?    // плечовий пояс
+  leftArm   Float?
+  rightArm  Float?
+  leftThigh Float?
+  rightThigh Float?
+  leftCalf  Float?
+  rightCalf Float?
+  arm       Float?    // legacy
+  leg       Float?    // legacy
+  bodyFat   Float?
+  notes     String?
   createdAt DateTime @default(now())
 }
 

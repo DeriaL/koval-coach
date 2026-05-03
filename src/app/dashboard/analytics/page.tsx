@@ -126,7 +126,12 @@ export default async function AnalyticsPage() {
 
   // ---- Measurements girth ----
   const gData = measurements.map(x => ({
-    date: fmt(x.date), waist: x.waist, chest: x.chest, hips: x.hips, arm: x.arm, bodyFat: x.bodyFat,
+    date: fmt(x.date),
+    shoulders: x.shoulders, chest: x.chest, waist: x.waist, hips: x.hips,
+    leftArm: x.leftArm ?? x.arm, rightArm: x.rightArm,
+    leftThigh: x.leftThigh ?? x.leg, rightThigh: x.rightThigh,
+    leftCalf: x.leftCalf, rightCalf: x.rightCalf,
+    bodyFat: x.bodyFat,
   }));
 
   return (
@@ -267,38 +272,54 @@ export default async function AnalyticsPage() {
             <MultiLineChart
               data={gData}
               keys={[
-                { key: "waist", color: "#6366f1", name: "Талія" },
+                { key: "shoulders", color: "#a78bfa", name: "Плечі" },
                 { key: "chest", color: "#3b82f6", name: "Груди" },
-                { key: "hips", color: "#60a5fa", name: "Стегна" },
-                { key: "arm", color: "#f472b6", name: "Біцепс" },
+                { key: "waist", color: "#6366f1", name: "Талія" },
+                { key: "hips", color: "#60a5fa", name: "Сідниці" },
+                { key: "leftArm", color: "#f472b6", name: "Ліва рука" },
+                { key: "rightArm", color: "#fb7185", name: "Права рука" },
+                { key: "leftThigh", color: "#22d3ee", name: "Ліве стегно" },
+                { key: "rightThigh", color: "#34d399", name: "Праве стегно" },
                 { key: "bodyFat", color: "#fbbf24", name: "% жиру" },
               ]}
             />
           </div>
           <div className="card p-5 mt-4 overflow-x-auto">
             <h3 className="font-semibold mb-3">Історія замірів</h3>
-            <table className="w-full text-sm min-w-[500px]">
+            <table className="w-full text-xs min-w-[900px]">
               <thead>
-                <tr className="text-muted text-xs uppercase tracking-wider">
+                <tr className="text-muted text-[10px] uppercase tracking-wider">
                   <th className="text-left py-2">Дата</th>
                   <th className="text-right py-2">Вага</th>
-                  <th className="text-right py-2">Талія</th>
+                  <th className="text-right py-2">%жир</th>
+                  <th className="text-right py-2">Плечі</th>
                   <th className="text-right py-2">Груди</th>
-                  <th className="text-right py-2">Стегна</th>
-                  <th className="text-right py-2">Біцепс</th>
-                  <th className="text-right py-2">%жиру</th>
+                  <th className="text-right py-2">Талія</th>
+                  <th className="text-right py-2">Сідн</th>
+                  <th className="text-right py-2">Л.рук</th>
+                  <th className="text-right py-2">П.рук</th>
+                  <th className="text-right py-2">Л.ст</th>
+                  <th className="text-right py-2">П.ст</th>
+                  <th className="text-right py-2">Л.гом</th>
+                  <th className="text-right py-2">П.гом</th>
                 </tr>
               </thead>
               <tbody>
                 {measurements.slice().reverse().map((x) => (
                   <tr key={x.id} className="border-t border-border">
-                    <td className="py-2">{x.date.toLocaleDateString("uk-UA")}</td>
+                    <td className="py-2 whitespace-nowrap">{x.date.toLocaleDateString("uk-UA")}</td>
                     <td className="text-right">{x.weight?.toFixed(1) ?? "—"}</td>
-                    <td className="text-right">{x.waist?.toFixed(1) ?? "—"}</td>
-                    <td className="text-right">{x.chest?.toFixed(1) ?? "—"}</td>
-                    <td className="text-right">{x.hips?.toFixed(1) ?? "—"}</td>
-                    <td className="text-right">{x.arm?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.bodyFat?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.shoulders?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.chest?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.waist?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.hips?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{(x.leftArm ?? x.arm)?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.rightArm?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{(x.leftThigh ?? x.leg)?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.rightThigh?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.leftCalf?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right">{x.rightCalf?.toFixed(1) ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>

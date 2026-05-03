@@ -20,7 +20,7 @@ export function TinyArea({ data, color = "#6366f1", height = 60 }: { data: any[]
 export function TrendChart({ data, color = "#6366f1", label = "val" }: { data: any[]; color?: string; label?: string }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id={`grad-${label}`} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -29,7 +29,7 @@ export function TrendChart({ data, color = "#6366f1", label = "val" }: { data: a
         </defs>
         <CartesianGrid stroke="#24242c" vertical={false} />
         <XAxis dataKey="date" stroke="#6b6b78" fontSize={11} />
-        <YAxis stroke="#6b6b78" fontSize={11} domain={["auto", "auto"]} />
+        <YAxis stroke="#6b6b78" fontSize={11} width={36} domain={["auto", "auto"]} />
         <Tooltip contentStyle={{ background: "#15151a", border: "1px solid #24242c", borderRadius: 12 }} />
         <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#grad-${label})`} />
       </AreaChart>
@@ -40,10 +40,10 @@ export function TrendChart({ data, color = "#6366f1", label = "val" }: { data: a
 export function WeightWithAverage({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height={280}>
-      <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid stroke="#24242c" vertical={false} />
         <XAxis dataKey="date" stroke="#6b6b78" fontSize={11} />
-        <YAxis stroke="#6b6b78" fontSize={11} domain={["dataMin - 0.5", "dataMax + 0.5"]} />
+        <YAxis stroke="#6b6b78" fontSize={11} width={36} domain={["dataMin - 0.5", "dataMax + 0.5"]} />
         <Tooltip contentStyle={{ background: "#15151a", border: "1px solid #24242c", borderRadius: 12 }} />
         <Line type="monotone" dataKey="weight" stroke="#6b6b78" strokeWidth={1} dot={{ r: 2 }} name="вага" />
         <Line type="monotone" dataKey="avg" stroke="#6366f1" strokeWidth={3} dot={false} name="7д середнє" />
@@ -55,10 +55,10 @@ export function WeightWithAverage({ data }: { data: any[] }) {
 export function BarsChart({ data, color = "#6366f1", dataKey = "v" }: { data: any[]; color?: string; dataKey?: string }) {
   return (
     <ResponsiveContainer width="100%" height={180}>
-      <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid stroke="#24242c" vertical={false} />
         <XAxis dataKey="date" stroke="#6b6b78" fontSize={11} />
-        <YAxis stroke="#6b6b78" fontSize={11} />
+        <YAxis stroke="#6b6b78" fontSize={11} width={36} />
         <Tooltip contentStyle={{ background: "#15151a", border: "1px solid #24242c", borderRadius: 12 }} />
         <Bar dataKey={dataKey} fill={color} radius={[6, 6, 0, 0]} />
       </BarChart>
