@@ -82,8 +82,10 @@ export async function saveNutrition(id: string, data: Record<string, any>) {
   };
   if (data.id) {
     await prisma.nutritionPlan.update({ where: { id: data.id }, data: payload });
+    notifyUser(id, `🍎 <b>Я оновив план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
   } else {
     await prisma.nutritionPlan.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `🍎 <b>Я склав для тебе план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -104,8 +106,10 @@ export async function saveTraining(id: string, data: Record<string, any>) {
   };
   if (data.id) {
     await prisma.trainingPlan.update({ where: { id: data.id }, data: payload });
+    notifyUser(id, `💪 <b>Я оновив програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
   } else {
     await prisma.trainingPlan.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `💪 <b>Я склав для тебе програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -121,8 +125,10 @@ export async function saveSupplement(id: string, data: Record<string, any>) {
   const payload = { name: data.name, dosage: data.dosage || null, schedule: data.schedule || null, notes: data.notes || null };
   if (data.id) {
     await prisma.supplement.update({ where: { id: data.id }, data: payload });
+    notifyUser(id, `💊 <b>Я оновив добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}`).catch(()=>{});
   } else {
     await prisma.supplement.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `💊 <b>Я додав тобі добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}${data.schedule ? `\nПрийом: ${data.schedule}` : ""}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -147,6 +153,11 @@ export async function savePayment(id: string, data: Record<string, any>) {
     await prisma.payment.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.payment.create({ data: { ...payload, clientId: id } });
+    if (payload.status === "paid") {
+      notifyUser(id, `💰 <b>Оплата зарахована</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}${payload.notes ? `\n${payload.notes}` : ""}`).catch(()=>{});
+    } else {
+      notifyUser(id, `💳 <b>Виставлений рахунок</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}\nРеквізити для оплати — у вкладці «Оплати».`).catch(()=>{});
+    }
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -201,6 +212,7 @@ export async function savePhoto(id: string, data: Record<string, any>) {
     await prisma.progressPhoto.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.progressPhoto.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `📸 <b>Я додав твоє фото-прогрес</b>\nГлянь у вкладці «Фото».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -222,6 +234,7 @@ export async function saveAchievement(id: string, data: Record<string, any>) {
     await prisma.achievement.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.achievement.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `🏆 <b>Нова ачівка!</b>\n«${data.title}»${data.description ? `\n${data.description}` : ""}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -246,8 +259,10 @@ export async function saveExercise(clientId: string, data: Record<string, any>) 
   };
   if (data.id) {
     await prisma.exercise.update({ where: { id: data.id }, data: payload });
+    notifyUser(clientId, `🏋️ <b>Я оновив вправу</b>\n«${data.name}» (${data.day})`).catch(()=>{});
   } else {
     await prisma.exercise.create({ data: { ...payload, trainingPlanId: data.trainingPlanId } });
+    notifyUser(clientId, `🏋️ <b>Я додав вправу до програми</b>\n«${data.name}» (${data.day}) · ${payload.targetSets}×${payload.targetReps}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${clientId}`);
 }
@@ -270,6 +285,7 @@ export async function saveHabit(clientId: string, data: Record<string, any>) {
     await prisma.habit.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.habit.create({ data: { ...payload, clientId } });
+    notifyUser(clientId, `🎯 <b>Я додав тобі звичку</b>\n«${data.title}»\nГлянь у вкладці «Звички».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${clientId}`);
 }
@@ -403,6 +419,7 @@ export async function saveReminder(id: string, data: Record<string, any>) {
     await prisma.reminder.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.reminder.create({ data: { ...payload, clientId: id } });
+    notifyUser(id, `🔔 <b>Нагадування</b>\n${payload.title}\n🕐 ${payload.datetime.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
