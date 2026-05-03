@@ -47,7 +47,7 @@ export default async function Home() {
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg group">
             <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition">
-              <Dumbbell className="w-5 h-5" />
+              <Dumbbell className="w-5 h-5" strokeWidth={1.6} />
             </div>
             <span>Koval<span className="text-gradient">Fit</span></span>
           </Link>
@@ -288,7 +288,7 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto px-5 md:px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-bold">
             <div className="w-7 h-7 rounded-lg accent-shine flex items-center justify-center text-white">
-              <Dumbbell className="w-4 h-4" />
+              <Dumbbell className="w-4 h-4" strokeWidth={1.6} />
             </div>
             <span>Koval<span className="text-gradient">Fit</span></span>
           </div>
