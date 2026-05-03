@@ -20,10 +20,12 @@ export function AvatarUpload({
   initialUrl,
   initials,
   size = 80,
+  endpoint = "/api/avatar",
 }: {
   initialUrl: string | null;
   initials: string;
   size?: number;
+  endpoint?: string;
 }) {
   const router = useRouter();
   const [url, setUrl] = useState<string | null>(initialUrl);
@@ -37,7 +39,7 @@ export function AvatarUpload({
     setBusy(true); setErr(null);
     try {
       const dataUrl = await compressImage(f, 512, 0.85);
-      const r = await fetch("/api/avatar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dataUrl }) });
+      const r = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dataUrl }) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Помилка");
       setUrl(dataUrl);
@@ -54,7 +56,7 @@ export function AvatarUpload({
     if (!window.confirm("Прибрати фото?")) return;
     setBusy(true);
     try {
-      await fetch("/api/avatar", { method: "DELETE" });
+      await fetch(endpoint, { method: "DELETE" });
       setUrl(null);
       router.refresh();
     } finally { setBusy(false); }

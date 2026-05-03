@@ -17,6 +17,7 @@ import { ChatTab } from "./sections/chat";
 import { HabitsTab } from "./sections/habits";
 import { SessionsTab } from "./sections/sessions";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet } from "lucide-react";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 type Props = { params: { id: string }; searchParams: { tab?: string } };
 
@@ -61,8 +62,21 @@ export default async function ClientDetail({ params, searchParams }: Props) {
             <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-br from-accent/20 via-transparent to-accent2/20" />
 
             <div className="relative flex items-start gap-3 md:gap-5">
-              <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl accent-shine flex items-center justify-center text-white text-xl md:text-3xl font-black shrink-0">
-                {client.firstName[0]}{client.lastName[0]}
+              <div className="shrink-0 md:hidden">
+                <AvatarUpload
+                  initialUrl={client.avatarUrl}
+                  initials={`${client.firstName[0]}${client.lastName[0]}`}
+                  size={56}
+                  endpoint={`/api/admin/client-avatar/${client.id}`}
+                />
+              </div>
+              <div className="shrink-0 hidden md:block">
+                <AvatarUpload
+                  initialUrl={client.avatarUrl}
+                  initials={`${client.firstName[0]}${client.lastName[0]}`}
+                  size={80}
+                  endpoint={`/api/admin/client-avatar/${client.id}`}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-lg md:text-2xl font-bold leading-tight">

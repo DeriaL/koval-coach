@@ -154,8 +154,13 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl accent-shine flex items-center justify-center text-white text-lg font-black">
-                  {c.firstName[0]}{c.lastName[0]}
+                <div className="w-14 h-14 rounded-2xl accent-shine overflow-hidden flex items-center justify-center text-white text-lg font-black shrink-0">
+                  {c.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <>{c.firstName[0]}{c.lastName[0]}</>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate flex items-center gap-2">
