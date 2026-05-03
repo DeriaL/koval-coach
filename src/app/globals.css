@@ -98,6 +98,34 @@ a, button, [role="button"], input, select, textarea, .card {
   input, textarea, select { font-size: 16px !important; }
 }
 
+/* iOS Safari date/time inputs — prevent overflow + neutral picker indicator */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 42px;
+  max-width: 100%;
+  display: block;
+}
+input[type="date"]::-webkit-date-and-time-value,
+input[type="datetime-local"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  width: 100%;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(0.5) saturate(5) hue-rotate(220deg);
+  cursor: pointer;
+  margin-inline-start: 0;
+}
+
+/* Flex/grid children — allow truncation */
+form .grid > * { min-width: 0; }
+.card { max-width: 100%; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;

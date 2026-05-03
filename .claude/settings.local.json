@@ -94,7 +94,8 @@
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Thinner icon stroke\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Thinner brand Dumbbell stroke \\(1.6\\) on mobile/desktop logos\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Detailed body measurements + payment details + avatar upload + chart left padding\")",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Telegram notifications on every trainer action \\(план, добавки, харчування, оплата, ачівка, нагадування\\)\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Telegram notifications on every trainer action \\(план, добавки, харчування, оплата, ачівка, нагадування\\)\")",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Fix mobile date/datetime input overflow + clamp card width\")"
     ]
   }
 }
