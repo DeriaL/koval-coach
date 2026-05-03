@@ -5,30 +5,13 @@
       <stop offset="55%" stop-color="#6366f1"/>
       <stop offset="100%" stop-color="#a78bfa"/>
     </linearGradient>
-    <filter id="shine" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
-
-  <!-- Rounded gradient tile (matches accent-shine) -->
   <rect width="512" height="512" rx="120" fill="url(#g)"/>
-
-  <!-- Subtle inner highlight -->
-  <rect x="40" y="40" width="432" height="432" rx="92" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-
-  <!-- Dumbbell (Lucide-style) -->
-  <g fill="none" stroke="white" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" filter="url(#shine)">
-    <!-- center bar -->
-    <line x1="170" y1="256" x2="342" y2="256"/>
-    <!-- left handle caps -->
-    <line x1="146" y1="208" x2="146" y2="304"/>
-    <line x1="106" y1="232" x2="106" y2="280"/>
-    <!-- right handle caps -->
-    <line x1="366" y1="208" x2="366" y2="304"/>
-    <line x1="406" y1="232" x2="406" y2="280"/>
+  <g fill="white">
+    <rect x="172" y="232" width="168" height="48" rx="14"/>
+    <rect x="124" y="184" width="58" height="144" rx="20"/>
+    <rect x="330" y="184" width="58" height="144" rx="20"/>
+    <rect x="74"  y="208" width="48" height="96"  rx="18"/>
+    <rect x="390" y="208" width="48" height="96"  rx="18"/>
   </g>
 </svg>
