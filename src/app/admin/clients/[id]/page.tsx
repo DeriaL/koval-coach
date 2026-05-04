@@ -16,7 +16,7 @@ import { RemindersTab } from "./sections/reminders";
 import { ChatTab } from "./sections/chat";
 import { HabitsTab } from "./sections/habits";
 import { SessionsTab } from "./sections/sessions";
-import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet, Star } from "lucide-react";
 import { AvatarUpload } from "@/components/AvatarUpload";
 
 type Props = { params: { id: string }; searchParams: { tab?: string } };
@@ -79,8 +79,9 @@ export default async function ClientDetail({ params, searchParams }: Props) {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-lg md:text-2xl font-bold leading-tight">
-                  {client.firstName} {client.lastName}
+                <div className="text-lg md:text-2xl font-bold leading-tight flex items-center gap-2">
+                  {client.isVip && <Star className="w-5 h-5 text-yellow-400 fill-current shrink-0" />}
+                  <span>{client.firstName} {client.lastName}</span>
                 </div>
                 <div className="mt-1.5">
                   <span className={`chip text-[10px] md:text-xs ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>

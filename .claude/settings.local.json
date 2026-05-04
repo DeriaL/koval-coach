@@ -98,7 +98,8 @@
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Fix mobile date/datetime input overflow + clamp card width\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Trainer can upload client avatar from client detail header\")",
       "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Mobile: tighter QuickTaps buttons + KPI label truncate\")",
-      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Late cancel rule: <8h client cancellation burns session into total\")"
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"Late cancel rule: <8h client cancellation burns session into total\")",
+      "Bash(git -c user.email=\"dev@koval.coach\" -c user.name=\"Koval Dev\" commit -m \"VIP flag + alphabetical client sorting\")"
     ]
   }
 }

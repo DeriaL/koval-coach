@@ -50,9 +50,11 @@ export async function updateClient(id: string, data: Record<string, any>) {
       notes: data.notes || null,
       coachingPlan: data.coachingPlan === "ONLINE" ? "ONLINE" : "FULL",
       pricePer10: toNum(data.pricePer10),
+      isVip: data.isVip === "on" || data.isVip === true || data.isVip === "true",
     },
   });
   revalidatePath(`/admin/clients/${id}`);
+  revalidatePath("/admin");
 }
 
 export async function resetPassword(id: string, password: string) {

@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
-import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Trophy, Flame as FlameI, CheckCircle2, Activity } from "lucide-react";
+import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Trophy, Flame as FlameI, CheckCircle2, Activity, Star } from "lucide-react";
 
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string } }) {
   const since = new Date(Date.now() - 3 * 86400000);
@@ -19,7 +19,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         payments: { orderBy: { date: "desc" }, take: 3 },
         _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isVip: "desc" }, { firstName: "asc" }, { lastName: "asc" }],
     }),
     prisma.workoutSession.findMany({
       where: { OR: [{ completed: true }, { confirmedByTrainer: true }], date: { gte: since }, client: { role: "CLIENT" } },
@@ -164,7 +164,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate flex items-center gap-2">
-                    {c.firstName} {c.lastName}
+                    {c.isVip && <Star className="w-3.5 h-3.5 text-yellow-400 fill-current shrink-0" />}
+                    <span className="truncate">{c.firstName} {c.lastName}</span>
                     <span className={`chip text-[10px] shrink-0 ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
                       {isOnline ? <><Wifi className="w-2.5 h-2.5" /> Онлайн</> : <><Crown className="w-2.5 h-2.5" /> Офлайн</>}
                     </span>

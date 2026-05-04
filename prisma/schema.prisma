@@ -23,6 +23,7 @@ model User {
   startWeight Float?
   notes     String?
   coachingPlan String @default("FULL")   // ONLINE | FULL
+  isVip      Boolean @default(false)
   pricePer10 Float?                       // ціна за 10 тренувань (пакет)
   telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
   telegramUsername String?

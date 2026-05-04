@@ -1,16 +1,18 @@
 "use client";
 import { useTransition, useState } from "react";
 import { updateClient, resetPassword, deleteClient } from "../../actions";
-import { Loader2, Save, KeyRound, Trash2, Wifi, Crown } from "lucide-react";
+import { Loader2, Save, KeyRound, Trash2, Wifi, Crown, Star } from "lucide-react";
 
 export function ProfileTab({ client }: { client: any }) {
   const [pending, start] = useTransition();
   const [saved, setSaved] = useState(false);
   const [pwd, setPwd] = useState("");
   const [plan, setPlan] = useState<"ONLINE" | "FULL">(client.coachingPlan === "ONLINE" ? "ONLINE" : "FULL");
+  const [vip, setVip] = useState<boolean>(!!client.isVip);
 
   function submit(fd: FormData) {
     fd.set("coachingPlan", plan);
+    fd.set("isVip", vip ? "true" : "false");
     start(async () => {
       await updateClient(client.id, Object.fromEntries(fd));
       setSaved(true);
@@ -60,6 +62,18 @@ export function ProfileTab({ client }: { client: any }) {
         </div>
 
         <Field label="Ціна за пакет 10 тренувань (₴)" name="pricePer10" type="number" step="50" defaultValue={client.pricePer10 ?? ""} />
+
+        <button type="button" onClick={() => setVip(!vip)}
+          className={`w-full p-3 rounded-xl border flex items-center gap-3 transition ${vip ? "border-accent bg-accent/10 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${vip ? "accent-shine text-white" : "bg-card text-accent"}`}>
+            <Star className={`w-4 h-4 ${vip ? "fill-current" : ""}`} />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="font-medium text-sm">VIP-клієнт</div>
+            <div className="text-xs text-muted">Виділяти зірочкою у списку клієнтів</div>
+          </div>
+          <div className={`text-xs font-semibold ${vip ? "text-accent" : "text-muted"}`}>{vip ? "увімк" : "вимк"}</div>
+        </button>
 
         <div>
           <label className="label">Нотатки тренера</label>
