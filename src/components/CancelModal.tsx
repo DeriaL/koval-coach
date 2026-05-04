@@ -18,13 +18,14 @@ const TRAINER_REASONS = [
 ];
 
 export function CancelModal({
-  open, onClose, onConfirm, who = "CLIENT", title,
+  open, onClose, onConfirm, who = "CLIENT", title, scheduledAt,
 }: {
   open: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => Promise<void>;
   who?: "CLIENT" | "TRAINER";
   title?: string;
+  scheduledAt?: Date | string | null;
 }) {
   const [mounted, setMounted] = useState(false);
   const [reason, setReason] = useState("");
@@ -64,6 +65,22 @@ export function CancelModal({
         </div>
 
         {title && <div className="text-sm text-muted mb-3">«{title}»</div>}
+
+        {(() => {
+          if (who !== "CLIENT" || !scheduledAt) return null;
+          const ms = new Date(scheduledAt).getTime() - Date.now();
+          const hours = ms / 3_600_000;
+          if (hours >= 8 || hours < -2) return null;
+          return (
+            <div className="mb-3 p-3 rounded-xl bg-danger/10 border border-danger/40 text-xs flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-danger">До початку менше ніж 8 годин</div>
+                <div className="text-muted mt-1">У разі скасування тренування буде <b className="text-text">списано в облік</b> (зараховане як виконане). Якщо є вагома причина — напиши тренеру в чат.</div>
+              </div>
+            </div>
+          );
+        })()}
 
         <div>
           <label className="label">Оберіть причину</label>

@@ -111,7 +111,7 @@ export default async function ClientSessions() {
                       <a href={googleCalendarUrl({ id: s.id, title: s.title, scheduledAt: s.scheduledAt, notes: s.notes })}
                         target="_blank" rel="noreferrer" title="Додати в Google Calendar"
                         className="btn text-xs py-2 hover:border-accent/50 hover:text-accent shrink-0">📅</a>
-                      <CancelButton sessionId={s.id} title={s.title} />
+                      <CancelButton sessionId={s.id} title={s.title} scheduledAt={s.scheduledAt} />
                     </div>
                   ))}
                 </div>

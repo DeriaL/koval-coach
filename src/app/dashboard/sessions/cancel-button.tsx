@@ -4,7 +4,7 @@ import { CancelModal } from "@/components/CancelModal";
 import { cancelSessionByClient } from "./actions";
 import { Ban } from "lucide-react";
 
-export function CancelButton({ sessionId, title }: { sessionId: string; title: string }) {
+export function CancelButton({ sessionId, title, scheduledAt }: { sessionId: string; title: string; scheduledAt?: Date | string | null }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -19,6 +19,7 @@ export function CancelButton({ sessionId, title }: { sessionId: string; title: s
         onConfirm={async (reason) => { await cancelSessionByClient(sessionId, reason); }}
         who="CLIENT"
         title={title}
+        scheduledAt={scheduledAt}
       />
     </>
   );
