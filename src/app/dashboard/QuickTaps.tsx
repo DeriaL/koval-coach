@@ -33,8 +33,8 @@ export function QuickTaps({ water, steps }: { water: number; steps: number }) {
         <div className="grid grid-cols-3 gap-1.5 mt-3">
           {[0.25, 0.5, 1].map(v => (
             <button key={v} onClick={() => addWater(v)} disabled={pending}
-              className="btn text-xs py-2 active:scale-90">
-              <Plus className="w-3 h-3" /> {v} л
+              className="btn text-[11px] px-1 py-2 active:scale-90 whitespace-nowrap justify-center">
+              +{v} л
             </button>
           ))}
         </div>
@@ -52,8 +52,8 @@ export function QuickTaps({ water, steps }: { water: number; steps: number }) {
         <div className="grid grid-cols-3 gap-1.5 mt-3">
           {[1000, 2500, 5000].map(v => (
             <button key={v} onClick={() => addSteps(v)} disabled={pending}
-              className="btn text-xs py-2 active:scale-90">
-              <Plus className="w-3 h-3" /> {(v/1000)}k
+              className="btn text-[11px] px-1 py-2 active:scale-90 whitespace-nowrap justify-center">
+              +{(v/1000)}k
             </button>
           ))}
         </div>
