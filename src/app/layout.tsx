@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: "Кабінет клієнта: харчування, тренування, прогрес, аналітика.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "KovalFit" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
 };
 
 export const viewport = {
