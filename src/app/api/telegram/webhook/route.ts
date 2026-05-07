@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       await sendTelegram(chatId, `Найближчих тренувань немає.`);
     } else {
       const lines = upcoming.map(s => {
-        const dt = new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" });
+        const dt = new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" });
         const who = user.role === "TRAINER" ? ` · ${s.client.firstName} ${s.client.lastName}` : "";
         return `• <b>${dt}</b> — ${s.title}${who}`;
       });

@@ -305,7 +305,8 @@ export async function deleteHabit(id: string, clientId: string) {
 // ========= Scheduled sessions =========
 export async function scheduleSession(clientId: string, data: { title: string; scheduledAt: string; notes?: string; alreadyDone?: boolean | string }) {
   await requireTrainer();
-  const dt = new Date(data.scheduledAt);
+  // datetime-local value has no timezone — treat as Kyiv time (UTC+3)
+  const dt = new Date(data.scheduledAt.length === 16 ? data.scheduledAt + ":00+03:00" : data.scheduledAt);
   const alreadyDone = data.alreadyDone === true || data.alreadyDone === "on" || data.alreadyDone === "true";
   await prisma.workoutSession.create({
     data: {
@@ -319,7 +320,7 @@ export async function scheduleSession(clientId: string, data: { title: string; s
     },
   });
   if (!alreadyDone) {
-    const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" });
+    const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" });
     notifyUser(clientId, `📅 <b>Я запланував для тебе тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
   }
   // If backfilled as done, check milestone
@@ -394,7 +395,7 @@ export async function cancelSessionByTrainer(sessionId: string, clientId: string
     where: { id: sessionId },
     data: { cancelledAt: new Date(), cancelledBy: "TRAINER", cancelReason: reason || "Без причини" },
   });
-  const when = s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "";
+  const when = s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) : "";
   await prisma.reminder.create({
     data: {
       clientId,

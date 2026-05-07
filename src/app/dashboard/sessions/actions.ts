@@ -47,7 +47,7 @@ export async function cancelSessionByClient(sessionId: string, reason: string) {
   }
   // Notification to trainer is implicit — visible on /admin/sessions in cancelled section + admin home activity feed.
   // We also create a Reminder on the client (so they have a record); trainer sees in cancelled section.
-  const when = s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "";
+  const when = s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) : "";
   await prisma.reminder.create({
     data: {
       clientId: u.id,
