@@ -14,11 +14,11 @@ export default function NewClientPage() {
   function submit(fd: FormData) {
     fd.set("coachingPlan", plan);
     start(async () => {
-      try {
-        const id = await createClient(Object.fromEntries(fd) as any);
-        router.push(`/admin/clients/${id}`);
-      } catch (e: any) {
-        setErr(e.message);
+      const result = await createClient(Object.fromEntries(fd) as any);
+      if ("error" in result) {
+        setErr(result.error);
+      } else {
+        router.push(`/admin/clients/${result.id}`);
       }
     });
   }

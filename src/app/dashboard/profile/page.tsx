@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { User, Mail, Phone, Calendar, Target, Ruler, Scale, StickyNote } from "lucide-react";
 import { TelegramConnect } from "@/components/TelegramConnect";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 
 export default async function ProfilePage() {
   const u = await requireClient();
@@ -24,7 +25,7 @@ export default async function ProfilePage() {
   };
 
   return (
-    <div>
+    <div className="pt-4">
       <PageHeader title="Мій профіль" subtitle="Дані, які я веду по тобі" />
 
       <div className="card p-6 flex items-center gap-5">
@@ -61,8 +62,10 @@ export default async function ProfilePage() {
         </div>
       )}
 
-      <div className="mt-6 text-sm text-muted">
-        Щоб змінити дані, напиши мені у чат.
+      <ChangePasswordForm />
+
+      <div className="mt-4 text-sm text-muted">
+        Щоб змінити інші дані, напиши мені у чат.
       </div>
     </div>
   );

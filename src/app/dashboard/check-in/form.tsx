@@ -63,13 +63,13 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
       </div>
       <div>
         <label className="label">Вода (літри)</label>
-        <input className="input" type="number" step="0.1" value={water}
-          onChange={(e) => setWater(e.target.value === "" ? "" : Number(e.target.value))} />
+        <input className="input" type="number" step="0.1" min={0} value={water}
+          onChange={(e) => setWater(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))} />
       </div>
       <div>
         <label className="label">Кроки</label>
-        <input className="input" type="number" value={steps}
-          onChange={(e) => setSteps(e.target.value === "" ? "" : Number(e.target.value))} />
+        <input className="input" type="number" min={0} value={steps}
+          onChange={(e) => setSteps(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))} />
       </div>
       <div className="md:col-span-2">
         <label className="label">Нотатка (необовʼязково)</label>

@@ -21,12 +21,10 @@ const clientNav: Item[] = [
   { href: "/dashboard/nutrition", label: "Харчування", icon: Apple },
   { href: "/dashboard/supplements", label: "Добавки", icon: Pill },
   { href: "/dashboard/analytics", label: "Аналітика", icon: LineChart },
-  { href: "/dashboard/records", label: "Рекорди", icon: Trophy },
   { href: "/dashboard/photos", label: "Фото", icon: Camera },
   { href: "/dashboard/achievements", label: "Досягнення", icon: Trophy },
   { href: "/dashboard/payments", label: "Оплати", icon: Wallet },
   { href: "/dashboard/chat", label: "Чат", icon: MessageCircle },
-  { href: "/dashboard/profile", label: "Профіль", icon: User },
 ];
 
 const adminNav: Item[] = [
@@ -95,10 +93,21 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
         {Brand}
         <div className="mt-4 flex-1 overflow-hidden flex flex-col">{NavList}</div>
         <div className="mt-4 pt-4 border-t border-border space-y-2">
-          <div className="px-2 py-2 text-sm">
-            <div className="font-medium truncate">{userName}</div>
-            <div className="text-muted text-xs">{role === "TRAINER" ? "Тренер" : "Клієнт"}</div>
-          </div>
+          <Link
+            href={role === "TRAINER" ? "/admin/profile" : "/dashboard/profile"}
+            className={`flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm hover:bg-card transition-colors group ${
+              pathname === "/dashboard/profile" || pathname === "/admin/profile" ? "bg-accent/10 border border-accent/30" : ""
+            }`}
+          >
+            <div className="w-8 h-8 rounded-full accent-shine flex items-center justify-center text-white text-xs font-bold shrink-0">
+              {userName.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium truncate leading-tight">{userName}</div>
+              <div className="text-muted text-xs">{role === "TRAINER" ? "Тренер" : "Клієнт"}</div>
+            </div>
+            <User className="w-3.5 h-3.5 text-muted ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
           <ThemeToggle />
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
@@ -134,10 +143,21 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
             </div>
             <div className="mt-4 flex-1 overflow-y-auto">{NavList}</div>
             <div className="mt-4 pt-4 border-t border-border space-y-2">
-              <div className="px-2 py-2 text-sm">
-                <div className="font-medium truncate">{userName}</div>
-                <div className="text-muted text-xs">{role === "TRAINER" ? "Тренер" : "Клієнт"}</div>
-              </div>
+              <Link
+                href={role === "TRAINER" ? "/admin/profile" : "/dashboard/profile"}
+                className={`flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm hover:bg-card transition-colors group ${
+                  pathname === "/dashboard/profile" || pathname === "/admin/profile" ? "bg-accent/10 border border-accent/30" : ""
+                }`}
+              >
+                <div className="w-8 h-8 rounded-full accent-shine flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  {userName.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-medium truncate leading-tight">{userName}</div>
+                  <div className="text-muted text-xs">{role === "TRAINER" ? "Тренер" : "Клієнт"}</div>
+                </div>
+                <User className="w-3.5 h-3.5 text-muted ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Link>
               <ThemeToggle />
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}

@@ -10,28 +10,33 @@ function toDate(v: any) { return v ? new Date(v) : null; }
 function toNum(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
 function toInt(v: any) { if (v === "" || v == null) return null; const n = parseInt(v, 10); return Number.isNaN(n) ? null : n; }
 
-export async function createClient(data: Record<string, any>) {
+export async function createClient(data: Record<string, any>): Promise<{ id: string } | { error: string }> {
   await requireTrainer();
-  const hash = await bcrypt.hash(data.password, 10);
-  const u = await prisma.user.create({
-    data: {
-      email: data.email,
-      password: hash,
-      role: "CLIENT",
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.phone || null,
-      birthday: toDate(data.birthday),
-      goal: data.goal || null,
-      height: toNum(data.height),
-      startWeight: toNum(data.startWeight),
-      notes: data.notes || null,
-      coachingPlan: data.coachingPlan === "ONLINE" ? "ONLINE" : "FULL",
-      pricePer10: toNum(data.pricePer10),
-    },
-  });
-  revalidatePath("/admin");
-  return u.id;
+  try {
+    const hash = await bcrypt.hash(data.password, 10);
+    const u = await prisma.user.create({
+      data: {
+        email: data.email,
+        password: hash,
+        role: "CLIENT",
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone || null,
+        birthday: toDate(data.birthday),
+        goal: data.goal || null,
+        height: toNum(data.height),
+        startWeight: toNum(data.startWeight),
+        notes: data.notes || null,
+        coachingPlan: data.coachingPlan === "ONLINE" ? "ONLINE" : "FULL",
+        pricePer10: toNum(data.pricePer10),
+      },
+    });
+    revalidatePath("/admin");
+    return { id: u.id };
+  } catch (e: any) {
+    if (e.code === "P2002") return { error: "Клієнт з таким email вже існує" };
+    return { error: "Помилка при створенні клієнта. Спробуй ще раз." };
+  }
 }
 
 export async function updateClient(id: string, data: Record<string, any>) {

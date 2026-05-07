@@ -3,13 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { WorkoutPlayer } from "./player";
 
-export default async function WorkoutSessionPage({ searchParams }: { searchParams: { day?: string } }) {
+export default async function WorkoutSessionPage({ searchParams }: { searchParams: { day?: string; planId?: string } }) {
   const u = await requireClient();
   const day = searchParams.day;
   if (!day) redirect("/dashboard/workout");
 
   const plan = await prisma.trainingPlan.findFirst({
-    where: { clientId: u.id },
+    where: { clientId: u.id, ...(searchParams.planId ? { id: searchParams.planId } : {}) },
     include: { exercises: { where: { day }, orderBy: { order: "asc" } } },
     orderBy: { updatedAt: "desc" },
   });

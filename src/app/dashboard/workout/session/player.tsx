@@ -243,7 +243,7 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
                       <span className="text-accent font-medium">Минулого разу:</span>
                       {lastSession[ex.name].map((ls, i) => (
                         <span key={i} className="chip text-[10px] py-0.5 px-2">
-                          {ls.weight ?? "—"}×{ls.reps ?? "—"}
+                          {ls.weight != null ? Number(ls.weight).toFixed(1) : "—"}×{ls.reps ?? "—"}
                         </span>
                       ))}
                     </div>
@@ -263,7 +263,7 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
                         <input
                           className="input text-center"
                           type="number" step="0.5" inputMode="decimal"
-                          placeholder={ls?.weight != null ? String(ls.weight) : best ? String(best.weight) : "-"}
+                          placeholder={ls?.weight != null ? Number(ls.weight).toFixed(1) : best ? Number(best.weight).toFixed(1) : "-"}
                           value={s.weight}
                           onChange={(e) => updateSet(ex.id, i, { weight: e.target.value })}
                         />

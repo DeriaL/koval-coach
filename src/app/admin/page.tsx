@@ -117,7 +117,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
               const Icon = it.type === "pr" ? Trophy : it.type === "session" ? Dumbbell : CheckCircle2;
               const accent = it.type === "pr" ? "text-accent" : it.type === "session" ? "text-accent2" : "text-success";
               return (
-                <Link key={it.id} href={`/admin/clients/${it.clientId}`} className="flex items-center gap-3 p-2.5 rounded-xl bg-surface border border-border hover:border-accent/40 hover:-translate-y-0.5 transition">
+                <Link key={it.id} href={`/admin/clients/${it.clientId}`} className="flex items-center gap-3 p-2.5 rounded-xl bg-surface border border-border hover:border-accent/40 hover:-translate-y-0.5 transition w-full">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-card ${accent}`}><Icon className="w-4 h-4" /></div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm truncate"><b>{it.name}</b> <span className="text-muted">{it.text}</span></div>
@@ -146,7 +146,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
               key={c.id}
               href={`/admin/clients/${c.id}`}
               style={{ ["--i" as any]: i }}
-              className="card p-5 card-hover group relative"
+              className="card p-5 card-hover group relative block"
             >
               {pendingPay && (
                 <div className="absolute -top-2 -right-2 chip bg-accent2/15 border-accent2/40 text-accent2 text-[10px] animate-pulse-ring">
@@ -174,7 +174,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                     <Mail className="w-3 h-3" /> {c.email}
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
+                <ChevronRight className="w-5 h-5 text-muted group-hover:text-accent transition shrink-0" />
               </div>
 
               {c.goal && (
