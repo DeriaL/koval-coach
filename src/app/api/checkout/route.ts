@@ -23,9 +23,10 @@ export async function POST(req: Request) {
   // Always use HTTPS — on Vercel internal requests arrive as http://
   const reqUrl = new URL(req.url);
   const host = reqUrl.host;
-  const baseUrl =
-    process.env.NEXTAUTH_URL?.replace(/\/$/, "") ??
-    `https://${host}`;
+  const baseUrl = (
+    process.env.NEXTAUTH_URL?.trim().replace(/\/$/, "") ??
+    `https://${host}`
+  );
   const amountKopecks = Math.round(amountUAH * 100);
 
   // Fetch client full name
