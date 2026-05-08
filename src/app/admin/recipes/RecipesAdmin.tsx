@@ -1,6 +1,6 @@
 "use client";
-import { useState, useRef, useTransition, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Upload, Link2, Loader2, X, Smile } from "lucide-react";
+import { useState, useRef, useTransition } from "react";
+import { Plus, Trash2, ExternalLink, Upload, Link2, Loader2, X } from "lucide-react";
 
 const CATEGORIES = ["Сніданки", "Обіди", "Перекуси", "Вечері", "Десерти", "Інше"];
 const EMOJIS = ["🥗", "🍳", "🥩", "🍝", "🥞", "🥑", "🍱", "🥦", "🍜", "🥙", "🍰", "🍫", "💪", "🫙", "🍽️"];
@@ -18,29 +18,16 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
   const [category, setCategory] = useState("Сніданки");
   const [description, setDescription] = useState("");
   const [emoji, setEmoji] = useState("🥗");
-  const [emojiOpen, setEmojiOpen] = useState(false);
   const [externalUrl, setExternalUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const emojiRef = useRef<HTMLDivElement>(null);
-
-  // Close emoji picker on outside click
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
-        setEmojiOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   function reset() {
     setTitle(""); setCategory("Сніданки"); setDescription(""); setEmoji("🥗");
-    setEmojiOpen(false); setExternalUrl(""); setFile(null); setError("");
+    setExternalUrl(""); setFile(null); setError("");
     setShowForm(false);
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -92,7 +79,7 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
           <h1 className="text-2xl font-bold">Рецепти</h1>
           <p className="text-sm text-muted mt-0.5">Управляй збірками рецептів для клієнтів</p>
         </div>
-        <button onClick={() => { setShowForm(v => !v); setEmojiOpen(false); }} className="btn btn-primary gap-2">
+        <button onClick={() => setShowForm(v => !v)} className="btn btn-primary gap-2">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? "Закрити" : "Додати"}
         </button>
@@ -119,30 +106,29 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
 
             <form onSubmit={submit} className="space-y-4">
 
-              {/* Emoji + Title row */}
-              <div className="flex gap-2 items-start">
-                {/* Emoji picker */}
-                <div ref={emojiRef} className="relative shrink-0">
-                  <button type="button"
-                    onClick={() => setEmojiOpen(v => !v)}
-                    className="w-12 h-11 rounded-xl border border-border bg-surface text-xl flex items-center justify-center hover:border-accent/40 transition"
-                    title="Обрати emoji">
-                    {emoji}
-                  </button>
-                  {emojiOpen && (
-                    <div className="absolute top-full left-0 mt-1 z-50 bg-card border border-border rounded-xl p-2 grid grid-cols-5 gap-1 shadow-2xl">
-                      {EMOJIS.map(e => (
-                        <button key={e} type="button"
-                          onClick={() => { setEmoji(e); setEmojiOpen(false); }}
-                          className={`w-9 h-9 text-xl rounded-lg flex items-center justify-center hover:bg-surface transition ${e === emoji ? "bg-accent/15 ring-1 ring-accent/30" : ""}`}>
-                          {e}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <input className="input flex-1" placeholder="Назва збірки" value={title}
+              {/* Title */}
+              <div>
+                <label className="label">Назва збірки</label>
+                <input className="input" placeholder="Наприклад: Обіди для схуднення" value={title}
                   onChange={e => setTitle(e.target.value)} required />
+              </div>
+
+              {/* Emoji — inline horizontal scroll */}
+              <div>
+                <label className="label">Emoji</label>
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
+                  {EMOJIS.map(e => (
+                    <button key={e} type="button"
+                      onClick={() => setEmoji(e)}
+                      className={`shrink-0 w-10 h-10 text-xl rounded-xl border flex items-center justify-center transition ${
+                        e === emoji
+                          ? "border-accent bg-accent/15 shadow-[0_0_10px_-2px_rgb(var(--accent)/0.4)]"
+                          : "border-border bg-surface hover:border-accent/40"
+                      }`}>
+                      {e}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Category */}
