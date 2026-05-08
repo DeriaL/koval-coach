@@ -29,12 +29,21 @@ export async function POST(req: Request) {
   );
   const amountKopecks = Math.round(amountUAH * 100);
 
-  // Fetch client full name
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { firstName: true, lastName: true },
-  });
+  // Fetch client full name + admin-configured invoice template
+  const [dbUser, cfg] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { firstName: true, lastName: true },
+    }),
+    (prisma as any).siteConfig.findUnique({ where: { id: "main" } }).catch(() => null),
+  ]);
   const clientName = dbUser ? `${dbUser.firstName} ${dbUser.lastName}` : user.name;
+
+  // Apply template substitutions: {client} {amount}
+  const template: string = (cfg?.paymentDescription?.trim()) || "Пакет 10 тренувань · {client}";
+  const description = template
+    .replace(/\{client\}/gi, clientName)
+    .replace(/\{amount\}/gi, `${amountUAH.toLocaleString("uk-UA")} ₴`);
 
   const reference = `kovalfit-${user.id}-${Date.now()}`;
 
@@ -43,11 +52,11 @@ export async function POST(req: Request) {
     ccy: 980,
     merchantPaymInfo: {
       reference,
-      destination: "Пакет 10 тренувань KovalFit",
+      destination: description,
       comment: `Клієнт: ${clientName}`,
       basketOrder: [
         {
-          name: "Пакет 10 тренувань",
+          name: description,
           qty: 1,
           sum: amountKopecks,
           unit: "шт.",

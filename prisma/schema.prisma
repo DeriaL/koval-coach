@@ -281,6 +281,7 @@ model SiteConfig {
   priceOnline  String? // e.g. "4 000"
   priceOffline String? // e.g. "5 000"
   priceNote    String? // e.g. "пакет 10 тренувань"
+  paymentDescription String? // Mono invoice template, supports {client} {amount}
   updatedAt    DateTime @updatedAt
 }
 

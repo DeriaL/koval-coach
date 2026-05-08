@@ -7,6 +7,7 @@ export async function saveSiteConfig(data: {
   phone?: string; email?: string; city?: string;
   instagram?: string; telegram?: string;
   priceOnline?: string; priceOffline?: string; priceNote?: string;
+  paymentDescription?: string;
 }) {
   await requireTrainer();
   await (prisma as any).siteConfig.upsert({

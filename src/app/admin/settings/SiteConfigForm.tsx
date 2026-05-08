@@ -1,12 +1,13 @@
 "use client";
 import { useState, useTransition } from "react";
 import { saveSiteConfig } from "./actions";
-import { Phone, Mail, MapPin, Instagram, Send, Tag, Loader2, CheckCircle2, ExternalLink } from "lucide-react";
+import { Phone, Mail, MapPin, Instagram, Send, Tag, Loader2, CheckCircle2, ExternalLink, CreditCard } from "lucide-react";
 
 type Cfg = {
   phone?: string | null; email?: string | null; city?: string | null;
   instagram?: string | null; telegram?: string | null;
   priceOnline?: string | null; priceOffline?: string | null; priceNote?: string | null;
+  paymentDescription?: string | null;
 } | null;
 
 export function SiteConfigForm({ initial }: { initial: Cfg }) {
@@ -18,13 +19,14 @@ export function SiteConfigForm({ initial }: { initial: Cfg }) {
   const [priceOnline, setPriceOnline] = useState(initial?.priceOnline ?? "");
   const [priceOffline, setPriceOffline] = useState(initial?.priceOffline ?? "");
   const [priceNote, setPriceNote] = useState(initial?.priceNote ?? "пакет 10 тренувань");
+  const [paymentDescription, setPaymentDescription] = useState(initial?.paymentDescription ?? "Пакет 10 тренувань · {client}");
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     start(async () => {
-      await saveSiteConfig({ phone, email, city, instagram, telegram, priceOnline, priceOffline, priceNote });
+      await saveSiteConfig({ phone, email, city, instagram, telegram, priceOnline, priceOffline, priceNote, paymentDescription });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     });
@@ -118,6 +120,51 @@ export function SiteConfigForm({ initial }: { initial: Cfg }) {
             <div className="p-3 rounded-xl bg-accent/5 border border-accent/20 text-xs text-muted">
               💡 Для <b>Mono Pay</b>: після заповнення цін на лендингу — вкажи URL свого сайту при подачі заявки.
               Це підтвердить наявність інформації про послуги.
+            </div>
+          </div>
+        </div>
+
+        {/* Payment template block */}
+        <div className="card overflow-hidden">
+          <div className="h-[3px] bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent2))]" />
+          <div className="p-5 space-y-4">
+            <div className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5 text-accent" /> Шаблон опису платежу
+            </div>
+            <div className="text-xs text-muted">
+              Текст, який клієнт побачить при оплаті через <b>Plata by Mono</b>.
+            </div>
+
+            <div>
+              <label className="label">Опис платежу</label>
+              <input
+                className="input"
+                placeholder="Пакет 10 тренувань · {client}"
+                value={paymentDescription}
+                onChange={e => setPaymentDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="p-3 rounded-xl bg-surface border border-border text-xs space-y-2">
+              <div className="font-semibold text-text">Доступні змінні:</div>
+              <div className="flex flex-wrap gap-1.5">
+                <code className="font-mono px-1.5 py-0.5 rounded bg-card border border-border text-accent">{"{client}"}</code>
+                <span className="text-muted">— Ім&apos;я і прізвище клієнта</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <code className="font-mono px-1.5 py-0.5 rounded bg-card border border-border text-accent">{"{amount}"}</code>
+                <span className="text-muted">— Сума платежу (1 000 ₴)</span>
+              </div>
+              {paymentDescription && (
+                <div className="pt-2 border-t border-border">
+                  <div className="text-muted text-[11px] uppercase tracking-wider mb-1">Превʼю:</div>
+                  <div className="font-medium text-text break-words">
+                    {paymentDescription
+                      .replace(/\{client\}/gi, "Іван Петренко")
+                      .replace(/\{amount\}/gi, "5 000 ₴")}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
