@@ -81,12 +81,12 @@ export function TrainingTab({ clientId, items }: { clientId: string; items: any[
         {items.length === 0 && <div className="card p-6 text-muted text-center">Програм ще немає</div>}
         {items.map(p => (
           <div key={p.id} className="card p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="font-semibold text-lg">{p.title}</div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-lg break-words">{p.title}</div>
                 <div className="text-xs text-muted mt-1">{p.daysPerWeek ?? "—"}× на тиждень · {p.exercises?.length ?? 0} вправ</div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 shrink-0">
                 <button onClick={() => setEditing(p)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
                 <button onClick={() => del(p.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>

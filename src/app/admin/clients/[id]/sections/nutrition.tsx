@@ -35,7 +35,7 @@ export function NutritionTab({ clientId, items }: { clientId: string; items: any
             <label className="label">Назва</label>
             <input name="title" defaultValue={editing.title ?? ""} required className="input" />
           </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div><label className="label">Ккал</label><input name="calories" type="number" defaultValue={editing.calories ?? ""} className="input" /></div>
             <div><label className="label">Білки</label><input name="protein" type="number" defaultValue={editing.protein ?? ""} className="input" /></div>
             <div><label className="label">Вуглеводи</label><input name="carbs" type="number" defaultValue={editing.carbs ?? ""} className="input" /></div>
@@ -59,11 +59,11 @@ export function NutritionTab({ clientId, items }: { clientId: string; items: any
           {items.map(p => (
             <div key={p.id} className="card p-5">
               <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="font-semibold">{p.title}</div>
-                  <div className="text-xs text-muted mt-1">{p.calories} ккал · Б{p.protein}/В{p.carbs}/Ж{p.fats}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold break-words">{p.title}</div>
+                  <div className="text-xs text-muted mt-1 break-words">{p.calories} ккал · Б{p.protein}/В{p.carbs}/Ж{p.fats}</div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <button onClick={() => setEditing(p)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
                   <button onClick={() => del(p.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>

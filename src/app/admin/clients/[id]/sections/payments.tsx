@@ -53,12 +53,12 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
         {items.length === 0 && <div className="p-6 text-muted text-center">Платежів немає</div>}
         {items.map(p => (
           <div key={p.id} className="p-4 flex items-center justify-between gap-3 flex-wrap">
-            <div>
+            <div className="min-w-0">
               <div className="font-medium">{p.amount} {p.currency}</div>
-              <div className="text-xs text-muted">{new Date(p.date).toLocaleDateString("uk-UA")} · {p.method ?? "—"}</div>
+              <div className="text-xs text-muted break-words">{new Date(p.date).toLocaleDateString("uk-UA")} · {p.method ?? "—"}</div>
             </div>
-            <span className={`chip text-xs ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-accent" : "text-danger"}`}>{p.status}</span>
-            <div className="flex gap-1">
+            <span className={`chip text-xs shrink-0 ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-accent" : "text-danger"}`}>{p.status}</span>
+            <div className="flex gap-1 shrink-0">
               <button onClick={() => setEditing(p)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
               <button onClick={() => del(p.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>

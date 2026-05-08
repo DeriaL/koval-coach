@@ -45,14 +45,14 @@ export function RemindersTab({ clientId, items }: { clientId: string; items: any
         {items.length === 0 && <div className="p-6 text-muted text-center">Нагадувань немає</div>}
         {items.map(r => (
           <div key={r.id} className="p-4 flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-3">
-              <Bell className="w-4 h-4 text-accent" />
-              <div>
-                <div className="font-medium">{r.title}</div>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <Bell className="w-4 h-4 text-accent shrink-0" />
+              <div className="min-w-0">
+                <div className="font-medium break-words">{r.title}</div>
                 <div className="text-xs text-muted">{new Date(r.datetime).toLocaleString("uk-UA")}</div>
               </div>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center shrink-0 flex-wrap">
               <span className="chip text-xs">{r.type}</span>
               <button onClick={() => setEditing(r)} className="btn text-sm">Змінити</button>
               <button onClick={() => del(r.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>

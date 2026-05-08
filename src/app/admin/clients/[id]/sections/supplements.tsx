@@ -38,13 +38,13 @@ export function SupplementsTab({ clientId, items }: { clientId: string; items: a
         {items.length === 0 && <div className="card p-6 text-muted text-center md:col-span-2">Добавок поки немає</div>}
         {items.map(s => (
           <div key={s.id} className="card p-4 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Pill className="w-5 h-5" /></div>
-            <div className="flex-1">
-              <div className="font-medium">{s.name}</div>
-              <div className="text-xs text-muted">{s.dosage} · {s.schedule}</div>
-              {s.notes && <div className="text-sm mt-1">{s.notes}</div>}
+            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0"><Pill className="w-5 h-5" /></div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium break-words">{s.name}</div>
+              <div className="text-xs text-muted break-words">{s.dosage} · {s.schedule}</div>
+              {s.notes && <div className="text-sm mt-1 break-words">{s.notes}</div>}
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 shrink-0">
               <button onClick={() => setEditing(s)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
               <button onClick={() => del(s.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>

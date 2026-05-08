@@ -56,12 +56,12 @@ export function HabitsTab({ clientId, items }: { clientId: string; items: any[] 
         {items.length === 0 && <div className="card p-6 text-muted text-center col-span-full">Звичок ще немає</div>}
         {items.map((h) => (
           <div key={h.id} className="card p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Target className="w-5 h-5" /></div>
+            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0"><Target className="w-5 h-5" /></div>
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{h.title}</div>
               <div className="text-xs text-muted">{h.logs?.length ?? 0} днів виконано</div>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 shrink-0">
               <button onClick={() => setEditing(h)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
               <button onClick={() => del(h.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
