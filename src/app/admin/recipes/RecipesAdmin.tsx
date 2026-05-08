@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useTransition } from "react";
-import { Plus, Trash2, ExternalLink, Upload, Link2, Loader2, X, Pencil, Check } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Upload, Link2, Loader2, X, Pencil, Check, Eye } from "lucide-react";
+import { RecipePreviewModal } from "@/components/RecipePreviewModal";
 
 const CATEGORIES = ["Сніданки", "Обіди", "Перекуси", "Вечері", "Десерти", "Інше"];
 const EMOJIS = ["🥗", "🍳", "🥩", "🍝", "🥞", "🥑", "🍱", "🥦", "🍜", "🥙", "🍰", "🍫", "💪", "🫙", "🍽️"];
@@ -133,6 +134,7 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
   const [recipes, setRecipes] = useState<Recipe[]>(initial);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<Recipe | null>(null);
 
   // Add form state
   const [mode, setMode] = useState<"upload" | "link">("upload");
@@ -325,11 +327,11 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <a href={r.fileUrl} target="_blank" rel="noreferrer"
+                        <button onClick={() => setPreview(r)}
                           className="btn text-xs py-2 px-3 gap-1 hover:border-accent/50 hover:text-accent">
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Відкрити</span>
-                        </a>
+                          <Eye className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Переглянути</span>
+                        </button>
                         <button
                           onClick={() => setEditingId(editingId === r.id ? null : r.id)}
                           className={`btn text-xs py-2 px-3 gap-1 ${editingId === r.id ? "border-accent/40 text-accent bg-accent/5" : "hover:border-accent/50 hover:text-accent"}`}>
@@ -360,6 +362,16 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
             </div>
           );
         })
+      )}
+
+      {/* Preview modal */}
+      {preview && (
+        <RecipePreviewModal
+          title={preview.title}
+          fileUrl={preview.fileUrl}
+          fileType={preview.fileType}
+          onClose={() => setPreview(null)}
+        />
       )}
     </div>
   );
