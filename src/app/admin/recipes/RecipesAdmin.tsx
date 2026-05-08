@@ -370,6 +370,7 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
           title={preview.title}
           fileUrl={preview.fileUrl}
           fileType={preview.fileType}
+          emoji={preview.emoji}
           onClose={() => setPreview(null)}
         />
       )}

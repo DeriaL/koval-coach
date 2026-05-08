@@ -81,6 +81,7 @@ export function RecipesGrid({ recipes }: { recipes: Recipe[] }) {
           title={preview.title}
           fileUrl={preview.fileUrl}
           fileType={preview.fileType}
+          emoji={preview.emoji}
           onClose={() => setPreview(null)}
         />
       )}
