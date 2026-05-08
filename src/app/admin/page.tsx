@@ -1,16 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { uk } from "date-fns/locale";
-import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Trophy, Flame as FlameI, CheckCircle2, Activity, Star } from "lucide-react";
+import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star } from "lucide-react";
 
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string } }) {
-  const since = new Date(Date.now() - 3 * 86400000);
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
   const planFilter = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
 
-  const [clients, recentSessions, recentCheckIns, recentPRs, awaiting, planCounts] = await Promise.all([
+  const [clients, awaiting, planCounts] = await Promise.all([
     prisma.user.findMany({
       where: { role: "CLIENT", ...planFilter },
       include: {
@@ -20,24 +17,6 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
       },
       orderBy: [{ isVip: "desc" }, { firstName: "asc" }, { lastName: "asc" }],
-    }),
-    prisma.workoutSession.findMany({
-      where: { OR: [{ completed: true }, { confirmedByTrainer: true }], date: { gte: since }, client: { role: "CLIENT" } },
-      include: { client: { select: { firstName: true, lastName: true, id: true } } },
-      orderBy: { date: "desc" },
-      take: 8,
-    }),
-    prisma.checkIn.findMany({
-      where: { date: { gte: since }, client: { role: "CLIENT" } },
-      include: { client: { select: { firstName: true, lastName: true, id: true } } },
-      orderBy: { date: "desc" },
-      take: 8,
-    }),
-    prisma.sessionSet.findMany({
-      where: { isPR: true, session: { date: { gte: since }, completed: true, client: { role: "CLIENT" } } },
-      include: { session: { include: { client: { select: { firstName: true, lastName: true, id: true } } } } },
-      orderBy: { createdAt: "desc" },
-      take: 6,
     }),
     prisma.workoutSession.findMany({
       where: {
@@ -56,13 +35,6 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   const onlineCount = planCounts.find(p => p.coachingPlan === "ONLINE")?._count._all ?? 0;
   const offlineCount = planCounts.find(p => p.coachingPlan === "FULL")?._count._all ?? 0;
   const totalAll = onlineCount + offlineCount;
-
-  type FeedItem = { id: string; t: Date; type: "session" | "checkin" | "pr"; clientId: string; name: string; text: string };
-  const feed: FeedItem[] = [
-    ...recentSessions.map(s => ({ id: "s" + s.id, t: s.date, type: "session" as const, clientId: s.clientId, name: `${s.client.firstName} ${s.client.lastName}`, text: `завершив(ла) тренування «${s.title}»` })),
-    ...recentCheckIns.map(c => ({ id: "c" + c.id, t: c.date, type: "checkin" as const, clientId: c.clientId, name: `${c.client.firstName} ${c.client.lastName}`, text: `зробив(ла) check-in${c.weight ? ` · ${c.weight.toFixed(1)} кг` : ""}` })),
-    ...recentPRs.map(p => ({ id: "p" + p.id, t: p.session.date, type: "pr" as const, clientId: p.session.clientId, name: `${p.session.client.firstName} ${p.session.client.lastName}`, text: `🏆 рекорд: ${p.exerciseName} ${p.weight ? p.weight.toFixed(1) : "?"}×${p.reps}` })),
-  ].sort((a, b) => b.t.getTime() - a.t.getTime()).slice(0, 12);
 
   const totalSessions = clients.reduce((a, c) => a + c._count.sessions, 0);
   const duePayments = clients.filter(c => c.payments.some(p => p.status === "pending" || p.status === "overdue")).length;
@@ -101,31 +73,6 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 <span className="chip text-xs text-accent2 border-accent2/40">підтвердити →</span>
               </Link>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Activity feed (last 72h) */}
-      {feed.length > 0 && (
-        <div className="card p-5 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold flex items-center gap-2"><Activity className="w-4 h-4 text-accent" /> Активність клієнтів · 72 год</h3>
-            <span className="text-xs text-muted">{feed.length} подій</span>
-          </div>
-          <div className="space-y-2">
-            {feed.map((it) => {
-              const Icon = it.type === "pr" ? Trophy : it.type === "session" ? Dumbbell : CheckCircle2;
-              const accent = it.type === "pr" ? "text-accent" : it.type === "session" ? "text-accent2" : "text-success";
-              return (
-                <Link key={it.id} href={`/admin/clients/${it.clientId}`} className="flex items-center gap-3 p-2.5 rounded-xl bg-surface border border-border hover:border-accent/40 hover:-translate-y-0.5 transition w-full">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-card ${accent}`}><Icon className="w-4 h-4" /></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm truncate"><b>{it.name}</b> <span className="text-muted">{it.text}</span></div>
-                    <div className="text-[11px] text-muted">{formatDistanceToNow(it.t, { addSuffix: true, locale: uk })}</div>
-                  </div>
-                </Link>
-              );
-            })}
           </div>
         </div>
       )}
