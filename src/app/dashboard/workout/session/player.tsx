@@ -158,17 +158,17 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
     <div className="pb-20">
       {/* sticky header */}
       <div className="sticky top-14 md:top-0 z-10 -mx-4 md:-mx-8 px-4 md:px-8 py-3 bg-bg/95 backdrop-blur border-b border-border">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-xs text-muted uppercase tracking-wider">Тренування {day}</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="text-xs text-muted uppercase tracking-wider truncate">Тренування {day}</div>
             <div className="text-2xl font-black">{fmtTime(elapsed)}</div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setRunning(r => !r)} className="btn">
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => setRunning(r => !r)} className="btn px-3">
               {running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
-            <button onClick={finish} disabled={pending} className="btn btn-primary">
-              {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4" /> Завершити</>}
+            <button onClick={finish} disabled={pending} className="btn btn-primary px-3 sm:px-4">
+              {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4" /> <span className="hidden sm:inline">Завершити</span></>}
             </button>
           </div>
         </div>
@@ -217,7 +217,7 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
                     {best && <span className="ml-2 text-accent">· PB {best.weight.toFixed(1)}×{best.reps}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span className={`chip text-xs ${doneCount === exSets.length ? "text-success" : ""}`}>
                     {doneCount}/{exSets.length}
                   </span>

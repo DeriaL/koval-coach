@@ -193,12 +193,12 @@ export function RecipesAdmin({ initial }: { initial: Recipe[] }) {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Рецепти</h1>
           <p className="text-sm text-muted mt-0.5">Управляй збірками рецептів для клієнтів</p>
         </div>
-        <button onClick={() => setShowForm(v => !v)} className="btn btn-primary gap-2">
+        <button onClick={() => setShowForm(v => !v)} className="btn btn-primary gap-2 shrink-0">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? "Закрити" : "Додати"}
         </button>
