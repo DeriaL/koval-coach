@@ -20,12 +20,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "payment not configured" }, { status: 503 });
   }
 
-  // Derive base URL from request so it's always correct on any deployment
+  // Always use HTTPS — on Vercel internal requests arrive as http://
   const reqUrl = new URL(req.url);
-  const baseUrl = (
+  const host = reqUrl.host;
+  const baseUrl =
     process.env.NEXTAUTH_URL?.replace(/\/$/, "") ??
-    `${reqUrl.protocol}//${reqUrl.host}`
-  );
+    `https://${host}`;
   const amountKopecks = Math.round(amountUAH * 100);
 
   // Fetch client full name
