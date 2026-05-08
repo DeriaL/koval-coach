@@ -81,15 +81,19 @@ export default async function PaymentsPage() {
           </div>
         </div>
 
-        {pendingCount > 0 && (
-          <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-2 text-sm flex-1">
-              <Clock className="w-4 h-4 text-accent2 shrink-0" />
-              <span>На цій зупинці очікується оплата{pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""}.</span>
+        {pendingCount > 0 && (() => {
+          const pendingPayment = list.find(p => p.status === "pending" || p.status === "overdue");
+          const payAmount = pricePer10 > 0 ? pricePer10 : pendingPayment?.amount ?? 0;
+          return (
+            <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2 text-sm flex-1">
+                <Clock className="w-4 h-4 text-accent2 shrink-0" />
+                <span>На цій зупинці очікується оплата{payAmount ? ` · ${payAmount.toLocaleString("uk-UA")} ₴` : ""}.</span>
+              </div>
+              {payAmount > 0 && <PayButton amount={payAmount} />}
             </div>
-            {pricePer10 > 0 && <PayButton amount={pricePer10} />}
-          </div>
-        )}
+          );
+        })()}
         {paidCount >= TOTAL_STOPS && (
           <div className="mt-5 p-3 rounded-xl bg-success/10 border border-success/30 flex items-center gap-2 text-sm text-success">
             <Flag className="w-4 h-4" />

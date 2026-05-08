@@ -13,7 +13,7 @@ const DETAILS = [
 ];
 
 export function PaymentDetails() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   function copy(value: string, key: string) {
