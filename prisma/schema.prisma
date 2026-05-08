@@ -270,3 +270,17 @@ model Message {
   body      String
   createdAt DateTime @default(now())
 }
+
+model RecipeBook {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   // Сніданки | Обіди | Перекуси | Вечері | Десерти | Інше
+  description String?
+  fileUrl     String   // Vercel Blob URL or external link (Canva, Drive…)
+  fileType    String   @default("pdf") // pdf | pptx | link
+  coverUrl    String?  // optional cover image URL (stored as data URL or blob)
+  order       Int      @default(0)
+  emoji       String?  // optional emoji for the card
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
