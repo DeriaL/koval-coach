@@ -5,7 +5,7 @@ import { TrendChart, WeightWithAverage, BarsChart } from "@/components/charts2";
 import { MultiLineChart } from "@/components/Charts";
 import { Heatmap } from "@/components/Heatmap";
 import { movingAverage, linearRegression, bmi, bmiCategory, calcStreak, buildHeatmap } from "@/lib/analytics";
-import { LineChart, Scale, TrendingDown, Target, Flame, Heart, Moon, Zap, Trophy, Calendar, Droplet, Activity, Dumbbell } from "lucide-react";
+import { LineChart, Scale, TrendingDown, Target, Flame, Heart, Moon, Zap, Trophy, Calendar, Droplet, Activity, Dumbbell, Pencil } from "lucide-react";
 import { AddMeasurement } from "./AddMeasurement";
 
 export default async function AnalyticsPage() {
@@ -309,11 +309,12 @@ export default async function AnalyticsPage() {
                   <th className="text-right py-2">П.ст</th>
                   <th className="text-right py-2">Л.гом</th>
                   <th className="text-right py-2">П.гом</th>
+                  <th className="text-right py-2 w-10"></th>
                 </tr>
               </thead>
               <tbody>
                 {measurements.slice().reverse().map((x) => (
-                  <tr key={x.id} className="border-t border-border">
+                  <tr key={x.id} className="border-t border-border hover:bg-surface/40 transition">
                     <td className="py-2 whitespace-nowrap">{x.date.toLocaleDateString("uk-UA")}</td>
                     <td className="text-right">{x.weight?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.bodyFat?.toFixed(1) ?? "—"}</td>
@@ -327,6 +328,20 @@ export default async function AnalyticsPage() {
                     <td className="text-right">{x.rightThigh?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.leftCalf?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.rightCalf?.toFixed(1) ?? "—"}</td>
+                    <td className="text-right py-2 pl-2">
+                      <AddMeasurement
+                        initial={x}
+                        trigger={
+                          <button
+                            type="button"
+                            title="Редагувати"
+                            className="w-7 h-7 rounded-lg border border-border bg-surface hover:border-accent/40 inline-flex items-center justify-center transition"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-muted" />
+                          </button>
+                        }
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
