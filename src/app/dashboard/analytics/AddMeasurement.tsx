@@ -46,6 +46,10 @@ export function AddMeasurement({ initial, trigger }: Props) {
 
   const today = new Date().toISOString().slice(0, 10);
   const dateValue = initial ? initial.date.toISOString().slice(0, 10) : today;
+  // Restrict client date picker to current year
+  const currentYear = new Date().getFullYear();
+  const minDate = `${currentYear}-01-01`;
+  const maxDate = today; // can't enter future dates either
 
   function submit(fd: FormData) {
     setErr(null);
@@ -100,7 +104,16 @@ export function AddMeasurement({ initial, trigger }: Props) {
             <form action={submit} className="space-y-3">
               <div>
                 <label className="label">Дата</label>
-                <input name="date" type="date" defaultValue={dateValue} className="input" required />
+                <input
+                  name="date"
+                  type="date"
+                  defaultValue={dateValue}
+                  min={minDate}
+                  max={maxDate}
+                  className="input"
+                  required
+                />
+                <div className="text-[10px] text-muted mt-1">тільки {currentYear} рік</div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

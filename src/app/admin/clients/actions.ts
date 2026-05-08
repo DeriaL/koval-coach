@@ -8,6 +8,14 @@ import { notifyUser } from "@/lib/telegram";
 
 function toDate(v: any) { return v ? new Date(v) : null; }
 function toNum(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
+
+// Stricter version for measurements: rejects values < 0.1, rounds to 1 decimal.
+function toMeasurement(v: any): number | null {
+  if (v === "" || v == null) return null;
+  const n = Number(v);
+  if (Number.isNaN(n) || n < 0.1) return null;
+  return Math.round(n * 10) / 10;
+}
 function toInt(v: any) { if (v === "" || v == null) return null; const n = parseInt(v, 10); return Number.isNaN(n) ? null : n; }
 
 export async function createClient(data: Record<string, any>): Promise<{ id: string } | { error: string }> {
@@ -179,18 +187,18 @@ export async function saveMeasurement(id: string, data: Record<string, any>) {
   await requireTrainer();
   const payload = {
     date: new Date(data.date),
-    weight: toNum(data.weight),
-    chest: toNum(data.chest),
-    waist: toNum(data.waist),
-    hips: toNum(data.hips),
-    shoulders: toNum(data.shoulders),
-    leftArm: toNum(data.leftArm),
-    rightArm: toNum(data.rightArm),
-    leftThigh: toNum(data.leftThigh),
-    rightThigh: toNum(data.rightThigh),
-    leftCalf: toNum(data.leftCalf),
-    rightCalf: toNum(data.rightCalf),
-    bodyFat: toNum(data.bodyFat),
+    weight: toMeasurement(data.weight),
+    chest: toMeasurement(data.chest),
+    waist: toMeasurement(data.waist),
+    hips: toMeasurement(data.hips),
+    shoulders: toMeasurement(data.shoulders),
+    leftArm: toMeasurement(data.leftArm),
+    rightArm: toMeasurement(data.rightArm),
+    leftThigh: toMeasurement(data.leftThigh),
+    rightThigh: toMeasurement(data.rightThigh),
+    leftCalf: toMeasurement(data.leftCalf),
+    rightCalf: toMeasurement(data.rightCalf),
+    bodyFat: toMeasurement(data.bodyFat),
     notes: data.notes || null,
   };
   if (data.id) {

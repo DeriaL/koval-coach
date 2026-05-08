@@ -15,9 +15,25 @@ function num(v: any): number | null {
   return Math.round(n * 10) / 10;
 }
 
+function clampDate(input: any): Date {
+  const d = new Date(input);
+  if (Number.isNaN(d.getTime())) throw new Error("Невірна дата");
+  const now = new Date();
+  const year = now.getFullYear();
+  // Reject any date outside current year — clients can only log for THIS year
+  if (d.getFullYear() !== year) {
+    throw new Error(`Можна вносити заміри тільки за ${year} рік`);
+  }
+  // Reject future dates beyond today
+  if (d.getTime() > now.getTime() + 86400_000) {
+    throw new Error("Не можна вносити заміри з майбутніх дат");
+  }
+  return d;
+}
+
 function buildData(data: Record<string, any>) {
   return {
-    date: new Date(data.date),
+    date: clampDate(data.date),
     weight: num(data.weight),
     chest: num(data.chest),
     waist: num(data.waist),

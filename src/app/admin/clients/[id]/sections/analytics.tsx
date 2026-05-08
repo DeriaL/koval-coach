@@ -32,28 +32,44 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
       </div>
 
       {editing && (
-        <form action={save} className="card p-6 space-y-3 mb-4">
-          <div className="flex justify-between items-center"><h3 className="font-semibold">{editing.id ? "Редагувати" : "Новий замір"}</h3>
-            <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button></div>
+        <form action={save} className="card p-6 space-y-3 mb-4 border-accent/30">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold">{editing.id ? "Редагувати замір" : "Новий замір"}</h3>
+            <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button>
+          </div>
           <div className="grid md:grid-cols-4 gap-3">
             <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? new Date(editing.date).toISOString().slice(0,10) : ""} required className="input" /></div>
-            <div><label className="label">Вага (кг)</label><input name="weight" type="number" step="0.1" defaultValue={editing.weight ?? ""} className="input" /></div>
-            <div><label className="label">% жиру</label><input name="bodyFat" type="number" step="0.1" defaultValue={editing.bodyFat ?? ""} className="input" /></div>
-            <div><label className="label">Плечовий пояс</label><input name="shoulders" type="number" step="0.1" defaultValue={editing.shoulders ?? ""} className="input" /></div>
-            <div><label className="label">Груди</label><input name="chest" type="number" step="0.1" defaultValue={editing.chest ?? ""} className="input" /></div>
-            <div><label className="label">Талія</label><input name="waist" type="number" step="0.1" defaultValue={editing.waist ?? ""} className="input" /></div>
-            <div><label className="label">Сідниці</label><input name="hips" type="number" step="0.1" defaultValue={editing.hips ?? ""} className="input" /></div>
-            <div><label className="label">Ліва рука</label><input name="leftArm" type="number" step="0.1" defaultValue={editing.leftArm ?? ""} className="input" /></div>
-            <div><label className="label">Права рука</label><input name="rightArm" type="number" step="0.1" defaultValue={editing.rightArm ?? ""} className="input" /></div>
-            <div><label className="label">Ліве стегно</label><input name="leftThigh" type="number" step="0.1" defaultValue={editing.leftThigh ?? ""} className="input" /></div>
-            <div><label className="label">Праве стегно</label><input name="rightThigh" type="number" step="0.1" defaultValue={editing.rightThigh ?? ""} className="input" /></div>
-            <div><label className="label">Ліва гомілка</label><input name="leftCalf" type="number" step="0.1" defaultValue={editing.leftCalf ?? ""} className="input" /></div>
-            <div><label className="label">Права гомілка</label><input name="rightCalf" type="number" step="0.1" defaultValue={editing.rightCalf ?? ""} className="input" /></div>
+            <NumField name="weight" label="Вага (кг)" defaultValue={editing.weight} />
+            <NumField name="bodyFat" label="% жиру" defaultValue={editing.bodyFat} />
+            <NumField name="shoulders" label="Плечовий пояс" defaultValue={editing.shoulders} />
+            <NumField name="chest" label="Груди" defaultValue={editing.chest} />
+            <NumField name="waist" label="Талія" defaultValue={editing.waist} />
+            <NumField name="hips" label="Сідниці" defaultValue={editing.hips} />
+            <NumField name="leftArm" label="Ліва рука" defaultValue={editing.leftArm} />
+            <NumField name="rightArm" label="Права рука" defaultValue={editing.rightArm} />
+            <NumField name="leftThigh" label="Ліве стегно" defaultValue={editing.leftThigh} />
+            <NumField name="rightThigh" label="Праве стегно" defaultValue={editing.rightThigh} />
+            <NumField name="leftCalf" label="Ліва гомілка" defaultValue={editing.leftCalf} />
+            <NumField name="rightCalf" label="Права гомілка" defaultValue={editing.rightCalf} />
           </div>
+          <div className="text-[11px] text-muted">Усі обхвати — у см · мінімум 0.1, тільки додатні числа</div>
           <div><label className="label">Нотатка</label><input name="notes" defaultValue={editing.notes ?? ""} className="input" /></div>
-          <button className="btn btn-primary" disabled={pending}>
-            {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Зберегти</>}
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            <button className="btn btn-primary" disabled={pending}>
+              {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Зберегти</>}
+            </button>
+            <button type="button" onClick={() => setEditing(null)} className="btn">Скасувати</button>
+            {editing.id && (
+              <button
+                type="button"
+                onClick={() => del(editing.id)}
+                disabled={pending}
+                className="btn text-danger border-danger/30 hover:bg-danger/10 ml-auto"
+              >
+                <Trash2 className="w-4 h-4" /> Видалити
+              </button>
+            )}
+          </div>
         </form>
       )}
 
@@ -114,14 +130,38 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
                 <td className="text-right">{m.leftCalf?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.rightCalf?.toFixed(1) ?? "—"}</td>
                 <td className="text-right p-3"><div className="flex gap-1 justify-end">
-                  <button onClick={() => setEditing(m)} className="btn text-sm"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => del(m.id)} className="btn text-sm text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => setEditing(m)} title="Редагувати"
+                    className="btn text-xs gap-1 border-accent/30 text-accent hover:bg-accent/10">
+                    <Pencil className="w-3.5 h-3.5" /><span className="hidden sm:inline">Змінити</span>
+                  </button>
+                  <button onClick={() => del(m.id)} title="Видалити"
+                    className="btn text-xs text-danger border-danger/30 hover:bg-danger/10">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function NumField({ name, label, defaultValue }: { name: string; label: string; defaultValue?: number | null }) {
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <input
+        name={name}
+        type="number"
+        step="0.1"
+        min="0.1"
+        inputMode="decimal"
+        defaultValue={defaultValue ?? ""}
+        className="input"
+        onKeyDown={(e) => { if (e.key === "-" || e.key === "e" || e.key === "E") e.preventDefault(); }}
+      />
     </div>
   );
 }
