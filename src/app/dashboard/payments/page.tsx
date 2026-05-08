@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { Wallet, CheckCircle2, Clock, AlertTriangle, Flag, Check, CreditCard } from "lucide-react";
 import { PaymentDetails } from "./PaymentDetails";
+import { MonobankQR } from "./MonobankQR";
 
 const TOTAL_STOPS = 10;
 
@@ -93,6 +94,7 @@ export default async function PaymentsPage() {
         )}
       </div>
 
+      <MonobankQR url={process.env.NEXT_PUBLIC_MONOBANK_URL ?? ""} />
       <PaymentDetails />
 
       {list.length === 0 ? (
