@@ -68,10 +68,15 @@ function CanvaFallback({ title, fileUrl, emoji }: { title: string; fileUrl: stri
         Відкрити в Canva
       </a>
 
-      {/* Tip on how to get embed URL */}
+      {/* Tip */}
       <div className="max-w-sm p-4 rounded-2xl bg-surface border border-border text-left text-sm text-muted">
-        <div className="font-medium text-text mb-1.5">💡 Хочеш перегляд прямо тут?</div>
-        У Canva: <b>Share → «...»→ Embed</b> → скопіюй посилання з iframe src і встав його в поле посилання збірки.
+        <div className="font-medium text-text mb-2">💡 Як показувати прямо тут?</div>
+        <ol className="space-y-1.5 list-none">
+          <li><span className="font-medium text-text">1.</span> В Canva натисни <b>Download → PDF</b></li>
+          <li><span className="font-medium text-text">2.</span> В адмінці відредагуй цю збірку</li>
+          <li><span className="font-medium text-text">3.</span> Переключи на <b>«Завантажити файл»</b> і завантаж PDF</li>
+        </ol>
+        <div className="mt-2 text-xs opacity-70">Embed-посилання доступне тільки в Canva Pro</div>
       </div>
     </div>
   );
