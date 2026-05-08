@@ -49,14 +49,15 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // bottom-nav: 4 основних + "Ще"
+  // bottom-nav: 4 основних + Профіль + "Ще" (drawer)
   const bottomItems = role === "CLIENT"
     ? [
         clientNav.find(i => i.href === "/dashboard")!,
         clientNav.find(i => i.href === "/dashboard/check-in")!,
         clientNav.find(i => i.href === "/dashboard/workout")!,
         clientNav.find(i => i.href === "/dashboard/analytics")!,
-      ]
+        clientNav.find(i => i.href === "/dashboard/profile")!,
+      ].filter(Boolean) as Item[]
     : [adminNav[0]];
 
   const NavList = (
@@ -183,21 +184,16 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
               <Link
                 key={i.href}
                 href={i.href}
-                className={`relative flex flex-col items-center justify-center py-2 text-[10px] gap-1 active:scale-90 transition-transform ${
+                className={`relative flex flex-col items-center justify-center py-2 text-[10px] gap-1 active:scale-90 transition-transform px-1 min-w-0 ${
                   active ? "text-accent" : "text-muted"
                 }`}
               >
                 {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full accent-shine" />}
-                <i.icon className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`} /> {i.label}
+                <i.icon className={`w-5 h-5 transition-transform shrink-0 ${active ? "scale-110" : ""}`} />
+                <span className="truncate max-w-full">{i.label}</span>
               </Link>
             );
           })}
-          <button
-            onClick={() => setOpen(true)}
-            className="flex flex-col items-center justify-center py-2 text-[10px] gap-1 text-muted active:scale-90 transition-transform"
-          >
-            <Menu className="w-5 h-5" /> Ще
-          </button>
         </nav>
       )}
     </>

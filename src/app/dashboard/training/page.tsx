@@ -150,13 +150,13 @@ export default async function TrainingPage({ searchParams }: { searchParams: { p
                   {exs.map((e, i) => (
                     <div
                       key={e.id}
-                      className="flex items-center justify-between py-2.5 gap-3 border-b border-border/40 last:border-0"
+                      className="flex items-center gap-3 py-2.5 border-b border-border/40 last:border-0"
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <span className="shrink-0 w-5 h-5 rounded-full bg-surface border border-border text-[10px] font-bold flex items-center justify-center text-muted">
                           {i + 1}
                         </span>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <span className="text-sm truncate block">{e.name}</span>
                           {e.notes && (
                             <span className="text-[10px] text-muted truncate block">{e.notes}</span>
@@ -201,7 +201,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: { p
           <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wider mb-2">
             <StickyNote className="w-3.5 h-3.5" /> Нотатка від тренера
           </div>
-          <div className="text-sm leading-relaxed">{plan.notes}</div>
+          <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">{plan.notes}</div>
         </div>
       )}
 

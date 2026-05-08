@@ -116,7 +116,7 @@ export default async function NutritionPage({ searchParams }: { searchParams: { 
           <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wider mb-2">
             <StickyNote className="w-3.5 h-3.5" /> Нотатка від тренера
           </div>
-          <div className="text-sm leading-relaxed">{plan.notes}</div>
+          <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">{plan.notes}</div>
         </div>
       )}
     </div>

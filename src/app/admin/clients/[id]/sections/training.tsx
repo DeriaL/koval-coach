@@ -100,10 +100,10 @@ export function TrainingTab({ clientId, items }: { clientId: string; items: any[
               {p.exercises && p.exercises.length > 0 ? (
                 <div className="mt-3 grid sm:grid-cols-2 gap-2">
                   {p.exercises.map((ex: any) => (
-                    <div key={ex.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
-                      <div className="min-w-0">
+                    <div key={ex.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-border min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="font-medium text-sm truncate">{ex.name}</div>
-                        <div className="text-xs text-muted">{ex.day} · {ex.targetSets}×{ex.targetReps} · {ex.restSec}с</div>
+                        <div className="text-xs text-muted truncate">{ex.day} · {ex.targetSets}×{ex.targetReps} · {ex.restSec}с</div>
                       </div>
                       <div className="flex gap-1 shrink-0">
                         <button onClick={() => setExEditing({ planId: p.id, ex })} className="btn text-xs"><Pencil className="w-3 h-3" /></button>
