@@ -34,12 +34,19 @@ export default async function PaymentsPage() {
   // Show auto-pay nudge when 10+ sessions done since last payment and no pending
   const sessionsOverdue = pendingCount === 0 && sessionsSinceLastPayment >= 10;
 
-  // Build stops: filled (paid), current (pending), empty
+  // Stops = individual trainings in current package (1..10)
+  // Each stop fills as the client completes a session.
+  // Stop #10 = last training of the package + payment due.
+  const sessionsInPackage = Math.min(sessionsSinceLastPayment, TOTAL_STOPS);
   const stops = Array.from({ length: TOTAL_STOPS }, (_, i) => {
-    if (i < paidCount) return "paid";
-    if (i === paidCount && pendingCount > 0) return "pending";
+    const isLast = i === TOTAL_STOPS - 1;
+    if (i < sessionsInPackage) {
+      // Last training of the package — also signals payment due
+      if (isLast && pendingCount > 0) return "pending";
+      return "done";
+    }
     return "empty";
-  }) as ("paid" | "pending" | "empty")[];
+  }) as ("done" | "pending" | "empty")[];
 
   const statusMap: any = {
     paid: { icon: CheckCircle2, color: "text-success", label: "Оплачено" },
@@ -49,24 +56,28 @@ export default async function PaymentsPage() {
 
   return (
     <div>
-      <PageHeader title="Оплати" subtitle="Зупинки твого шляху" />
+      <PageHeader title="Оплати" subtitle="Кожне тренування — крок до фінішу пакету" />
 
       {/* Stops visualization */}
       <div className="card p-5 md:p-6 mb-6 relative overflow-hidden">
         <div className="absolute inset-0 -z-10 opacity-30 bg-gradient-to-br from-accent/15 via-transparent to-accent2/15" />
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-muted">Прогрес зупинок</div>
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-wider text-muted">Поточний пакет</div>
             <div className="text-2xl font-black mt-0.5">
-              {paidCount}<span className="text-muted text-base">/{TOTAL_STOPS}</span>
+              {sessionsInPackage}<span className="text-muted text-base">/{TOTAL_STOPS}</span>
+              <span className="text-muted text-sm font-medium ml-1.5">тренувань</span>
             </div>
             <div className="text-xs text-muted mt-0.5">
-              кожна зупинка = пакет 10 тренувань{pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""}
+              {sessionsInPackage < TOTAL_STOPS
+                ? <>Залишилось <b className="text-text">{TOTAL_STOPS - sessionsInPackage}</b> до оплати наступного пакету{pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""}</>
+                : <>Пакет завершено — час оплатити наступний{pricePer10 ? ` (${pricePer10.toLocaleString("uk-UA")} ₴)` : ""}</>}
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <div className="text-[10px] uppercase tracking-wider text-muted">Всього сплачено</div>
             <div className="text-xl font-bold text-success">{totalPaid.toLocaleString("uk-UA")} ₴</div>
+            <div className="text-[10px] text-muted mt-0.5">пакетів: {paidCount}</div>
           </div>
         </div>
 
@@ -75,23 +86,31 @@ export default async function PaymentsPage() {
           <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 rounded-full bg-border" />
           <div
             className="absolute left-0 top-1/2 -translate-y-1/2 h-1 rounded-full accent-shine transition-all"
-            style={{ width: `${(paidCount / TOTAL_STOPS) * 100}%` }}
+            style={{ width: `${(sessionsInPackage / TOTAL_STOPS) * 100}%` }}
           />
           <div className="relative grid grid-cols-10 gap-1">
-            {stops.map((s, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className={`relative z-10 w-7 h-7 md:w-9 md:h-9 rounded-full border-2 flex items-center justify-center transition-all ${
-                  s === "paid" ? "accent-shine border-transparent text-white shadow-glow"
-                  : s === "pending" ? "bg-accent2/15 border-accent2 text-accent2 animate-pulse-ring"
-                  : "bg-surface border-border text-muted"
-                }`}>
-                  {s === "paid" ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
-                   s === "pending" ? <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
-                   <span className="text-[10px] md:text-xs font-bold">{i + 1}</span>}
+            {stops.map((s, i) => {
+              const isLast = i === TOTAL_STOPS - 1;
+              return (
+                <div key={i} className="flex flex-col items-center">
+                  <div className={`relative z-10 w-7 h-7 md:w-9 md:h-9 rounded-full border-2 flex items-center justify-center transition-all ${
+                    s === "done" ? "accent-shine border-transparent text-white shadow-glow"
+                    : s === "pending" ? "bg-accent2/15 border-accent2 text-accent2 animate-pulse-ring"
+                    : isLast ? "bg-accent/10 border-accent/40 text-accent"
+                    : "bg-surface border-border text-muted"
+                  }`}>
+                    {s === "done" && isLast ? <Wallet className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
+                     s === "done" ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
+                     s === "pending" ? <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
+                     isLast ? <Wallet className="w-3.5 h-3.5 md:w-4 md:h-4" /> :
+                     <span className="text-[10px] md:text-xs font-bold">{i + 1}</span>}
+                  </div>
+                  <div className={`text-[9px] md:text-[10px] mt-1.5 ${isLast ? "text-accent font-semibold" : "text-muted"}`}>
+                    {isLast ? "оплата" : i + 1}
+                  </div>
                 </div>
-                <div className="text-[9px] md:text-[10px] text-muted mt-1.5">{i + 1}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -122,10 +141,10 @@ export default async function PaymentsPage() {
           </div>
         )}
 
-        {paidCount >= TOTAL_STOPS && (
+        {paidCount >= 10 && (
           <div className="mt-5 p-3 rounded-xl bg-success/10 border border-success/30 flex items-center gap-2 text-sm text-success">
-            <Flag className="w-4 h-4" />
-            <span>Усі 10 зупинок пройдено. Кругло!</span>
+            <Flag className="w-4 h-4 shrink-0" />
+            <span>Вже 10 пакетів пройдено — справжня дисципліна! 🔥</span>
           </div>
         )}
       </div>
