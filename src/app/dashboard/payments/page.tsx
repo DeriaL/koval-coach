@@ -82,9 +82,12 @@ export default async function PaymentsPage() {
         </div>
 
         {pendingCount > 0 && (
-          <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex items-center gap-2 text-sm">
-            <Clock className="w-4 h-4 text-accent2 shrink-0" />
-            <span>На цій зупинці очікується оплата{pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""}.</span>
+          <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-sm flex-1">
+              <Clock className="w-4 h-4 text-accent2 shrink-0" />
+              <span>На цій зупинці очікується оплата{pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""}.</span>
+            </div>
+            {pricePer10 > 0 && <PayButton amount={pricePer10} />}
           </div>
         )}
         {paidCount >= TOTAL_STOPS && (
@@ -94,8 +97,6 @@ export default async function PaymentsPage() {
           </div>
         )}
       </div>
-
-      <PayButton defaultAmount={pricePer10 > 0 ? pricePer10 : undefined} />
 
       <MonobankQR url={process.env.NEXT_PUBLIC_MONOBANK_URL ?? ""} />
       <PaymentDetails />
