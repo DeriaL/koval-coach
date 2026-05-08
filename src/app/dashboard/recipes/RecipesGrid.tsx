@@ -1,26 +1,36 @@
 "use client";
 import { useState } from "react";
-import { FileText, Link2 } from "lucide-react";
+import { FileText, Link2, Presentation, Eye } from "lucide-react";
 import { RecipePreviewModal } from "@/components/RecipePreviewModal";
 
-const CATEGORIES = ["Всі", "Сніданки", "Обіди", "Перекуси", "Вечері", "Десерти", "Інше"];
+const CATEGORIES = ["Всі", "Сніданки", "Перекуси", "Обіди", "Вечері", "Десерти", "Інше"];
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  "Всі":      "🍽️",
+  "Сніданки": "🍳",
+  "Перекуси": "🥪",
+  "Обіди":    "🥘",
+  "Вечері":   "🍝",
+  "Десерти":  "🍰",
+  "Інше":     "📖",
+};
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
-  "Сніданки":  "from-amber-400/30 to-orange-400/20",
-  "Обіди":     "from-emerald-400/30 to-teal-400/20",
-  "Перекуси":  "from-violet-400/30 to-purple-400/20",
-  "Вечері":    "from-blue-400/30 to-indigo-400/20",
-  "Десерти":   "from-pink-400/30 to-rose-400/20",
-  "Інше":      "from-slate-400/30 to-gray-400/20",
+  "Сніданки":  "from-amber-400/40 via-orange-400/25 to-yellow-300/20",
+  "Перекуси":  "from-violet-400/40 via-purple-400/25 to-fuchsia-300/20",
+  "Обіди":     "from-emerald-400/40 via-teal-400/25 to-green-300/20",
+  "Вечері":    "from-blue-400/40 via-indigo-400/25 to-sky-300/20",
+  "Десерти":   "from-pink-400/40 via-rose-400/25 to-red-300/20",
+  "Інше":      "from-slate-400/30 via-gray-400/20 to-zinc-300/15",
 };
 
 const CATEGORY_ACCENT: Record<string, string> = {
-  "Сніданки":  "from-amber-400 to-orange-400",
-  "Обіди":     "from-emerald-400 to-teal-400",
-  "Перекуси":  "from-violet-400 to-purple-400",
-  "Вечері":    "from-blue-400 to-indigo-400",
-  "Десерти":   "from-pink-400 to-rose-400",
-  "Інше":      "from-slate-400 to-gray-400",
+  "Сніданки":  "from-amber-400 to-orange-500",
+  "Перекуси":  "from-violet-400 to-purple-500",
+  "Обіди":     "from-emerald-400 to-teal-500",
+  "Вечері":    "from-blue-400 to-indigo-500",
+  "Десерти":   "from-pink-400 to-rose-500",
+  "Інше":      "from-slate-400 to-gray-500",
 };
 
 type Recipe = {
@@ -40,19 +50,33 @@ export function RecipesGrid({ recipes }: { recipes: Recipe[] }) {
 
   return (
     <>
-      {/* Category filter tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin -mx-1 px-1 mb-6">
-        {cats.map(c => (
-          <button key={c} onClick={() => setActive(c)}
-            className={[
-              "flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all",
-              c === active
-                ? "border-accent bg-accent/10 text-accent shadow-[0_0_16px_-4px_rgb(var(--accent)/0.3)]"
-                : "border-border text-muted hover:border-accent/40 hover:text-text",
-            ].join(" ")}>
-            {c}
-          </button>
-        ))}
+      {/* Category filter tabs — горизонтальний скрол з emoji */}
+      <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0 mb-6">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+          {cats.map(c => {
+            const isActive = c === active;
+            const count = c === "Всі" ? recipes.length : recipes.filter(r => r.category === c).length;
+            return (
+              <button
+                key={c}
+                onClick={() => setActive(c)}
+                className={[
+                  "shrink-0 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all active:scale-95",
+                  isActive
+                    ? "accent-shine text-white border-transparent shadow-glow"
+                    : "bg-surface border-border text-text hover:border-accent/40",
+                ].join(" ")}
+              >
+                <span className="text-base leading-none">{CATEGORY_EMOJI[c] ?? "📖"}</span>
+                <span>{c}</span>
+                <span className={[
+                  "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                  isActive ? "bg-white/20" : "bg-card text-muted",
+                ].join(" ")}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Cards */}
@@ -61,7 +85,8 @@ export function RecipesGrid({ recipes }: { recipes: Recipe[] }) {
           <div key={cat}>
             {active === "Всі" && (
               <div className="flex items-center gap-3 mb-4">
-                <div className="text-sm font-semibold text-muted uppercase tracking-wider">{cat}</div>
+                <div className="text-base">{CATEGORY_EMOJI[cat] ?? "📖"}</div>
+                <div className="text-sm font-semibold uppercase tracking-wider">{cat}</div>
                 <div className="flex-1 h-px bg-border" />
                 <div className="chip text-[10px] py-0 px-1.5">{items.length}</div>
               </div>
@@ -93,35 +118,45 @@ function RecipeCard({ recipe: r, onOpen }: { recipe: Recipe; onOpen: () => void 
   const grad = CATEGORY_GRADIENTS[r.category] ?? CATEGORY_GRADIENTS["Інше"];
   const accent = CATEGORY_ACCENT[r.category] ?? CATEGORY_ACCENT["Інше"];
 
+  const TypeIcon = r.fileType === "link" ? Link2 : r.fileType === "pptx" ? Presentation : FileText;
+  const typeLabel = r.fileType === "link" ? "Посилання" : r.fileType.toUpperCase();
+
   return (
     <button
       onClick={onOpen}
-      className="block w-full text-left card overflow-hidden group hover:border-accent/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+      className="block w-full text-left card overflow-hidden group hover:border-accent/40 hover:-translate-y-1 hover:shadow-glow transition-all duration-300 active:scale-[0.98] relative"
     >
       {/* Gradient top strip */}
       <div className={`h-[3px] bg-gradient-to-r ${accent}`} />
 
-      {/* Gradient bg panel */}
-      <div className={`relative bg-gradient-to-br ${grad} p-5 pb-4`}>
-        <div className="text-4xl mb-3 leading-none">{r.emoji ?? "📄"}</div>
-        <span className="chip text-[10px] py-0.5 px-2 mb-3 inline-flex">{r.category}</span>
-        <h3 className="font-bold text-base leading-snug group-hover:text-accent transition-colors line-clamp-2">
-          {r.title}
-        </h3>
-        {r.description && (
-          <p className="text-sm text-muted mt-1.5 line-clamp-2">{r.description}</p>
-        )}
+      {/* Hero panel with gradient bg + emoji */}
+      <div className={`relative bg-gradient-to-br ${grad} p-5 pb-5 overflow-hidden`}>
+        {/* Decorative blob */}
+        <div aria-hidden className={`absolute -top-8 -right-8 w-32 h-32 rounded-full bg-gradient-to-br ${accent} opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500`} />
+
+        {/* Big emoji with subtle scale on hover */}
+        <div className="relative">
+          <div className="text-5xl md:text-6xl mb-4 leading-none transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 origin-bottom-left">
+            {r.emoji ?? "📄"}
+          </div>
+          <h3 className="font-black text-xl leading-tight group-hover:text-accent transition-colors line-clamp-2">
+            {r.title}
+          </h3>
+          {r.description && (
+            <p className="text-xs text-muted/90 mt-1.5 line-clamp-2 leading-relaxed">{r.description}</p>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="px-5 py-3 flex items-center justify-between border-t border-border/60">
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          {r.fileType === "link"
-            ? <><Link2 className="w-3.5 h-3.5" /> Посилання</>
-            : <><FileText className="w-3.5 h-3.5" /> {r.fileType.toUpperCase()}</>}
+      <div className="px-4 py-3 flex items-center justify-between gap-2 border-t border-border/60 bg-card/40">
+        <div className="flex items-center gap-1.5 text-xs text-muted shrink-0">
+          <TypeIcon className="w-3.5 h-3.5" /> {typeLabel}
         </div>
-        <div className="text-xs font-medium text-accent opacity-0 group-hover:opacity-100 transition-opacity">
-          Натисни щоб переглянути →
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-accent group-hover:gap-2 transition-all">
+          <Eye className="w-3.5 h-3.5" />
+          Переглянути
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
         </div>
       </div>
     </button>

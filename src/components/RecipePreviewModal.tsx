@@ -10,6 +10,14 @@ interface Props {
   onClose: () => void;
 }
 
+// Build absolute URL for relative paths — needed by external viewers (Office, Google Docs)
+function toAbsolute(url: string): string {
+  if (typeof window === "undefined") return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  // encodeURI keeps Cyrillic file names readable but URL-safe
+  return new URL(encodeURI(url), window.location.origin).toString();
+}
+
 // ── Detect sites that block iframe embedding ──────────────────────────────────
 function getEmbedInfo(url: string, fileType: string): { src: string | null; blocked: boolean; brand?: string } {
   const u = url.toLowerCase();
@@ -34,12 +42,24 @@ function getEmbedInfo(url: string, fileType: string): { src: string | null; bloc
     return { src, blocked: false };
   }
 
+  // PPTX — use Microsoft Office Online viewer (requires public absolute URL)
+  if (fileType === "pptx" || u.endsWith(".pptx")) {
+    const abs = toAbsolute(url);
+    // Office viewer doesn't work with localhost, only public URLs
+    if (abs.includes("localhost") || abs.includes("127.0.0.1")) {
+      return { src: null, blocked: true, brand: "PPTX (потрібен публічний URL)" };
+    }
+    const src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(abs)}`;
+    return { src, blocked: false };
+  }
+
   // Direct PDF (blob / public URL)
   if (fileType === "pdf" && !u.includes("canva")) {
+    const abs = toAbsolute(url);
     // Use Google Docs viewer for external PDFs, direct for blob
     const src = url.includes("vercel-storage.com")
       ? url
-      : `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+      : `https://docs.google.com/viewer?url=${encodeURIComponent(abs)}&embedded=true`;
     return { src, blocked: false };
   }
 
