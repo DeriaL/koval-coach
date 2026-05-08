@@ -18,7 +18,10 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
-  const cfg = await prisma.siteConfig.findUnique({ where: { id: "main" } });
+  const [cfg, services] = await Promise.all([
+    prisma.siteConfig.findUnique({ where: { id: "main" } }),
+    (prisma as any).service.findMany({ where: { active: true }, orderBy: [{ order: "asc" }, { createdAt: "asc" }] }),
+  ]);
 
   const features = [
     { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
@@ -195,48 +198,35 @@ export default async function Home() {
       <section id="pricing" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуга</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Два формати супроводу</h2>
-            <p className="text-muted mt-3">Обери формат, який підходить твоєму ритму життя.</p>
+            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуги</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Обери свій формат</h2>
+            <p className="text-muted mt-3">Кожен пакет — це персональний супровід під твої цілі.</p>
           </div>
         </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-4 md:gap-5">
-          <Reveal delay={0}>
-            <PlanCard
-              icon={Wifi}
-              title="Онлайн"
-              tag="тренуєшся сам, я веду в кабінеті"
-              price={cfg?.priceOnline ?? null}
-              priceNote={cfg?.priceNote ?? null}
-              perks={[
-                "Персональна програма тренувань та харчування",
-                "Моніторинг аналізів",
-                "Підбір добавок",
-                "Щоденний check-in",
-                "Чат і звіти",
-                "Фото-прогрес",
-              ]}
-            />
-          </Reveal>
-          <Reveal delay={120}>
-            <PlanCard
-              icon={Crown}
-              title="Офлайн"
-              tag="тренуєшся зі мною в залі особисто!"
-              price={cfg?.priceOffline ?? null}
-              priceNote={cfg?.priceNote ?? null}
-              perks={[
-                "Персональний план харчування",
-                "Особистий кабінет 24/7",
-                "Аналітика прогресу",
-                "Заплановані тренування",
-                "PR-трекер у залі",
-              ]}
-              featured
-            />
-          </Reveal>
-        </div>
+        {services.length > 0 ? (
+          <div className={`grid gap-4 md:gap-5 ${services.length === 1 ? "max-w-sm mx-auto" : services.length === 2 ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
+            {services.map((s: any, i: number) => (
+              <Reveal key={s.id} delay={i * 80}>
+                <ServiceCard service={s} />
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          /* fallback to hardcoded if no services in DB yet */
+          <div className="grid md:grid-cols-2 gap-4 md:gap-5">
+            <Reveal delay={0}>
+              <PlanCard icon={Wifi} title="Онлайн" tag="тренуєшся сам, я веду в кабінеті"
+                price={cfg?.priceOnline ?? null} priceNote={cfg?.priceNote ?? null}
+                perks={["Персональна програма тренувань та харчування","Моніторинг аналізів","Підбір добавок","Щоденний check-in","Чат і звіти","Фото-прогрес"]} />
+            </Reveal>
+            <Reveal delay={120}>
+              <PlanCard icon={Crown} title="Офлайн" tag="тренуєшся зі мною в залі особисто!"
+                price={cfg?.priceOffline ?? null} priceNote={cfg?.priceNote ?? null}
+                perks={["Персональний план харчування","Особистий кабінет 24/7","Аналітика прогресу","Заплановані тренування","PR-трекер у залі"]} featured />
+            </Reveal>
+          </div>
+        )}
 
         <Reveal delay={200}>
           <div className="text-center mt-8 text-sm text-muted">
@@ -413,6 +403,40 @@ function Stat({ value, label }: { value: string; label: string }) {
     <div className="card p-3 text-center card-hover">
       <div className="text-xl md:text-2xl font-black text-gradient">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-muted mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function ServiceCard({ service: s }: { service: any }) {
+  const perks = s.perks ? s.perks.split("\n").filter(Boolean) : [];
+  return (
+    <div className={`card p-6 md:p-8 h-full relative overflow-hidden card-hover ${s.featured ? "border-accent/50 shadow-glow" : ""}`}>
+      {s.featured && <div aria-hidden className="absolute inset-0 -z-10 opacity-20 bg-gradient-to-br from-accent/30 to-accent2/30" />}
+      {s.featured && <div className="absolute top-4 right-4 chip text-[10px] border-accent/40 text-accent">⭐ популярний</div>}
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-3xl ${s.featured ? "accent-shine shadow-glow" : "bg-accent/10 border border-accent/20"}`}>
+        {s.emoji ?? "💪"}
+      </div>
+      <h3 className="font-black text-2xl">{s.title}</h3>
+      {s.description && <p className="text-muted text-sm mt-1">{s.description}</p>}
+      {s.price && (
+        <div className="mt-4 flex items-end gap-1.5">
+          <span className="text-3xl font-black text-gradient">{s.price} ₴</span>
+          {s.priceNote && <span className="text-sm text-muted mb-1">/ {s.priceNote}</span>}
+        </div>
+      )}
+      {perks.length > 0 && (
+        <ul className="mt-5 space-y-2.5">
+          {perks.map((p: string) => (
+            <li key={p} className="flex items-start gap-2 text-sm">
+              <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <a href="#contacts" className={`btn ${s.featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
+        Зв'язатись <ArrowRight className="w-4 h-4" />
+      </a>
     </div>
   );
 }
