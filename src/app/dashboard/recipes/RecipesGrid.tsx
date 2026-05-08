@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { FileText, Link2, Presentation, Eye } from "lucide-react";
+import { FileText, Link2, Presentation, Eye, Layers } from "lucide-react";
 import { RecipePreviewModal } from "@/components/RecipePreviewModal";
 
 const CATEGORIES = ["Всі", "Сніданки", "Перекуси", "Обіди", "Вечері", "Десерти", "Інше"];
@@ -118,8 +118,12 @@ function RecipeCard({ recipe: r, onOpen }: { recipe: Recipe; onOpen: () => void 
   const grad = CATEGORY_GRADIENTS[r.category] ?? CATEGORY_GRADIENTS["Інше"];
   const accent = CATEGORY_ACCENT[r.category] ?? CATEGORY_ACCENT["Інше"];
 
-  const TypeIcon = r.fileType === "link" ? Link2 : r.fileType === "pptx" ? Presentation : FileText;
-  const typeLabel = r.fileType === "link" ? "Посилання" : r.fileType.toUpperCase();
+  const isSlides = r.fileType === "slides";
+  const TypeIcon = isSlides ? Layers : r.fileType === "link" ? Link2 : r.fileType === "pptx" ? Presentation : FileText;
+  const typeLabel = isSlides ? "Слайди" : r.fileType === "link" ? "Посилання" : r.fileType.toUpperCase();
+
+  // For slide-decks, use first slide as background cover image
+  const coverUrl = isSlides ? `${r.fileUrl}/01.jpg` : null;
 
   return (
     <button
@@ -129,24 +133,52 @@ function RecipeCard({ recipe: r, onOpen }: { recipe: Recipe; onOpen: () => void 
       {/* Gradient top strip */}
       <div className={`h-[3px] bg-gradient-to-r ${accent}`} />
 
-      {/* Hero panel with gradient bg + emoji */}
-      <div className={`relative bg-gradient-to-br ${grad} p-5 pb-5 overflow-hidden`}>
-        {/* Decorative blob */}
-        <div aria-hidden className={`absolute -top-8 -right-8 w-32 h-32 rounded-full bg-gradient-to-br ${accent} opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500`} />
+      {/* Hero panel: slide cover if available, else gradient with emoji */}
+      {coverUrl ? (
+        <div className="relative aspect-[4/3] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverUrl}
+            alt={r.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
+          />
+          {/* gradient overlay for legibility */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          {/* category accent on hover */}
+          <div aria-hidden className={`absolute inset-0 bg-gradient-to-br ${grad} opacity-0 group-hover:opacity-50 mix-blend-overlay transition-opacity duration-500`} />
 
-        {/* Big emoji with subtle scale on hover */}
-        <div className="relative">
-          <div className="text-5xl md:text-6xl mb-4 leading-none transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 origin-bottom-left">
+          {/* Floating emoji badge */}
+          <div className="absolute top-3 left-3 w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15 flex items-center justify-center text-2xl shadow-lg">
             {r.emoji ?? "📄"}
           </div>
-          <h3 className="font-black text-xl leading-tight group-hover:text-accent transition-colors line-clamp-2">
-            {r.title}
-          </h3>
-          {r.description && (
-            <p className="text-xs text-muted/90 mt-1.5 line-clamp-2 leading-relaxed">{r.description}</p>
-          )}
+
+          {/* Title overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <h3 className="font-black text-xl leading-tight text-white drop-shadow-lg">
+              {r.title}
+            </h3>
+            {r.description && (
+              <p className="text-xs text-white/85 mt-1 line-clamp-2 leading-relaxed drop-shadow">{r.description}</p>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className={`relative bg-gradient-to-br ${grad} p-5 pb-5 overflow-hidden`}>
+          <div aria-hidden className={`absolute -top-8 -right-8 w-32 h-32 rounded-full bg-gradient-to-br ${accent} opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500`} />
+          <div className="relative">
+            <div className="text-5xl md:text-6xl mb-4 leading-none transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 origin-bottom-left">
+              {r.emoji ?? "📄"}
+            </div>
+            <h3 className="font-black text-xl leading-tight group-hover:text-accent transition-colors line-clamp-2">
+              {r.title}
+            </h3>
+            {r.description && (
+              <p className="text-xs text-muted/90 mt-1.5 line-clamp-2 leading-relaxed">{r.description}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="px-4 py-3 flex items-center justify-between gap-2 border-t border-border/60 bg-card/40">

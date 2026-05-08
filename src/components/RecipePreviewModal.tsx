@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { X, ExternalLink, Loader2, AlertCircle } from "lucide-react";
+import { SlidesViewer } from "./SlidesViewer";
 
 interface Props {
   title: string;
@@ -134,6 +135,30 @@ export function RecipePreviewModal({ title, fileUrl, fileType, emoji, onClose }:
       document.body.style.overflow = "";
     };
   }, [onClose]);
+
+  // "slides" — image gallery rendered by SlidesViewer
+  if (fileType === "slides") {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-sm animate-fade-in"
+        onClick={onClose}>
+        <div className="flex items-center justify-between px-4 py-3 bg-black/60 border-b border-white/10 shrink-0"
+          onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-2xl shrink-0 leading-none">{emoji ?? "📄"}</span>
+            <div className="font-semibold text-white truncate">{title}</div>
+          </div>
+          <button onClick={onClose}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95 shrink-0"
+            aria-label="Закрити">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex-1 flex" onClick={e => e.stopPropagation()}>
+          <SlidesViewer folder={fileUrl} title={title} emoji={emoji} />
+        </div>
+      </div>
+    );
+  }
 
   const { src, blocked, brand } = getEmbedInfo(fileUrl, fileType);
   const isCanva = fileUrl.toLowerCase().includes("canva");
