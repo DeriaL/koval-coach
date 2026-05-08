@@ -76,7 +76,10 @@ export async function POST(req: Request) {
   if (!monoRes.ok) {
     const err = await monoRes.text();
     console.error("Mono invoice error:", monoRes.status, err);
-    return NextResponse.json({ error: `Mono ${monoRes.status}: ${err}` }, { status: 502 });
+    return NextResponse.json({
+      error: `Mono ${monoRes.status}: ${err}`,
+      debug: { redirectUrl: payload.redirectUrl, webHookUrl: payload.webHookUrl },
+    }, { status: 502 });
   }
 
   const data = await monoRes.json();
