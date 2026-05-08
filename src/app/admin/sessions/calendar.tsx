@@ -93,7 +93,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
 
       <div className="grid grid-cols-7 gap-1">
         {grid.map((c, i) => {
-          if (!c.date) return <div key={i} className="aspect-square" />;
+          if (!c.date) return <div key={i} className="min-h-[52px] sm:aspect-square" />;
           const day = c.date.getDate();
           const list = byDay.get(c.key!) ?? [];
           const counts = {
@@ -111,7 +111,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
               key={i}
               onClick={() => total > 0 && setSelectedDay(c.key)}
               disabled={total === 0}
-              className={`aspect-square rounded-lg p-1.5 flex flex-col items-stretch gap-1 transition relative overflow-hidden border ${
+              className={`min-h-[52px] sm:aspect-square sm:min-h-0 rounded-lg p-1 sm:p-1.5 flex flex-col items-stretch gap-1 transition relative overflow-hidden border ${
                 total > 0 ? "border-accent/30 hover:border-accent hover:-translate-y-0.5 cursor-pointer" : "border-border/50 cursor-default"
               } ${isToday ? "ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}`}
               style={total > 0 ? { background: `rgb(var(--accent) / ${0.06 + intensity * 0.18})` } : undefined}
@@ -125,16 +125,16 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
               {total > 0 && (
                 <div className="flex flex-wrap gap-0.5 mt-auto">
                   {Array.from({ length: counts.done }).slice(0, 4).map((_, j) => (
-                    <span key={`d${j}`} className="w-1.5 h-1.5 rounded-full bg-success" />
+                    <span key={`d${j}`} className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-success" />
                   ))}
                   {Array.from({ length: counts.awaiting }).slice(0, 4).map((_, j) => (
-                    <span key={`a${j}`} className="w-1.5 h-1.5 rounded-full bg-accent2 animate-pulse" />
+                    <span key={`a${j}`} className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-accent2 animate-pulse" />
                   ))}
                   {Array.from({ length: counts.planned }).slice(0, 4).map((_, j) => (
-                    <span key={`p${j}`} className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    <span key={`p${j}`} className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-accent" />
                   ))}
                   {Array.from({ length: counts.cancelled }).slice(0, 4).map((_, j) => (
-                    <span key={`c${j}`} className="w-1.5 h-1.5 rounded-full bg-danger/60" />
+                    <span key={`c${j}`} className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-danger/60" />
                   ))}
                 </div>
               )}

@@ -284,9 +284,16 @@ export default async function AnalyticsPage() {
               ]}
             />
           </div>
-          <div className="card p-5 mt-4 overflow-x-auto">
-            <h3 className="font-semibold mb-3">Історія замірів</h3>
-            <table className="w-full text-xs min-w-[900px]">
+          <div className="card p-5 mt-4 relative">
+            <div className="flex items-center justify-between mb-3 gap-2">
+              <h3 className="font-semibold">Історія замірів</h3>
+              <span className="text-[10px] text-muted sm:hidden inline-flex items-center gap-1 chip py-0.5 px-2">
+                ← прокрути →
+              </span>
+            </div>
+            <div className="overflow-x-auto -mx-5 px-5 relative">
+              <div aria-hidden className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent sm:hidden" />
+              <table className="w-full text-xs min-w-[900px]">
               <thead>
                 <tr className="text-muted text-[10px] uppercase tracking-wider">
                   <th className="text-left py-2">Дата</th>
@@ -324,6 +331,7 @@ export default async function AnalyticsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </>
       )}

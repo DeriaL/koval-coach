@@ -26,7 +26,7 @@ export function ChatThread({ clientId, meRole, initial }: { clientId: string; me
   }
 
   return (
-    <div className="card p-3 md:p-4 flex flex-col h-[calc(100vh-200px)] md:h-[70vh]">
+    <div className="card p-3 md:p-4 flex flex-col h-[calc(100dvh-180px)] md:h-[70vh]">
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
         {items.length === 0 && <div className="text-muted text-center mt-10 text-sm">Напиши перше повідомлення</div>}
         {items.map((m) => {
