@@ -139,21 +139,38 @@ export function RecipePreviewModal({ title, fileUrl, fileType, emoji, onClose }:
   // "slides" — image gallery rendered by SlidesViewer
   if (fileType === "slides") {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-sm animate-fade-in"
-        onClick={onClose}>
-        <div className="flex items-center justify-between px-4 py-3 bg-black/60 border-b border-white/10 shrink-0"
-          onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-2xl shrink-0 leading-none">{emoji ?? "📄"}</span>
-            <div className="font-semibold text-white truncate">{title}</div>
-          </div>
-          <button onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95 shrink-0"
-            aria-label="Закрити">
-            <X className="w-5 h-5" />
+      <div
+        className="fixed inset-0 z-[100] flex flex-col animate-fade-in"
+        onClick={onClose}
+        style={{
+          // Layered dark gradient — much more modern than flat black
+          background:
+            "radial-gradient(ellipse at top, rgba(40,30,80,0.6), transparent 60%), radial-gradient(ellipse at bottom, rgba(15,15,30,0.95), rgba(8,8,16,0.98))",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        }}
+      >
+        {/* Floating glass header — compact, doesn't take much space */}
+        <div
+          className="absolute top-3 sm:top-4 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-20 flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/8 backdrop-blur-xl border border-white/15 shadow-2xl sm:max-w-md w-full sm:w-auto"
+          onClick={e => e.stopPropagation()}
+        >
+          <span className="text-xl shrink-0 leading-none">{emoji ?? "📄"}</span>
+          <div className="font-semibold text-white truncate flex-1 text-sm sm:text-base">{title}</div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-90 shrink-0"
+            aria-label="Закрити"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 flex" onClick={e => e.stopPropagation()}>
+
+        {/* Centered content with max-width on large screens */}
+        <div
+          className="flex-1 flex w-full max-w-7xl mx-auto"
+          onClick={e => e.stopPropagation()}
+        >
           <SlidesViewer folder={fileUrl} title={title} emoji={emoji} />
         </div>
       </div>
