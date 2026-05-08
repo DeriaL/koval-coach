@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ExternalLink, Loader2, AlertCircle } from "lucide-react";
 import { SlidesViewer } from "./SlidesViewer";
 
@@ -123,7 +124,16 @@ function BlockedFallback({ title, fileUrl, brand, emoji }: { title: string; file
 }
 
 // ── Main modal ────────────────────────────────────────────────────────────────
-export function RecipePreviewModal({ title, fileUrl, fileType, emoji, onClose }: Props) {
+export function RecipePreviewModal(props: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+  // Render to document.body to escape any parent with `transform` that would
+  // break `position: fixed` (e.g. animated page templates).
+  return createPortal(<RecipePreviewModalInner {...props} />, document.body);
+}
+
+function RecipePreviewModalInner({ title, fileUrl, fileType, emoji, onClose }: Props) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
