@@ -117,12 +117,13 @@ export function SlidesViewer({ folder, title, emoji }: Props) {
   return (
     <div ref={containerRef}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-      className="flex-1 flex flex-col relative overflow-hidden"
+      className="flex-1 flex flex-col relative overflow-hidden min-w-0 min-h-0"
     >
       {/* Slide image area with subtle radial spotlight.
-          Top padding accounts for floating header, bottom for toolbar. */}
+          Top padding accounts for floating header, bottom for toolbar.
+          min-h-0 prevents image from pushing parent taller than viewport. */}
       <div
-        className={`flex-1 flex items-center justify-center px-3 sm:px-8 pt-16 pb-20 sm:pt-20 sm:pb-24 ${zoom ? "overflow-auto" : "overflow-hidden"}`}
+        className={`flex-1 flex items-center justify-center px-3 sm:px-8 pt-16 pb-20 sm:pt-20 sm:pb-24 min-h-0 ${zoom ? "overflow-auto" : "overflow-hidden"}`}
         style={{
           background: "radial-gradient(ellipse 80% 60% at center, rgba(255,255,255,0.04), transparent 70%)"
         }}

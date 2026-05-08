@@ -176,9 +176,12 @@ function RecipePreviewModalInner({ title, fileUrl, fileType, emoji, onClose }: P
           </button>
         </div>
 
-        {/* Centered content with max-width on large screens */}
+        {/* Centered content with max-width on large screens.
+            min-h-0 lets flex children actually shrink — without it,
+            the image's natural size pushes the container taller than
+            the modal viewport (classic flexbox min-height:auto trap). */}
         <div
-          className="flex-1 flex w-full max-w-7xl mx-auto"
+          className="flex-1 flex w-full max-w-7xl mx-auto min-h-0 overflow-hidden"
           onClick={e => e.stopPropagation()}
         >
           <SlidesViewer folder={fileUrl} title={title} emoji={emoji} />
