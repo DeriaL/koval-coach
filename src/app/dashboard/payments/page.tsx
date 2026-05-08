@@ -10,15 +10,20 @@ const TOTAL_STOPS = 10;
 
 export default async function PaymentsPage() {
   const u = await requireClient();
-  const [list, user] = await Promise.all([
+  const [list, user, completedSessions] = await Promise.all([
     prisma.payment.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
     prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true } }),
+    prisma.workoutSession.count({ where: { clientId: u.id, completed: true } }),
   ]);
 
   const paidCount = list.filter(p => p.status === "paid").length;
   const pendingCount = list.filter(p => p.status === "pending" || p.status === "overdue").length;
   const pricePer10 = user?.pricePer10 ?? 0;
   const totalPaid = list.filter(p => p.status === "paid").reduce((s, p) => s + p.amount, 0);
+
+  // Show pay button when 10 sessions done since last payment (and no pending yet)
+  const sessionsPaidFor = paidCount * 10;
+  const sessionsOverdue = pendingCount === 0 && completedSessions >= sessionsPaidFor + 10;
 
   // Build stops: filled (paid), current (pending), empty
   const stops = Array.from({ length: TOTAL_STOPS }, (_, i) => {
@@ -94,6 +99,20 @@ export default async function PaymentsPage() {
             </div>
           );
         })()}
+
+        {sessionsOverdue && (
+          <div className="mt-5 p-3 rounded-xl bg-accent/10 border border-accent/30 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-sm flex-1">
+              <CreditCard className="w-4 h-4 text-accent shrink-0" />
+              <span>
+                Ти провів {completedSessions - sessionsPaidFor} тренувань з нового пакету
+                {pricePer10 ? ` · ${pricePer10.toLocaleString("uk-UA")} ₴` : ""} — час оплатити наступний!
+              </span>
+            </div>
+            {pricePer10 > 0 && <PayButton amount={pricePer10} />}
+          </div>
+        )}
+
         {paidCount >= TOTAL_STOPS && (
           <div className="mt-5 p-3 rounded-xl bg-success/10 border border-success/30 flex items-center gap-2 text-sm text-success">
             <Flag className="w-4 h-4" />
