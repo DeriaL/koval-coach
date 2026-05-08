@@ -61,6 +61,24 @@ export async function POST(req: Request) {
   return NextResponse.json(recipe);
 }
 
+// PATCH /api/admin/recipes — update metadata (title, category, description, emoji, fileUrl)
+export async function PATCH(req: Request) {
+  await requireTrainer();
+  const body = await req.json().catch(() => ({}));
+  const { id, title, category, description, emoji, fileUrl } = body;
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  const data: any = {};
+  if (title !== undefined) data.title = String(title).trim();
+  if (category !== undefined) data.category = String(category).trim();
+  if (description !== undefined) data.description = description ? String(description).trim() : null;
+  if (emoji !== undefined) data.emoji = emoji ? String(emoji).trim() : null;
+  if (fileUrl !== undefined) data.fileUrl = String(fileUrl).trim();
+
+  const updated = await prisma.recipeBook.update({ where: { id }, data });
+  return NextResponse.json(updated);
+}
+
 // DELETE /api/admin/recipes?id=xxx
 export async function DELETE(req: Request) {
   await requireTrainer();
