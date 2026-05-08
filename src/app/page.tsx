@@ -305,26 +305,26 @@ export default async function Home() {
         <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
           {cfg?.phone && (
             <Reveal>
-              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="w-full min-w-0">
                   <div className="text-xs text-muted uppercase tracking-wide">Телефон</div>
-                  <div className="font-semibold text-sm mt-0.5">{cfg.phone}</div>
+                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.phone}</div>
                 </div>
               </a>
             </Reveal>
           )}
           {cfg?.email && (
             <Reveal delay={60}>
-              <a href={`mailto:${cfg.email}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+              <a href={`mailto:${cfg.email}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
                   <Mail className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="w-full min-w-0">
                   <div className="text-xs text-muted uppercase tracking-wide">Email</div>
-                  <div className="font-semibold text-sm mt-0.5">{cfg.email}</div>
+                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.email}</div>
                 </div>
               </a>
             </Reveal>
@@ -332,13 +332,13 @@ export default async function Home() {
           {cfg?.telegram && (
             <Reveal delay={120}>
               <a href={`https://t.me/${cfg.telegram.replace("@", "")}`} target="_blank" rel="noreferrer"
-                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
                   <Send className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="w-full min-w-0">
                   <div className="text-xs text-muted uppercase tracking-wide">Telegram</div>
-                  <div className="font-semibold text-sm mt-0.5">{cfg.telegram}</div>
+                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.telegram}</div>
                 </div>
               </a>
             </Reveal>
@@ -346,13 +346,13 @@ export default async function Home() {
           {cfg?.instagram && (
             <Reveal delay={180}>
               <a href={`https://instagram.com/${cfg.instagram.replace("@", "")}`} target="_blank" rel="noreferrer"
-                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
                   <Instagram className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="w-full min-w-0">
                   <div className="text-xs text-muted uppercase tracking-wide">Instagram</div>
-                  <div className="font-semibold text-sm mt-0.5">{cfg.instagram}</div>
+                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.instagram}</div>
                 </div>
               </a>
             </Reveal>
