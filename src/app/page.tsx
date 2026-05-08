@@ -18,7 +18,7 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
-  const cfg = await prisma.siteConfig.findUnique({ where: { id: "main" } }).catch(() => null);
+  const cfg = await (prisma as any).siteConfig.findUnique({ where: { id: "main" } }).catch(() => null);
 
   const features = [
     { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },

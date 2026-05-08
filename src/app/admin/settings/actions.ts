@@ -9,7 +9,7 @@ export async function saveSiteConfig(data: {
   priceOnline?: string; priceOffline?: string; priceNote?: string;
 }) {
   await requireTrainer();
-  await prisma.siteConfig.upsert({
+  await (prisma as any).siteConfig.upsert({
     where: { id: "main" },
     create: { id: "main", ...data },
     update: data,
