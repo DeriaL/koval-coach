@@ -20,7 +20,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "payment not configured" }, { status: 503 });
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "https://koval-coach.vercel.app";
+  // Derive base URL from request so it's always correct on any deployment
+  const reqUrl = new URL(req.url);
+  const baseUrl = (
+    process.env.NEXTAUTH_URL?.replace(/\/$/, "") ??
+    `${reqUrl.protocol}//${reqUrl.host}`
+  );
   const amountKopecks = Math.round(amountUAH * 100);
 
   // Fetch client full name
@@ -53,6 +58,8 @@ export async function POST(req: Request) {
     validity: 3600, // 1 hour
     paymentType: "debit",
   };
+
+  console.log("Mono payload:", JSON.stringify({ redirectUrl: payload.redirectUrl, webHookUrl: payload.webHookUrl, amount: payload.amount }));
 
   const monoRes = await fetch(
     "https://api.monobank.ua/api/merchant/invoice/create",
