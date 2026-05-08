@@ -271,6 +271,19 @@ model Message {
   createdAt DateTime @default(now())
 }
 
+model SiteConfig {
+  id           String  @id @default("main")
+  phone        String?
+  email        String?
+  city         String?
+  instagram    String?
+  telegram     String?
+  priceOnline  String? // e.g. "4 000"
+  priceOffline String? // e.g. "5 000"
+  priceNote    String? // e.g. "пакет 10 тренувань"
+  updatedAt    DateTime @updatedAt
+}
+
 model RecipeBook {
   id          String   @id @default(cuid())
   title       String

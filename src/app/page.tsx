@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getSession } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Reveal } from "@/components/Reveal";
 import { FloatingContact } from "@/components/FloatingContact";
 import {
   Dumbbell, LineChart, Apple, Pill, Wallet, Camera, Flame, MessageCircle,
-  Trophy, ArrowRight, Sparkles, Wifi, Crown, Check, Star, Quote, Target, Zap, ShieldCheck
+  Trophy, ArrowRight, Sparkles, Wifi, Crown, Check, Star, Quote, Target, Zap, ShieldCheck,
+  Phone, Mail, MapPin, Instagram, Send
 } from "lucide-react";
 
 export default async function Home() {
@@ -15,6 +17,8 @@ export default async function Home() {
     if ((session.user as any).role === "TRAINER") redirect("/admin");
     redirect("/dashboard");
   }
+
+  const cfg = await prisma.siteConfig.findUnique({ where: { id: "main" } });
 
   const features = [
     { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
@@ -53,6 +57,7 @@ export default async function Home() {
           </Link>
           <div className="flex items-center gap-2">
             <a href="#pricing" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Тарифи</a>
+            <a href="#contacts" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Контакти</a>
             <Link href="/login" className="btn btn-primary px-4 sm:px-5 py-2 text-sm">Увійти</Link>
           </div>
         </div>
@@ -202,6 +207,8 @@ export default async function Home() {
               icon={Wifi}
               title="Онлайн"
               tag="тренуєшся сам, я веду в кабінеті"
+              price={cfg?.priceOnline ?? null}
+              priceNote={cfg?.priceNote ?? null}
               perks={[
                 "Персональна програма тренувань та харчування",
                 "Моніторинг аналізів",
@@ -217,6 +224,8 @@ export default async function Home() {
               icon={Crown}
               title="Офлайн"
               tag="тренуєшся зі мною в залі особисто!"
+              price={cfg?.priceOffline ?? null}
+              priceNote={cfg?.priceNote ?? null}
               perks={[
                 "Персональний план харчування",
                 "Особистий кабінет 24/7",
@@ -231,9 +240,105 @@ export default async function Home() {
 
         <Reveal delay={200}>
           <div className="text-center mt-8 text-sm text-muted">
-            Оплата пакетами по 10 тренувань. Без прихованих платежів.
+            Оплата пакетами по 10 тренувань · ФОП Ковальчук Дмитро Романович
           </div>
         </Reveal>
+      </section>
+
+      {/* CONTACTS */}
+      <section id="contacts" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+            <div className="chip mb-4 inline-flex"><Phone className="w-3 h-3 text-accent" /> Контакти</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Зв'яжись зі мною</h2>
+            <p className="text-muted mt-3">Відповідаю у Telegram та Instagram. Напиши — відповім протягом години.</p>
+          </div>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          {cfg?.phone && (
+            <Reveal>
+              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`}
+                className="card p-5 card-hover flex items-center gap-4 group">
+                <div className="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shrink-0">
+                  <Phone className="w-5 h-5 text-success" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Телефон</div>
+                  <div className="font-semibold text-sm truncate group-hover:text-accent transition">{cfg.phone}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+          {cfg?.email && (
+            <Reveal>
+              <a href={`mailto:${cfg.email}`}
+                className="card p-5 card-hover flex items-center gap-4 group">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 text-accent" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Email</div>
+                  <div className="font-semibold text-sm truncate group-hover:text-accent transition">{cfg.email}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+          {cfg?.city && (
+            <Reveal>
+              <div className="card p-5 flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-accent2/10 border border-accent2/20 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-accent2" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Місто</div>
+                  <div className="font-semibold text-sm truncate">{cfg.city}</div>
+                </div>
+              </div>
+            </Reveal>
+          )}
+          <Reveal>
+            <a href={`https://t.me/${(cfg?.telegram ?? "dmytro_kovalchuk_coach").replace("@", "")}`}
+              target="_blank" rel="noreferrer"
+              className="card p-5 card-hover flex items-center gap-4 group">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#0088cc20", border: "1px solid #0088cc30" }}>
+                <Send className="w-5 h-5" style={{ color: "#0088cc" }} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Telegram</div>
+                <div className="font-semibold text-sm truncate group-hover:text-accent transition">
+                  @{(cfg?.telegram ?? "dmytro_kovalchuk_coach").replace("@", "")}
+                </div>
+              </div>
+            </a>
+          </Reveal>
+          <Reveal>
+            <a href={`https://instagram.com/${(cfg?.instagram ?? "_dmytro_kovalchuk_coach").replace("@", "")}`}
+              target="_blank" rel="noreferrer"
+              className="card p-5 card-hover flex items-center gap-4 group">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e1306c20", border: "1px solid #e1306c30" }}>
+                <Instagram className="w-5 h-5" style={{ color: "#e1306c" }} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Instagram</div>
+                <div className="font-semibold text-sm truncate group-hover:text-accent transition">
+                  @{(cfg?.instagram ?? "_dmytro_kovalchuk_coach").replace("@", "")}
+                </div>
+              </div>
+            </a>
+          </Reveal>
+          <Reveal>
+            <div className="card p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                <Dumbbell className="w-5 h-5 text-accent" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">ФОП</div>
+                <div className="font-semibold text-sm leading-snug">Ковальчук Дмитро Романович</div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {/* TESTIMONIALS */}
@@ -312,7 +417,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-function PlanCard({ icon: Icon, title, tag, perks, featured }: any) {
+function PlanCard({ icon: Icon, title, tag, perks, featured, price, priceNote }: any) {
   return (
     <div className={`card p-6 md:p-8 h-full relative overflow-hidden ${featured ? "border-accent/50 shadow-glow" : ""} card-hover`}>
       {featured && (
@@ -324,6 +429,14 @@ function PlanCard({ icon: Icon, title, tag, perks, featured }: any) {
       </div>
       <h3 className="font-black text-2xl">{title}</h3>
       <p className="text-muted text-sm mt-1">{tag}</p>
+
+      {price && (
+        <div className="mt-4 flex items-end gap-1.5">
+          <span className="text-3xl font-black text-gradient">{price} ₴</span>
+          {priceNote && <span className="text-sm text-muted mb-1">/ {priceNote}</span>}
+        </div>
+      )}
+
       <ul className="mt-5 space-y-2.5">
         {perks.map((p: string) => (
           <li key={p} className="flex items-start gap-2 text-sm">
@@ -331,9 +444,9 @@ function PlanCard({ icon: Icon, title, tag, perks, featured }: any) {
           </li>
         ))}
       </ul>
-      <Link href="/login" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
-        Дізнатись більше <ArrowRight className="w-4 h-4" />
-      </Link>
+      <a href="#contacts" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
+        Зв'язатись <ArrowRight className="w-4 h-4" />
+      </a>
     </div>
   );
 }
