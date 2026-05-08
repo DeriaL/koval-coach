@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         },
       ],
     },
-    redirectUrl: `${baseUrl}/dashboard/payments?status=success`,
+    redirectUrl: `${baseUrl}/dashboard/payments`,
     webHookUrl: `${baseUrl}/api/mono/webhook`,
     validity: 3600, // 1 hour
     paymentType: "debit",
