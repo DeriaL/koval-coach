@@ -14,16 +14,18 @@ export default async function TrainerProfile() {
   return (
     <div className="max-w-2xl">
       <PageHeader title="Мій профіль" />
-      <div className="card p-6 flex items-center gap-5">
-        <AvatarUpload
-          initialUrl={user.avatarUrl}
-          initials={`${user.firstName[0]}${user.lastName[0]}`}
-          size={80}
-        />
-        <div className="min-w-0">
-          <div className="text-2xl font-bold">{user.firstName} {user.lastName}</div>
-          <div className="text-muted truncate">{user.email}</div>
-          <div className="text-muted text-sm mt-1">{user.phone ?? "—"}</div>
+      <div className="card p-4 md:p-6 flex items-center gap-4 md:gap-5">
+        <div className="shrink-0">
+          <AvatarUpload
+            initialUrl={user.avatarUrl}
+            initials={`${user.firstName[0]}${user.lastName[0]}`}
+            size={80}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-xl md:text-2xl font-bold truncate">{user.firstName} {user.lastName}</div>
+          <div className="text-muted text-sm truncate">{user.email}</div>
+          <div className="text-muted text-sm mt-1 truncate">{user.phone ?? "—"}</div>
         </div>
       </div>
 

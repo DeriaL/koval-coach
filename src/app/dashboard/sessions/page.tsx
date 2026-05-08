@@ -99,8 +99,8 @@ export default async function ClientSessions() {
                 </div>
                 <div className="space-y-2">
                   {arr.map((s) => (
-                    <div key={s.id} className="card p-4 card-hover flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center"><Calendar className="w-5 h-5" /></div>
+                    <div key={s.id} className="card p-4 card-hover flex items-center gap-2 sm:gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center shrink-0"><Calendar className="w-5 h-5" /></div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{s.title}</div>
                         <div className="text-xs text-muted truncate">
@@ -110,7 +110,7 @@ export default async function ClientSessions() {
                       </div>
                       <a href={googleCalendarUrl({ id: s.id, title: s.title, scheduledAt: s.scheduledAt, notes: s.notes })}
                         target="_blank" rel="noreferrer" title="Додати в Google Calendar"
-                        className="btn text-xs py-2 hover:border-accent/50 hover:text-accent shrink-0">📅</a>
+                        className="btn text-xs py-2 px-2 hover:border-accent/50 hover:text-accent shrink-0">📅</a>
                       <CancelButton sessionId={s.id} title={s.title} scheduledAt={s.scheduledAt} />
                     </div>
                   ))}

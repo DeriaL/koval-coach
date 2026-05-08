@@ -142,14 +142,14 @@ export default async function PaymentsPage() {
             const Icon = s.icon;
             return (
               <div key={p.id} className="p-4 flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-5 h-5 ${s.color}`} />
-                  <div>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
+                  <div className="min-w-0">
                     <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
-                    <div className="text-xs text-muted">{p.date.toLocaleDateString("uk-UA")} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
+                    <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA")} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
                   </div>
                 </div>
-                <span className={`chip ${s.color}`}>{s.label}</span>
+                <span className={`chip ${s.color} shrink-0`}>{s.label}</span>
               </div>
             );
           })}

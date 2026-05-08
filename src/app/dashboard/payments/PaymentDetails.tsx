@@ -31,7 +31,7 @@ export function PaymentDetails() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-semibold">Реквізити для оплати</div>
-          <div className="text-xs text-muted">ФОП Ковальчук Дмитро Романович · АТ «Універсал Банк»</div>
+          <div className="text-xs text-muted truncate">ФОП Ковальчук Дмитро Романович · АТ «Універсал Банк»</div>
         </div>
         <ChevronDown className={`w-5 h-5 text-muted shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -49,7 +49,7 @@ export function PaymentDetails() {
                 className="w-full text-left p-3 rounded-xl bg-surface border border-border hover:border-accent/40 transition flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] uppercase tracking-wider text-muted">{d.label}</div>
-                  <div className={`text-sm mt-0.5 truncate ${d.mono ? "font-mono" : "font-medium"}`}>
+                  <div className={`text-sm mt-0.5 ${d.mono ? "font-mono break-all" : "font-medium break-words"}`}>
                     {d.value}
                   </div>
                 </div>

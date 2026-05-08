@@ -110,19 +110,19 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       </div>
 
       {/* Filters */}
-      <div className="card p-3 md:p-4 mb-5 flex items-center gap-2 overflow-x-auto scrollbar-thin">
+      <div className="card p-3 md:p-4 mb-5 flex flex-wrap items-center gap-2">
         <FilterChip href="/admin/sessions" label="Усі" active={format === "all" && !clientFilter} />
         <FilterChip href="/admin/sessions?format=online" label="Онлайн" icon="wifi" active={format === "online"} />
         <FilterChip href="/admin/sessions?format=offline" label="Офлайн" icon="crown" active={format === "offline"} />
-        <div className="ml-auto shrink-0">
+        <div className="w-full sm:w-auto sm:ml-auto sm:shrink-0">
           <form action="/admin/sessions" method="get" className="flex items-center gap-1">
             {format !== "all" && <input type="hidden" name="format" value={format} />}
             <select name="client" defaultValue={clientFilter}
-              className="select py-1.5 text-xs w-44">
+              className="select py-1.5 text-xs flex-1 sm:flex-none sm:w-44 min-w-0">
               <option value="">Усі клієнти</option>
               {allClients.map(c => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}
             </select>
-            <button type="submit" className="btn text-xs py-1.5">↻</button>
+            <button type="submit" className="btn text-xs py-1.5 shrink-0">↻</button>
           </form>
         </div>
       </div>

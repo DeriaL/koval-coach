@@ -15,10 +15,10 @@ export default async function ProfilePage() {
     const Icon = icon;
     return (
       <div className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border">
-        <Icon className="w-4 h-4 text-accent" />
-        <div className="flex-1">
+        <Icon className="w-4 h-4 text-accent shrink-0" />
+        <div className="flex-1 min-w-0">
           <div className="text-xs text-muted uppercase tracking-wider">{label}</div>
-          <div className="font-medium">{value || "—"}</div>
+          <div className="font-medium break-words">{value || "—"}</div>
         </div>
       </div>
     );
@@ -28,15 +28,17 @@ export default async function ProfilePage() {
     <div className="pt-4">
       <PageHeader title="Мій профіль" subtitle="Дані, які я веду по тобі" />
 
-      <div className="card p-6 flex items-center gap-5">
-        <AvatarUpload
-          initialUrl={user.avatarUrl}
-          initials={`${user.firstName[0]}${user.lastName[0]}`}
-          size={80}
-        />
-        <div>
-          <div className="text-2xl font-bold">{user.firstName} {user.lastName}</div>
-          <div className="text-muted">Клієнт з {user.createdAt.toLocaleDateString("uk-UA")}</div>
+      <div className="card p-4 md:p-6 flex items-center gap-4 md:gap-5">
+        <div className="shrink-0">
+          <AvatarUpload
+            initialUrl={user.avatarUrl}
+            initials={`${user.firstName[0]}${user.lastName[0]}`}
+            size={80}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-xl md:text-2xl font-bold truncate">{user.firstName} {user.lastName}</div>
+          <div className="text-muted text-sm md:text-base truncate">Клієнт з {user.createdAt.toLocaleDateString("uk-UA")}</div>
         </div>
       </div>
 
