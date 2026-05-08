@@ -146,15 +146,15 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
               key={c.id}
               href={`/admin/clients/${c.id}`}
               style={{ ["--i" as any]: i }}
-              className="card p-5 card-hover group relative block"
+              className="card p-4 sm:p-5 card-hover group relative block overflow-hidden"
             >
               {pendingPay && (
-                <div className="absolute -top-2 -right-2 chip bg-accent2/15 border-accent2/40 text-accent2 text-[10px] animate-pulse-ring">
+                <div className="absolute top-2 right-2 chip bg-accent2/15 border-accent2/40 text-accent2 text-[10px] animate-pulse-ring">
                   <AlertTriangle className="w-3 h-3" /> оплата
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl accent-shine overflow-hidden flex items-center justify-center text-white text-lg font-black shrink-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl accent-shine overflow-hidden flex items-center justify-center text-white text-lg font-black shrink-0">
                   {c.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -163,15 +163,17 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold truncate flex items-center gap-2">
+                  <div className="font-semibold flex items-center gap-1.5 min-w-0">
                     {c.isVip && <Star className="w-3.5 h-3.5 text-yellow-400 fill-current shrink-0" />}
-                    <span className="truncate">{c.firstName} {c.lastName}</span>
-                    <span className={`chip text-[10px] shrink-0 ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
+                    <span className="truncate min-w-0">{c.firstName} {c.lastName}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className={`chip text-[10px] shrink-0 py-0 px-1.5 ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
                       {isOnline ? <><Wifi className="w-2.5 h-2.5" /> Онлайн</> : <><Crown className="w-2.5 h-2.5" /> Офлайн</>}
                     </span>
-                  </div>
-                  <div className="text-xs text-muted truncate flex items-center gap-1">
-                    <Mail className="w-3 h-3" /> {c.email}
+                    <div className="text-xs text-muted truncate min-w-0 flex items-center gap-1">
+                      <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{c.email}</span>
+                    </div>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted group-hover:text-accent transition shrink-0" />
@@ -186,9 +188,11 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
 
               {/* Workout progress to next 10-pack */}
               <div className="mt-3">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-muted flex items-center gap-1"><Dumbbell className="w-3 h-3" /> Тренувань: <b className="text-text">{sessions}</b></span>
-                  <span className="text-muted">до оплати: {toNextMilestone}</span>
+                <div className="flex items-center justify-between text-xs mb-1 gap-2">
+                  <span className="text-muted flex items-center gap-1 min-w-0 truncate">
+                    <Dumbbell className="w-3 h-3 shrink-0" /> Тренувань: <b className="text-text">{sessions}</b>
+                  </span>
+                  <span className="text-muted shrink-0">до оплати: {toNextMilestone}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-surface overflow-hidden">
                   <div className="h-full accent-shine transition-all" style={{ width: `${((sessions % 10) / 10) * 100}%` }} />
@@ -196,31 +200,31 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-3">
-                <div className="p-2 rounded-lg bg-surface border border-border">
-                  <div className="text-[10px] text-muted uppercase">Вага</div>
-                  <div className="text-sm font-bold">{latest?.weight?.toFixed(1) ?? "—"}</div>
+                <div className="p-2 rounded-lg bg-surface border border-border min-w-0">
+                  <div className="text-[10px] text-muted uppercase truncate">Вага</div>
+                  <div className="text-sm font-bold truncate">{latest?.weight?.toFixed(1) ?? "—"}</div>
                 </div>
-                <div className="p-2 rounded-lg bg-surface border border-border">
-                  <div className="text-[10px] text-muted uppercase">Δ кг</div>
-                  <div className={`text-sm font-bold ${delta < 0 ? "text-success" : delta > 0 ? "text-danger" : ""}`}>
+                <div className="p-2 rounded-lg bg-surface border border-border min-w-0">
+                  <div className="text-[10px] text-muted uppercase truncate">Δ кг</div>
+                  <div className={`text-sm font-bold truncate ${delta < 0 ? "text-success" : delta > 0 ? "text-danger" : ""}`}>
                     {delta > 0 ? "+" : ""}{delta.toFixed(1)}
                   </div>
                 </div>
-                <div className="p-2 rounded-lg bg-surface border border-border">
-                  <div className="text-[10px] text-muted uppercase flex items-center gap-0.5"><Flame className="w-2.5 h-2.5" /> Streak</div>
-                  <div className="text-sm font-bold">{streakDays}</div>
+                <div className="p-2 rounded-lg bg-surface border border-border min-w-0">
+                  <div className="text-[10px] text-muted uppercase flex items-center gap-0.5 truncate"><Flame className="w-2.5 h-2.5 shrink-0" /> Streak</div>
+                  <div className="text-sm font-bold truncate">{streakDays}</div>
                 </div>
               </div>
 
               {pendingPay ? (
-                <div className="mt-3 text-xs flex items-center justify-between p-2 rounded-lg bg-accent2/10 border border-accent2/30 text-accent2">
-                  <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Очікує оплати</span>
-                  <span className="font-bold">{pendingPay.amount} ₴</span>
+                <div className="mt-3 text-xs flex items-center justify-between gap-2 p-2 rounded-lg bg-accent2/10 border border-accent2/30 text-accent2">
+                  <span className="flex items-center gap-1 min-w-0 truncate"><Wallet className="w-3 h-3 shrink-0" /> Очікує оплати</span>
+                  <span className="font-bold shrink-0">{pendingPay.amount} ₴</span>
                 </div>
               ) : c.pricePer10 ? (
-                <div className="mt-3 text-[11px] text-muted flex items-center justify-between">
-                  <span>Пакет 10 тренувань</span>
-                  <span className="text-text font-medium">{c.pricePer10} ₴</span>
+                <div className="mt-3 text-[11px] text-muted flex items-center justify-between gap-2">
+                  <span className="truncate min-w-0">Пакет 10 тренувань</span>
+                  <span className="text-text font-medium shrink-0">{c.pricePer10} ₴</span>
                 </div>
               ) : null}
             </Link>
