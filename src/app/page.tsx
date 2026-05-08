@@ -1,14 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Reveal } from "@/components/Reveal";
 import { FloatingContact } from "@/components/FloatingContact";
+import { prisma } from "@/lib/prisma";
 import {
   Dumbbell, LineChart, Apple, Pill, Wallet, Camera, Flame, MessageCircle,
   Trophy, ArrowRight, Sparkles, Wifi, Crown, Check, Star, Quote, Target, Zap, ShieldCheck,
-  Phone, Mail, MapPin, Instagram, Send
+  Phone, Mail, MapPin, Send, Instagram
 } from "lucide-react";
 
 export default async function Home() {
@@ -18,10 +18,7 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
-  const [cfg, services] = await Promise.all([
-    prisma.siteConfig.findUnique({ where: { id: "main" } }),
-    (prisma as any).service.findMany({ where: { active: true }, orderBy: [{ order: "asc" }, { createdAt: "asc" }] }),
-  ]);
+  const cfg = await prisma.siteConfig.findUnique({ where: { id: "main" } }).catch(() => null);
 
   const features = [
     { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
@@ -198,137 +195,54 @@ export default async function Home() {
       <section id="pricing" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуги</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Обери свій формат</h2>
-            <p className="text-muted mt-3">Кожен пакет — це персональний супровід під твої цілі.</p>
+            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуга</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Два формати супроводу</h2>
+            <p className="text-muted mt-3">Обери формат, який підходить твоєму ритму життя.</p>
           </div>
         </Reveal>
 
-        {services.length > 0 ? (
-          <div className={`grid gap-4 md:gap-5 ${services.length === 1 ? "max-w-sm mx-auto" : services.length === 2 ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
-            {services.map((s: any, i: number) => (
-              <Reveal key={s.id} delay={i * 80}>
-                <ServiceCard service={s} />
-              </Reveal>
-            ))}
-          </div>
-        ) : (
-          /* fallback to hardcoded if no services in DB yet */
-          <div className="grid md:grid-cols-2 gap-4 md:gap-5">
-            <Reveal delay={0}>
-              <PlanCard icon={Wifi} title="Онлайн" tag="тренуєшся сам, я веду в кабінеті"
-                price={cfg?.priceOnline ?? null} priceNote={cfg?.priceNote ?? null}
-                perks={["Персональна програма тренувань та харчування","Моніторинг аналізів","Підбір добавок","Щоденний check-in","Чат і звіти","Фото-прогрес"]} />
-            </Reveal>
-            <Reveal delay={120}>
-              <PlanCard icon={Crown} title="Офлайн" tag="тренуєшся зі мною в залі особисто!"
-                price={cfg?.priceOffline ?? null} priceNote={cfg?.priceNote ?? null}
-                perks={["Персональний план харчування","Особистий кабінет 24/7","Аналітика прогресу","Заплановані тренування","PR-трекер у залі"]} featured />
-            </Reveal>
-          </div>
-        )}
+        <div className="grid md:grid-cols-2 gap-4 md:gap-5">
+          <Reveal delay={0}>
+            <PlanCard
+              icon={Wifi}
+              title="Онлайн"
+              tag="тренуєшся сам, я веду в кабінеті"
+              price={cfg?.priceOnline ?? "4 000"}
+              priceNote={cfg?.priceNote ?? "пакет 10 тренувань"}
+              perks={[
+                "Персональна програма тренувань та харчування",
+                "Моніторинг аналізів",
+                "Підбір добавок",
+                "Щоденний check-in",
+                "Чат і звіти",
+                "Фото-прогрес",
+              ]}
+            />
+          </Reveal>
+          <Reveal delay={120}>
+            <PlanCard
+              icon={Crown}
+              title="Офлайн"
+              tag="тренуєшся зі мною в залі особисто!"
+              price={cfg?.priceOffline ?? "5 000"}
+              priceNote={cfg?.priceNote ?? "пакет 10 тренувань"}
+              perks={[
+                "Персональний план харчування",
+                "Особистий кабінет 24/7",
+                "Аналітика прогресу",
+                "Заплановані тренування",
+                "PR-трекер у залі",
+              ]}
+              featured
+            />
+          </Reveal>
+        </div>
 
         <Reveal delay={200}>
           <div className="text-center mt-8 text-sm text-muted">
-            Оплата пакетами по 10 тренувань · ФОП Ковальчук Дмитро Романович
+            Оплата пакетами по 10 тренувань. Без прихованих платежів.
           </div>
         </Reveal>
-      </section>
-
-      {/* CONTACTS */}
-      <section id="contacts" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Phone className="w-3 h-3 text-accent" /> Контакти</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Зв'яжись зі мною</h2>
-            <p className="text-muted mt-3">Відповідаю у Telegram та Instagram. Напиши — відповім протягом години.</p>
-          </div>
-        </Reveal>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {cfg?.phone && (
-            <Reveal>
-              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`}
-                className="card p-5 card-hover flex items-center gap-4 group">
-                <div className="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5 text-success" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Телефон</div>
-                  <div className="font-semibold text-sm truncate group-hover:text-accent transition">{cfg.phone}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-          {cfg?.email && (
-            <Reveal>
-              <a href={`mailto:${cfg.email}`}
-                className="card p-5 card-hover flex items-center gap-4 group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-accent" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Email</div>
-                  <div className="font-semibold text-sm truncate group-hover:text-accent transition">{cfg.email}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-          {cfg?.city && (
-            <Reveal>
-              <div className="card p-5 flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent2/10 border border-accent2/20 flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-accent2" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Місто</div>
-                  <div className="font-semibold text-sm truncate">{cfg.city}</div>
-                </div>
-              </div>
-            </Reveal>
-          )}
-          <Reveal>
-            <a href={`https://t.me/${(cfg?.telegram ?? "dmytro_kovalchuk_coach").replace("@", "")}`}
-              target="_blank" rel="noreferrer"
-              className="card p-5 card-hover flex items-center gap-4 group">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#0088cc20", border: "1px solid #0088cc30" }}>
-                <Send className="w-5 h-5" style={{ color: "#0088cc" }} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Telegram</div>
-                <div className="font-semibold text-sm truncate group-hover:text-accent transition">
-                  @{(cfg?.telegram ?? "dmytro_kovalchuk_coach").replace("@", "")}
-                </div>
-              </div>
-            </a>
-          </Reveal>
-          <Reveal>
-            <a href={`https://instagram.com/${(cfg?.instagram ?? "_dmytro_kovalchuk_coach").replace("@", "")}`}
-              target="_blank" rel="noreferrer"
-              className="card p-5 card-hover flex items-center gap-4 group">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e1306c20", border: "1px solid #e1306c30" }}>
-                <Instagram className="w-5 h-5" style={{ color: "#e1306c" }} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">Instagram</div>
-                <div className="font-semibold text-sm truncate group-hover:text-accent transition">
-                  @{(cfg?.instagram ?? "_dmytro_kovalchuk_coach").replace("@", "")}
-                </div>
-              </div>
-            </a>
-          </Reveal>
-          <Reveal>
-            <div className="card p-5 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-                <Dumbbell className="w-5 h-5 text-accent" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-wider text-muted mb-0.5">ФОП</div>
-                <div className="font-semibold text-sm leading-snug">Ковальчук Дмитро Романович</div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
       </section>
 
       {/* TESTIMONIALS */}
@@ -378,6 +292,83 @@ export default async function Home() {
         </Reveal>
       </section>
 
+      {/* CONTACTS — only render if at least one contact field is filled */}
+      {(cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) && (
+      <section id="contacts" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+            <div className="chip mb-4 inline-flex"><Phone className="w-3 h-3 text-accent" /> Контакти</div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Зв&apos;яжіться зі мною</h2>
+            <p className="text-muted mt-3">Маєш питання? Пиши або дзвони — відповім швидко.</p>
+          </div>
+        </Reveal>
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
+          {cfg?.phone && (
+            <Reveal>
+              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide">Телефон</div>
+                  <div className="font-semibold text-sm mt-0.5">{cfg.phone}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+          {cfg?.email && (
+            <Reveal delay={60}>
+              <a href={`mailto:${cfg.email}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide">Email</div>
+                  <div className="font-semibold text-sm mt-0.5">{cfg.email}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+          {cfg?.telegram && (
+            <Reveal delay={120}>
+              <a href={`https://t.me/${cfg.telegram.replace("@", "")}`} target="_blank" rel="noreferrer"
+                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                  <Send className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide">Telegram</div>
+                  <div className="font-semibold text-sm mt-0.5">{cfg.telegram}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+          {cfg?.instagram && (
+            <Reveal delay={180}>
+              <a href={`https://instagram.com/${cfg.instagram.replace("@", "")}`} target="_blank" rel="noreferrer"
+                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition">
+                  <Instagram className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wide">Instagram</div>
+                  <div className="font-semibold text-sm mt-0.5">{cfg.instagram}</div>
+                </div>
+              </a>
+            </Reveal>
+          )}
+        </div>
+        {cfg?.city && (
+          <Reveal delay={240}>
+            <div className="flex items-center justify-center gap-2 mt-6 text-muted text-sm">
+              <MapPin className="w-4 h-4 text-accent shrink-0" />
+              <span>{cfg.city}</span>
+            </div>
+          </Reveal>
+        )}
+      </section>
+      )}
+
       {/* FOOTER */}
       <footer className="border-t border-border mt-8">
         <div className="max-w-6xl mx-auto px-5 md:px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -388,7 +379,7 @@ export default async function Home() {
             <span>Koval<span className="text-gradient">Fit</span></span>
           </div>
           <div className="text-muted text-xs text-center">
-            © {new Date().getFullYear()} KovalFit · Усі права захищено
+            ФОП Ковальчук Дмитро · © {new Date().getFullYear()} KovalFit · Усі права захищено
           </div>
         </div>
       </footer>
@@ -407,40 +398,6 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-function ServiceCard({ service: s }: { service: any }) {
-  const perks = s.perks ? s.perks.split("\n").filter(Boolean) : [];
-  return (
-    <div className={`card p-6 md:p-8 h-full relative overflow-hidden card-hover ${s.featured ? "border-accent/50 shadow-glow" : ""}`}>
-      {s.featured && <div aria-hidden className="absolute inset-0 -z-10 opacity-20 bg-gradient-to-br from-accent/30 to-accent2/30" />}
-      {s.featured && <div className="absolute top-4 right-4 chip text-[10px] border-accent/40 text-accent">⭐ популярний</div>}
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-3xl ${s.featured ? "accent-shine shadow-glow" : "bg-accent/10 border border-accent/20"}`}>
-        {s.emoji ?? "💪"}
-      </div>
-      <h3 className="font-black text-2xl">{s.title}</h3>
-      {s.description && <p className="text-muted text-sm mt-1">{s.description}</p>}
-      {s.price && (
-        <div className="mt-4 flex items-end gap-1.5">
-          <span className="text-3xl font-black text-gradient">{s.price} ₴</span>
-          {s.priceNote && <span className="text-sm text-muted mb-1">/ {s.priceNote}</span>}
-        </div>
-      )}
-      {perks.length > 0 && (
-        <ul className="mt-5 space-y-2.5">
-          {perks.map((p: string) => (
-            <li key={p} className="flex items-start gap-2 text-sm">
-              <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-              <span>{p}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <a href="#contacts" className={`btn ${s.featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
-        Зв'язатись <ArrowRight className="w-4 h-4" />
-      </a>
-    </div>
-  );
-}
-
 function PlanCard({ icon: Icon, title, tag, perks, featured, price, priceNote }: any) {
   return (
     <div className={`card p-6 md:p-8 h-full relative overflow-hidden ${featured ? "border-accent/50 shadow-glow" : ""} card-hover`}>
@@ -453,14 +410,12 @@ function PlanCard({ icon: Icon, title, tag, perks, featured, price, priceNote }:
       </div>
       <h3 className="font-black text-2xl">{title}</h3>
       <p className="text-muted text-sm mt-1">{tag}</p>
-
       {price && (
-        <div className="mt-4 flex items-end gap-1.5">
+        <div className="mt-4">
           <span className="text-3xl font-black text-gradient">{price} ₴</span>
-          {priceNote && <span className="text-sm text-muted mb-1">/ {priceNote}</span>}
+          {priceNote && <span className="text-muted text-sm ml-2">/ {priceNote}</span>}
         </div>
       )}
-
       <ul className="mt-5 space-y-2.5">
         {perks.map((p: string) => (
           <li key={p} className="flex items-start gap-2 text-sm">
@@ -468,9 +423,9 @@ function PlanCard({ icon: Icon, title, tag, perks, featured, price, priceNote }:
           </li>
         ))}
       </ul>
-      <a href="#contacts" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
-        Зв'язатись <ArrowRight className="w-4 h-4" />
-      </a>
+      <Link href="/login" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
+        Дізнатись більше <ArrowRight className="w-4 h-4" />
+      </Link>
     </div>
   );
 }
