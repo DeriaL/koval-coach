@@ -93,7 +93,7 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
       },
     });
     milestone = { count: totalCompleted, amount };
-    notifyUser(u.id, `🎉 <b>${totalCompleted} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+    notifyUser(u.id, "payments", `🎉 <b>${totalCompleted} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
     notifyAllTrainers(`🎯 <b>${u.name}</b> досяг ${totalCompleted} тренувань${amount ? ` (рахунок ${amount} ₴ створено)` : ""}.`).catch(()=>{});
   }
 

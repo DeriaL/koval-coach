@@ -7,8 +7,38 @@ function token() {
   return t || null;
 }
 
+// ── Sections ────────────────────────────────────────────────────────────────
+// Used as headers on outgoing notifications so the user can scroll back
+// and immediately see WHICH part of the app the message is about.
+export const SECTIONS = {
+  training: { emoji: "🏋️", title: "Мої тренування", command: "training" },
+  payments: { emoji: "💳", title: "Мої оплати",    command: "payments" },
+  updates:  { emoji: "🔔", title: "Оновлення",      command: "updates" },
+} as const;
+
+export type Section = keyof typeof SECTIONS;
+
+/** Build the section header line prepended to a notification. */
+function sectionHeader(section: Section): string {
+  const s = SECTIONS[section];
+  return `<b>${s.emoji} ${s.title}</b>\n`;
+}
+
+/** Persistent reply keyboard with the three section buttons. */
+export const MAIN_KEYBOARD = {
+  keyboard: [
+    [{ text: `${SECTIONS.training.emoji} ${SECTIONS.training.title}` }],
+    [
+      { text: `${SECTIONS.payments.emoji} ${SECTIONS.payments.title}` },
+      { text: `${SECTIONS.updates.emoji} ${SECTIONS.updates.title}` },
+    ],
+  ],
+  resize_keyboard: true,
+  is_persistent: true,
+};
+
 /** Low-level: send a Telegram message to a chatId. Silent fails if no token / no chatId. */
-export async function sendTelegram(chatId: string | null | undefined, text: string, opts?: { keyboard?: any }) {
+export async function sendTelegram(chatId: string | null | undefined, text: string, opts?: { keyboard?: any; noKeyboard?: boolean }) {
   const t = token();
   if (!t || !chatId) return { ok: false, reason: "no-token-or-chat" };
   try {
@@ -18,15 +48,18 @@ export async function sendTelegram(chatId: string | null | undefined, text: stri
       parse_mode: "HTML",
       disable_web_page_preview: true,
     };
+    // Default to the persistent main keyboard unless caller opts out or provides a custom one
     if (opts?.keyboard) body.reply_markup = opts.keyboard;
+    else if (!opts?.noKeyboard) body.reply_markup = MAIN_KEYBOARD;
+
     const res = await fetch(`${TG_API}${t}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      const t = await res.text();
-      console.error("telegram send failed", res.status, t);
+      const errText = await res.text();
+      console.error("telegram send failed", res.status, errText);
     }
     return { ok: res.ok };
   } catch (e) {
@@ -35,11 +68,11 @@ export async function sendTelegram(chatId: string | null | undefined, text: stri
   }
 }
 
-/** Send notification to a user by their userId (looks up chatId). */
-export async function notifyUser(userId: string, text: string) {
+/** Send notification to a user by their userId, prefixed with a section header. */
+export async function notifyUser(userId: string, section: Section, text: string) {
   const u = await prisma.user.findUnique({ where: { id: userId }, select: { telegramChatId: true } });
   if (!u?.telegramChatId) return;
-  await sendTelegram(u.telegramChatId, text);
+  await sendTelegram(u.telegramChatId, sectionHeader(section) + text);
 }
 
 /** Send to all trainers (e.g. when a client cancels). */

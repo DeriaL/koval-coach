@@ -97,10 +97,10 @@ export async function saveNutrition(id: string, data: Record<string, any>) {
   };
   if (data.id) {
     await prisma.nutritionPlan.update({ where: { id: data.id }, data: payload });
-    notifyUser(id, `🍎 <b>Я оновив план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
+    notifyUser(id, "updates", `🍎 <b>Я оновив план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
   } else {
     await prisma.nutritionPlan.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `🍎 <b>Я склав для тебе план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
+    notifyUser(id, "updates", `🍎 <b>Я склав для тебе план харчування</b>\n«${data.title}»\nГлянь у вкладці «Харчування».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -121,10 +121,10 @@ export async function saveTraining(id: string, data: Record<string, any>) {
   };
   if (data.id) {
     await prisma.trainingPlan.update({ where: { id: data.id }, data: payload });
-    notifyUser(id, `💪 <b>Я оновив програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
+    notifyUser(id, "training", `💪 <b>Я оновив програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
   } else {
     await prisma.trainingPlan.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `💪 <b>Я склав для тебе програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
+    notifyUser(id, "training", `💪 <b>Я склав для тебе програму тренувань</b>\n«${data.title}»\nГлянь у вкладці «Програма».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -140,10 +140,10 @@ export async function saveSupplement(id: string, data: Record<string, any>) {
   const payload = { name: data.name, dosage: data.dosage || null, schedule: data.schedule || null, notes: data.notes || null };
   if (data.id) {
     await prisma.supplement.update({ where: { id: data.id }, data: payload });
-    notifyUser(id, `💊 <b>Я оновив добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}`).catch(()=>{});
+    notifyUser(id, "updates", `💊 <b>Я оновив добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}`).catch(()=>{});
   } else {
     await prisma.supplement.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `💊 <b>Я додав тобі добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}${data.schedule ? `\nПрийом: ${data.schedule}` : ""}`).catch(()=>{});
+    notifyUser(id, "updates", `💊 <b>Я додав тобі добавку</b>\n«${data.name}»${data.dosage ? `\nДозування: ${data.dosage}` : ""}${data.schedule ? `\nПрийом: ${data.schedule}` : ""}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -169,9 +169,9 @@ export async function savePayment(id: string, data: Record<string, any>) {
   } else {
     await prisma.payment.create({ data: { ...payload, clientId: id } });
     if (payload.status === "paid") {
-      notifyUser(id, `💰 <b>Оплата зарахована</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}${payload.notes ? `\n${payload.notes}` : ""}`).catch(()=>{});
+      notifyUser(id, "payments", `💰 <b>Оплата зарахована</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}${payload.notes ? `\n${payload.notes}` : ""}`).catch(()=>{});
     } else {
-      notifyUser(id, `💳 <b>Виставлений рахунок</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}\nРеквізити для оплати — у вкладці «Оплати».`).catch(()=>{});
+      notifyUser(id, "payments", `💳 <b>Виставлений рахунок</b>\n${payload.amount.toLocaleString("uk-UA")} ${payload.currency}\nРеквізити для оплати — у вкладці «Оплати».`).catch(()=>{});
     }
   }
   revalidatePath(`/admin/clients/${id}`);
@@ -227,7 +227,7 @@ export async function savePhoto(id: string, data: Record<string, any>) {
     await prisma.progressPhoto.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.progressPhoto.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `📸 <b>Я додав твоє фото-прогрес</b>\nГлянь у вкладці «Фото».`).catch(()=>{});
+    notifyUser(id, "updates", `📸 <b>Я додав твоє фото-прогрес</b>\nГлянь у вкладці «Фото».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -249,7 +249,7 @@ export async function saveAchievement(id: string, data: Record<string, any>) {
     await prisma.achievement.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.achievement.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `🏆 <b>Нова ачівка!</b>\n«${data.title}»${data.description ? `\n${data.description}` : ""}`).catch(()=>{});
+    notifyUser(id, "updates", `🏆 <b>Нова ачівка!</b>\n«${data.title}»${data.description ? `\n${data.description}` : ""}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
@@ -274,10 +274,10 @@ export async function saveExercise(clientId: string, data: Record<string, any>) 
   };
   if (data.id) {
     await prisma.exercise.update({ where: { id: data.id }, data: payload });
-    notifyUser(clientId, `🏋️ <b>Я оновив вправу</b>\n«${data.name}» (${data.day})`).catch(()=>{});
+    notifyUser(clientId, "training", `🏋️ <b>Я оновив вправу</b>\n«${data.name}» (${data.day})`).catch(()=>{});
   } else {
     await prisma.exercise.create({ data: { ...payload, trainingPlanId: data.trainingPlanId } });
-    notifyUser(clientId, `🏋️ <b>Я додав вправу до програми</b>\n«${data.name}» (${data.day}) · ${payload.targetSets}×${payload.targetReps}`).catch(()=>{});
+    notifyUser(clientId, "training", `🏋️ <b>Я додав вправу до програми</b>\n«${data.name}» (${data.day}) · ${payload.targetSets}×${payload.targetReps}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${clientId}`);
 }
@@ -300,7 +300,7 @@ export async function saveHabit(clientId: string, data: Record<string, any>) {
     await prisma.habit.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.habit.create({ data: { ...payload, clientId } });
-    notifyUser(clientId, `🎯 <b>Я додав тобі звичку</b>\n«${data.title}»\nГлянь у вкладці «Звички».`).catch(()=>{});
+    notifyUser(clientId, "updates", `🎯 <b>Я додав тобі звичку</b>\n«${data.title}»\nГлянь у вкладці «Звички».`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${clientId}`);
 }
@@ -329,7 +329,7 @@ export async function scheduleSession(clientId: string, data: { title: string; s
   });
   if (!alreadyDone) {
     const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" });
-    notifyUser(clientId, `📅 <b>Я запланував для тебе тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
+    notifyUser(clientId, "training", `📅 <b>Я запланував для тебе тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
   }
   // If backfilled as done, check milestone
   if (alreadyDone) {
@@ -364,7 +364,7 @@ export async function confirmSession(sessionId: string, clientId: string, happen
       where: { id: sessionId },
       data: { confirmedByTrainer: true, completed: true },
     });
-    notifyUser(clientId, `✅ <b>Я підтвердив твоє тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
+    notifyUser(clientId, "training", `✅ <b>Я підтвердив твоє тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
     // Check milestone (every 10)
     const total = await prisma.workoutSession.count({
       where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
@@ -381,7 +381,7 @@ export async function confirmSession(sessionId: string, clientId: string, happen
       await prisma.reminder.create({
         data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
       });
-      notifyUser(clientId, `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+      notifyUser(clientId, "payments", `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
     }
   } else {
     await prisma.workoutSession.delete({ where: { id: sessionId } });
@@ -413,7 +413,7 @@ export async function cancelSessionByTrainer(sessionId: string, clientId: string
       done: false,
     },
   });
-  notifyUser(clientId, `❌ <b>Я скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}`).catch(()=>{});
+  notifyUser(clientId, "training", `❌ <b>Я скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}`).catch(()=>{});
   revalidatePath(`/admin/clients/${clientId}`);
   revalidatePath("/admin/sessions");
   revalidatePath("/admin");
@@ -435,7 +435,7 @@ export async function saveReminder(id: string, data: Record<string, any>) {
     await prisma.reminder.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.reminder.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, `🔔 <b>Нагадування</b>\n${payload.title}\n🕐 ${payload.datetime.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}`).catch(()=>{});
+    notifyUser(id, "training", `🔔 <b>Нагадування</b>\n${payload.title}\n🕐 ${payload.datetime.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }
