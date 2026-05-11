@@ -49,14 +49,16 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // bottom-nav: 4 основних + Профіль + "Ще" (drawer)
-  const bottomItems = role === "CLIENT"
+  // bottom-nav: 4 основних + Профіль (5 columns total)
+  const bottomItems: Item[] = role === "CLIENT"
     ? [
         clientNav.find(i => i.href === "/dashboard")!,
         clientNav.find(i => i.href === "/dashboard/check-in")!,
         clientNav.find(i => i.href === "/dashboard/workout")!,
         clientNav.find(i => i.href === "/dashboard/analytics")!,
-        clientNav.find(i => i.href === "/dashboard/profile")!,
+        // Profile isn't in clientNav (it's a separate footer entry on desktop),
+        // declare it inline so the 5th column always renders.
+        { href: "/dashboard/profile", label: "Профіль", icon: User },
       ].filter(Boolean) as Item[]
     : [adminNav[0]];
 
