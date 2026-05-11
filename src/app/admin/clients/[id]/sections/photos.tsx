@@ -342,16 +342,28 @@ function Lightbox({
     };
   }, [onClose, photos.length]);
 
-  const touchX = useRef<number | null>(null);
-  function onTouchStart(e: React.TouchEvent) { touchX.current = e.touches[0].clientX; }
+  // Track first finger + pinch flag so zoom gestures don't navigate photos.
+  const touchStart = useRef<{ x: number; y: number; pinched: boolean } | null>(null);
+  function onTouchStart(e: React.TouchEvent) {
+    if (e.touches.length > 1) { touchStart.current = null; return; }
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY, pinched: false };
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (touchStart.current && e.touches.length > 1) {
+      touchStart.current.pinched = true;
+    }
+  }
   function onTouchEnd(e: React.TouchEvent) {
-    if (touchX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchX.current;
-    if (Math.abs(dx) > 50) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start || start.pinched) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       if (dx > 0) setIdx(i => Math.max(0, i - 1));
       else setIdx(i => Math.min(photos.length - 1, i + 1));
     }
-    touchX.current = null;
   }
 
   if (!mounted) return null;
@@ -401,7 +413,9 @@ function Lightbox({
         className="flex-1 flex items-center justify-center px-3 sm:px-8 pt-16 pb-20 sm:pt-20 sm:pb-24 min-h-0"
         onClick={e => e.stopPropagation()}
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onTouchCancel={() => { touchStart.current = null; }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

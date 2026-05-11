@@ -16,7 +16,10 @@ export function SlidesViewer({ folder, title, emoji }: Props) {
   const [zoom, setZoom] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
+  // Track first finger position + whether a second finger ever joined (pinch).
+  // We cancel swipe-detection entirely if pinch is detected so zoom gestures
+  // don't accidentally navigate slides.
+  const touchStart = useRef<{ x: number; y: number; pinched: boolean } | null>(null);
 
   // Load slide list
   useEffect(() => {
@@ -73,18 +76,35 @@ export function SlidesViewer({ folder, title, emoji }: Props) {
     });
   }, [index, slides]);
 
-  // Touch swipe (only when not zoomed)
+  // Touch swipe — disabled while zoomed AND while there's more than one finger
+  // on screen (pinch-zoom). Also requires the gesture to be mostly horizontal.
   function onTouchStart(e: React.TouchEvent) {
     if (zoom) return;
-    touchStartX.current = e.touches[0].clientX;
+    if (e.touches.length > 1) {
+      // Multi-touch from the start — pinch, not swipe
+      touchStart.current = null;
+      return;
+    }
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY, pinched: false };
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    // If a second finger joins mid-gesture, mark this gesture as a pinch
+    // so onTouchEnd ignores it.
+    if (touchStart.current && e.touches.length > 1) {
+      touchStart.current.pinched = true;
+    }
   }
   function onTouchEnd(e: React.TouchEvent) {
-    if (zoom || touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 50) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (zoom || !start || start.pinched) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    // Require: big enough horizontal motion AND mostly horizontal (not diagonal/vertical)
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       if (dx > 0) goPrev(); else goNext();
     }
-    touchStartX.current = null;
   }
 
   if (loading) {
@@ -116,7 +136,10 @@ export function SlidesViewer({ folder, title, emoji }: Props) {
 
   return (
     <div ref={containerRef}
-      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={() => { touchStart.current = null; }}
       className="flex-1 flex flex-col relative overflow-hidden min-w-0 min-h-0"
     >
       {/* Slide image area with subtle radial spotlight.
