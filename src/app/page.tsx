@@ -20,6 +20,13 @@ export default async function Home() {
 
   const cfg = await (prisma as any).siteConfig.findUnique({ where: { id: "main" } }).catch(() => null);
 
+  // Fetch approved reviews (newest first, top 9 for the landing carousel)
+  const reviews: any[] = await (prisma as any).review.findMany({
+    where: { approved: true },
+    orderBy: { createdAt: "desc" },
+    take: 9,
+  }).catch(() => []);
+
   const features = [
     { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
     { icon: Dumbbell, title: "Тренування", text: "Програма, спліт, техніка, завжди під рукою." },
@@ -246,36 +253,61 @@ export default async function Home() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Quote className="w-3 h-3 text-accent" /> Відгуки</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Кажуть наші клієнти</h2>
-          </div>
-        </Reveal>
-        <div className="grid md:grid-cols-3 gap-4 md:gap-5">
-          {testimonials.map((t, i) => (
-            <Reveal key={t.name} delay={i * 80}>
-              <div className="card p-6 card-hover h-full flex flex-col">
-                <div className="flex gap-0.5 text-accent mb-3">
-                  {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-4 h-4 fill-current" />)}
-                </div>
-                <Quote className="w-6 h-6 text-accent/30" />
-                <p className="text-sm md:text-base mt-2 flex-1">{t.text}</p>
-                <div className="mt-5 pt-4 border-t border-border flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white font-black">
-                    {t.name[0]}
+      {(() => {
+        // Use real reviews from DB if any, else fall back to seeded testimonials
+        const items = reviews.length > 0
+          ? reviews.map((r: any) => ({
+              name: r.authorName,
+              role: "клієнт",
+              text: r.text ?? "Дуже задоволений співпрацею!",
+              rating: r.rating,
+            }))
+          : testimonials;
+        if (items.length === 0) return null;
+        const avgRating = items.reduce((s, t) => s + t.rating, 0) / items.length;
+        return (
+          <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
+            <Reveal>
+              <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+                <div className="chip mb-4 inline-flex"><Quote className="w-3 h-3 text-accent" /> Відгуки</div>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight">Кажуть наші клієнти</h2>
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <div className="flex gap-0.5 text-yellow-400">
+                    {[1,2,3,4,5].map(n => (
+                      <Star key={n} className={`w-5 h-5 ${n <= Math.round(avgRating) ? "fill-current" : "opacity-30"}`} />
+                    ))}
                   </div>
-                  <div>
-                    <div className="font-semibold text-sm">{t.name}</div>
-                    <div className="text-xs text-muted">{t.role}</div>
-                  </div>
+                  <span className="text-sm text-muted">
+                    <b className="text-text">{avgRating.toFixed(1)}</b> · {items.length} {items.length === 1 ? "відгук" : items.length < 5 ? "відгуки" : "відгуків"}
+                  </span>
                 </div>
               </div>
             </Reveal>
-          ))}
-        </div>
-      </section>
+            <div className="grid md:grid-cols-3 gap-4 md:gap-5">
+              {items.map((t, i) => (
+                <Reveal key={`${t.name}-${i}`} delay={i * 80}>
+                  <div className="card p-6 card-hover h-full flex flex-col">
+                    <div className="flex gap-0.5 text-yellow-400 mb-3">
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-4 h-4 fill-current" />)}
+                    </div>
+                    <Quote className="w-6 h-6 text-accent/30" />
+                    <p className="text-sm md:text-base mt-2 flex-1 whitespace-pre-wrap break-words">{t.text}</p>
+                    <div className="mt-5 pt-4 border-t border-border flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white font-black shrink-0">
+                        {t.name[0]}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm truncate">{t.name}</div>
+                        <div className="text-xs text-muted">{t.role}</div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* CTA */}
       <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">

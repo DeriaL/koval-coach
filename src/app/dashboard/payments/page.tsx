@@ -12,8 +12,10 @@ export default async function PaymentsPage() {
   const u = await requireClient();
   const [list, user] = await Promise.all([
     prisma.payment.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
-    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true } }),
+    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, coachingPlan: true } as any }) as any,
   ]);
+
+  const isDropIn = user?.coachingPlan === "DROP_IN";
 
   const paidPayments = list.filter(p => p.status === "paid");
   const paidCount = paidPayments.length;
@@ -54,6 +56,80 @@ export default async function PaymentsPage() {
     overdue: { icon: AlertTriangle, color: "text-danger", label: "Прострочено" },
   };
 
+  // ── DROP_IN clients: simplified view (no 10-session progress) ─────────────
+  if (isDropIn) {
+    const pendingPayment = list.find(p => p.status === "pending" || p.status === "overdue");
+    const sessionsPrice = (user as any)?.pricePerSession ?? 0;
+
+    return (
+      <div>
+        <PageHeader title="Оплати" subtitle="Разові тренування — оплата по сесії" />
+
+        {/* Summary card */}
+        <div className="card p-5 md:p-6 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 opacity-30 bg-gradient-to-br from-accent/15 via-transparent to-accent2/15" />
+          <div className="grid grid-cols-3 gap-3 md:gap-4">
+            <div className="text-center sm:text-left">
+              <div className="text-[10px] uppercase tracking-wider text-muted">Сесій оплачено</div>
+              <div className="text-2xl font-black mt-0.5">{paidCount}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-[10px] uppercase tracking-wider text-muted">Очікує</div>
+              <div className="text-2xl font-black mt-0.5 text-accent2">{pendingCount}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-muted">Всього сплачено</div>
+              <div className="text-xl font-bold text-success">{totalPaid.toLocaleString("uk-UA")} ₴</div>
+            </div>
+          </div>
+
+          {pendingPayment && (
+            <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2 text-sm flex-1">
+                <Clock className="w-4 h-4 text-accent2 shrink-0" />
+                <span>Очікує оплати: <b>{pendingPayment.amount.toLocaleString("uk-UA")} ₴</b>{pendingPayment.notes ? ` · ${pendingPayment.notes}` : ""}</span>
+              </div>
+              <PayButton amount={pendingPayment.amount} />
+            </div>
+          )}
+
+          {sessionsPrice > 0 && !pendingPayment && (
+            <div className="mt-5 text-xs text-muted">
+              Ціна за одне тренування — <b className="text-text">{sessionsPrice.toLocaleString("uk-UA")} ₴</b>
+            </div>
+          )}
+        </div>
+
+        <MonobankQR url={process.env.NEXT_PUBLIC_MONOBANK_URL ?? ""} />
+        <PaymentDetails />
+
+        {list.length === 0 ? (
+          <EmptyState icon={Wallet} title="Платежів поки немає" />
+        ) : (
+          <div className="card divide-y divide-border">
+            {list.slice().reverse().map((p) => {
+              const s = statusMap[p.status] ?? statusMap.pending;
+              const Icon = s.icon;
+              return (
+                <div key={p.id} className="p-4 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
+                    <div className="min-w-0">
+                      <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
+                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA")} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
+                    </div>
+                  </div>
+                  <span className={`chip ${s.color} shrink-0`}>{s.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── PACKAGE clients (default): 10-session progress UI ─────────────────────
   return (
     <div>
       <PageHeader title="Оплати" subtitle="Кожне тренування — крок до фінішу пакету" />

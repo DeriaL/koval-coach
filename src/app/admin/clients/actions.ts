@@ -22,7 +22,7 @@ export async function createClient(data: Record<string, any>): Promise<{ id: str
   await requireTrainer();
   try {
     const hash = await bcrypt.hash(data.password, 10);
-    const u = await prisma.user.create({
+    const u = await (prisma as any).user.create({
       data: {
         email: data.email,
         password: hash,
@@ -35,8 +35,9 @@ export async function createClient(data: Record<string, any>): Promise<{ id: str
         height: toNum(data.height),
         startWeight: toNum(data.startWeight),
         notes: data.notes || null,
-        coachingPlan: data.coachingPlan === "ONLINE" ? "ONLINE" : "FULL",
+        coachingPlan: ["ONLINE", "FULL", "DROP_IN"].includes(data.coachingPlan) ? data.coachingPlan : "FULL",
         pricePer10: toNum(data.pricePer10),
+        pricePerSession: toNum(data.pricePerSession),
       },
     });
     revalidatePath("/admin");
@@ -49,7 +50,7 @@ export async function createClient(data: Record<string, any>): Promise<{ id: str
 
 export async function updateClient(id: string, data: Record<string, any>) {
   await requireTrainer();
-  await prisma.user.update({
+  await (prisma as any).user.update({
     where: { id },
     data: {
       firstName: data.firstName,
@@ -61,8 +62,9 @@ export async function updateClient(id: string, data: Record<string, any>) {
       height: toNum(data.height),
       startWeight: toNum(data.startWeight),
       notes: data.notes || null,
-      coachingPlan: data.coachingPlan === "ONLINE" ? "ONLINE" : "FULL",
+      coachingPlan: ["ONLINE", "FULL", "DROP_IN"].includes(data.coachingPlan) ? data.coachingPlan : "FULL",
       pricePer10: toNum(data.pricePer10),
+      pricePerSession: toNum(data.pricePerSession),
       isVip: data.isVip === "on" || data.isVip === true || data.isVip === "true",
     },
   });
@@ -365,23 +367,45 @@ export async function confirmSession(sessionId: string, clientId: string, happen
       data: { confirmedByTrainer: true, completed: true },
     });
     notifyUser(clientId, "training", `✅ <b>Я підтвердив твоє тренування</b>\n«${s.title}» зараховано в загальний рахунок.`).catch(()=>{});
-    // Check milestone (every 10)
-    const total = await prisma.workoutSession.count({
-      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
-    });
-    if (total > 0 && total % 10 === 0) {
-      const u = await prisma.user.findUnique({ where: { id: clientId } });
-      const amount = u?.pricePer10 ?? null;
-      const pkg = Math.floor(total / 10);
+
+    const u = await prisma.user.findUnique({ where: { id: clientId } });
+
+    // ── DROP_IN clients: each confirmed session creates a pending payment ──
+    if (u?.coachingPlan === "DROP_IN") {
+      const amount = (u as any).pricePerSession ?? null;
       if (amount && amount > 0) {
         await prisma.payment.create({
-          data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
+          data: {
+            clientId,
+            amount,
+            currency: "UAH",
+            date: new Date(),
+            status: "pending",
+            notes: `Тренування «${s.title}» · разова оплата`,
+          },
         });
+        notifyUser(clientId, "payments",
+          `💳 <b>Рахунок за тренування</b>\n«${s.title}» — <b>${amount} ₴</b>\nДеталі у вкладці «Оплати».`
+        ).catch(() => {});
       }
-      await prisma.reminder.create({
-        data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
+    } else {
+      // ── PACKAGE clients: milestone every 10 sessions ──
+      const total = await prisma.workoutSession.count({
+        where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
       });
-      notifyUser(clientId, "payments", `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+      if (total > 0 && total % 10 === 0) {
+        const amount = u?.pricePer10 ?? null;
+        const pkg = Math.floor(total / 10);
+        if (amount && amount > 0) {
+          await prisma.payment.create({
+            data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
+          });
+        }
+        await prisma.reminder.create({
+          data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
+        });
+        notifyUser(clientId, "payments", `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+      }
     }
   } else {
     await prisma.workoutSession.delete({ where: { id: sessionId } });

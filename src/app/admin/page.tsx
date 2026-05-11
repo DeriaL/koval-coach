@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import Link from "next/link";
-import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search } from "lucide-react";
+import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket } from "lucide-react";
 import { ClientSearch } from "./ClientSearch";
 
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
@@ -113,6 +113,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
           const nextMilestone = Math.ceil((sessions + 1) / 10) * 10;
           const toNextMilestone = nextMilestone - sessions;
           const isOnline = c.coachingPlan === "ONLINE";
+          const isDropIn = c.coachingPlan === "DROP_IN";
 
           return (
             <Link
@@ -141,8 +142,14 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                     <span className="truncate min-w-0">{c.firstName} {c.lastName}</span>
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`chip text-[10px] shrink-0 py-0 px-1.5 ${isOnline ? "border-accent2/40 text-accent2" : "border-accent/40 text-accent"}`}>
-                      {isOnline ? <><Wifi className="w-2.5 h-2.5" /> Онлайн</> : <><Crown className="w-2.5 h-2.5" /> Офлайн</>}
+                    <span className={`chip text-[10px] shrink-0 py-0 px-1.5 ${
+                      isDropIn ? "border-yellow-400/40 text-yellow-400" :
+                      isOnline ? "border-accent2/40 text-accent2" :
+                                 "border-accent/40 text-accent"
+                    }`}>
+                      {isDropIn ? <><Ticket className="w-2.5 h-2.5" /> Разово</> :
+                       isOnline ? <><Wifi className="w-2.5 h-2.5" /> Онлайн</> :
+                                  <><Crown className="w-2.5 h-2.5" /> Офлайн</>}
                     </span>
                     <div className="text-xs text-muted truncate min-w-0 flex items-center gap-1">
                       <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{c.email}</span>

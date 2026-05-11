@@ -1,13 +1,18 @@
 "use client";
 import { useTransition, useState } from "react";
 import { updateClient, resetPassword, deleteClient } from "../../actions";
-import { Loader2, Save, KeyRound, Trash2, Wifi, Crown, Star } from "lucide-react";
+import { Loader2, Save, KeyRound, Trash2, Wifi, Crown, Star, Ticket } from "lucide-react";
+
+type Plan = "ONLINE" | "FULL" | "DROP_IN";
 
 export function ProfileTab({ client }: { client: any }) {
   const [pending, start] = useTransition();
   const [saved, setSaved] = useState(false);
   const [pwd, setPwd] = useState("");
-  const [plan, setPlan] = useState<"ONLINE" | "FULL">(client.coachingPlan === "ONLINE" ? "ONLINE" : "FULL");
+  const [plan, setPlan] = useState<Plan>(
+    client.coachingPlan === "ONLINE" ? "ONLINE" :
+    client.coachingPlan === "DROP_IN" ? "DROP_IN" : "FULL"
+  );
   const [vip, setVip] = useState<boolean>(!!client.isVip);
 
   function submit(fd: FormData) {
@@ -47,21 +52,46 @@ export function ProfileTab({ client }: { client: any }) {
 
         <div>
           <label className="label">Формат ведення</label>
-          <div className="grid sm:grid-cols-2 gap-2">
+          <div className="grid sm:grid-cols-3 gap-2">
             <button type="button" onClick={() => setPlan("ONLINE")}
               className={`p-3 rounded-xl border text-left flex items-center gap-3 transition ${plan === "ONLINE" ? "border-accent bg-accent/10 -translate-y-0.5 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${plan === "ONLINE" ? "accent-shine text-white" : "bg-card text-accent"}`}><Wifi className="w-4 h-4" /></div>
-              <div><div className="font-medium text-sm">Онлайн</div><div className="text-xs text-muted">віддалено</div></div>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${plan === "ONLINE" ? "accent-shine text-white" : "bg-card text-accent"}`}><Wifi className="w-4 h-4" /></div>
+              <div className="min-w-0"><div className="font-medium text-sm truncate">Онлайн</div><div className="text-xs text-muted truncate">віддалено</div></div>
             </button>
             <button type="button" onClick={() => setPlan("FULL")}
               className={`p-3 rounded-xl border text-left flex items-center gap-3 transition ${plan === "FULL" ? "border-accent bg-accent/10 -translate-y-0.5 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${plan === "FULL" ? "accent-shine text-white" : "bg-card text-accent"}`}><Crown className="w-4 h-4" /></div>
-              <div><div className="font-medium text-sm">Офлайн</div><div className="text-xs text-muted">в залі особисто</div></div>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${plan === "FULL" ? "accent-shine text-white" : "bg-card text-accent"}`}><Crown className="w-4 h-4" /></div>
+              <div className="min-w-0"><div className="font-medium text-sm truncate">Офлайн</div><div className="text-xs text-muted truncate">пакет 10</div></div>
+            </button>
+            <button type="button" onClick={() => setPlan("DROP_IN")}
+              className={`p-3 rounded-xl border text-left flex items-center gap-3 transition ${plan === "DROP_IN" ? "border-accent bg-accent/10 -translate-y-0.5 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${plan === "DROP_IN" ? "accent-shine text-white" : "bg-card text-accent"}`}><Ticket className="w-4 h-4" /></div>
+              <div className="min-w-0"><div className="font-medium text-sm truncate">Разово</div><div className="text-xs text-muted truncate">оплата за сесію</div></div>
             </button>
           </div>
         </div>
 
-        <Field label="Ціна за пакет 10 тренувань (₴)" name="pricePer10" type="number" step="50" defaultValue={client.pricePer10 ?? ""} />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field
+            label={plan === "DROP_IN" ? "Ціна за пакет (не використовується)" : "Ціна за пакет 10 тренувань (₴)"}
+            name="pricePer10"
+            type="number"
+            step="50"
+            defaultValue={client.pricePer10 ?? ""}
+          />
+          <Field
+            label="Ціна за одне тренування (₴)"
+            name="pricePerSession"
+            type="number"
+            step="50"
+            defaultValue={client.pricePerSession ?? ""}
+          />
+        </div>
+        {plan === "DROP_IN" && (
+          <div className="text-[11px] text-muted -mt-2">
+            💡 Разовий клієнт: кожне підтверджене тренування автоматично створить запис оплати на суму ціни за тренування.
+          </div>
+        )}
 
         <button type="button" onClick={() => setVip(!vip)}
           className={`w-full p-3 rounded-xl border flex items-center gap-3 transition ${vip ? "border-accent bg-accent/10 shadow-glow" : "border-border bg-surface hover:border-accent/40"}`}>

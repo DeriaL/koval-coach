@@ -22,9 +22,10 @@ model User {
   height    Float?
   startWeight Float?
   notes     String?
-  coachingPlan String @default("FULL")   // ONLINE | FULL
+  coachingPlan String @default("FULL")   // ONLINE | FULL | DROP_IN
   isVip      Boolean @default(false)
   pricePer10 Float?                       // ціна за 10 тренувань (пакет)
+  pricePerSession Float?                  // ціна за одне тренування (для DROP_IN клієнтів)
   telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
   telegramUsername String?
   telegramLinkCode String?  @unique       // тимчасовий код для прив'язки бота
@@ -298,6 +299,18 @@ model Service {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  clientId   String?  // null if anonymous / external
+  authorName String   // ім'я як показувати на лендингу
+  rating     Int      // 1..5
+  text       String?
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([clientId])
 }
 
 model RecipeBook {
