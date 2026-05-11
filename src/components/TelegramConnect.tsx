@@ -31,20 +31,21 @@ export function TelegramConnect({ initialUsername, initialLinked }: { initialUse
 
   if (linked) {
     return (
-      <div className="card p-5 border-success/30 bg-success/5">
+      <div className="card p-4 sm:p-5 border-success/30 bg-success/5">
         <div className="flex items-start gap-3">
           <div className="w-11 h-11 rounded-xl bg-success/15 text-success flex items-center justify-center shrink-0"><Check className="w-5 h-5" /></div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold flex items-center gap-2">Telegram підключено
-              <span className="chip text-[10px] text-success border-success/40">активно</span>
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
+              <span className="font-semibold">Telegram підключено</span>
+              <span className="chip text-[10px] text-success border-success/40 shrink-0">активно</span>
             </div>
-            <div className="text-xs text-muted mt-1">
-              {username ? <>Бот пише на акаунт <b className="text-text">{username}</b>.</> : <>Бот привʼязаний до твого Telegram.</>}
+            <div className="text-xs text-muted mt-1 break-words">
+              {username ? <>Бот пише на акаунт <b className="text-text break-all">{username}</b>.</> : <>Бот привʼязаний до твого Telegram.</>}
               {" "}Сповіщення приходять тут.
             </div>
           </div>
-          <button onClick={unlink} disabled={pending} className="btn text-xs hover:border-danger/40 hover:text-danger">
-            {pending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><X className="w-3.5 h-3.5" /> Відʼєднати</>}
+          <button onClick={unlink} disabled={pending} className="btn text-xs shrink-0 hover:border-danger/40 hover:text-danger">
+            {pending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><X className="w-3.5 h-3.5" /><span className="hidden sm:inline">Відʼєднати</span></>}
           </button>
         </div>
       </div>

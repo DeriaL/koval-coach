@@ -1,15 +1,28 @@
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import Link from "next/link";
-import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star } from "lucide-react";
+import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search } from "lucide-react";
+import { ClientSearch } from "./ClientSearch";
 
-export default async function AdminHome({ searchParams }: { searchParams: { format?: string } }) {
+export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
   const planFilter = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
 
+  const q = (searchParams?.q ?? "").trim();
+  const searchFilter = q
+    ? {
+        OR: [
+          { firstName: { contains: q, mode: "insensitive" as const } },
+          { lastName:  { contains: q, mode: "insensitive" as const } },
+          { email:     { contains: q, mode: "insensitive" as const } },
+          { phone:     { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
   const [clients, awaiting, planCounts] = await Promise.all([
     prisma.user.findMany({
-      where: { role: "CLIENT", ...planFilter },
+      where: { role: "CLIENT", ...planFilter, ...searchFilter },
       include: {
         measurements: { orderBy: { date: "desc" }, take: 1 },
         checkIns: { orderBy: { date: "desc" }, take: 7 },
@@ -51,12 +64,25 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         }
       />
 
+      {/* Search */}
+      <div className="mb-3">
+        <ClientSearch defaultValue={q} />
+      </div>
+
       {/* Format filter */}
       <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
-        <FilterChip href="/admin" label="Усі" count={totalAll} active={format === "all"} />
-        <FilterChip href="/admin?format=online" label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
-        <FilterChip href="/admin?format=offline" label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
+        <FilterChip href={`/admin${q ? `?q=${encodeURIComponent(q)}` : ""}`} label="Усі" count={totalAll} active={format === "all"} />
+        <FilterChip href={`/admin?format=online${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
+        <FilterChip href={`/admin?format=offline${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
       </div>
+
+      {/* Empty search result */}
+      {q && clients.length === 0 && (
+        <div className="card p-8 text-center mb-4">
+          <Search className="w-8 h-8 mx-auto text-muted mb-2" />
+          <div className="text-muted">Нікого не знайдено за запитом <b className="text-text">«{q}»</b></div>
+        </div>
+      )}
 
       {/* Awaiting confirmation */}
       {awaiting.length > 0 && (

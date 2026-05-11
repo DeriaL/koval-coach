@@ -28,30 +28,75 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
   const intervalRef = useRef<any>(null);
   const restRef = useRef<any>(null);
 
-  // elapsed timer
+  // Anchor timestamps so timers stay accurate when the browser throttles
+  // setInterval (locked screen, background tab). We always compute time
+  // from Date.now() instead of relying on tick counts.
+  const startTsRef = useRef<number>(Date.now());        // wall-clock when workout started
+  const accumPausedRef = useRef<number>(0);             // accumulated paused ms
+  const pauseStartRef = useRef<number | null>(null);    // wall-clock when current pause began
+  const restEndTsRef = useRef<number | null>(null);     // wall-clock when current rest ends
+
+  // ── elapsed timer ──────────────────────────────────────────────────────────
+  // Recompute from anchors every second AND every time the tab becomes visible.
+  useEffect(() => {
+    function recompute() {
+      const pauseMs = (pauseStartRef.current ? Date.now() - pauseStartRef.current : 0) + accumPausedRef.current;
+      const newElapsed = Math.max(0, Math.floor((Date.now() - startTsRef.current - pauseMs) / 1000));
+      setElapsed(newElapsed);
+    }
+
+    // Always run a 1-second tick; even if the browser throttles it to 1/min in
+    // the background, when it does fire we still resync to wall-clock time.
+    intervalRef.current = setInterval(recompute, 1000);
+    document.addEventListener("visibilitychange", recompute);
+    window.addEventListener("focus", recompute);
+
+    return () => {
+      clearInterval(intervalRef.current);
+      document.removeEventListener("visibilitychange", recompute);
+      window.removeEventListener("focus", recompute);
+    };
+  }, []);
+
+  // Handle pause / resume by stamping pauseStartRef
   useEffect(() => {
     if (running) {
-      intervalRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+      // resuming — add any accumulated pause duration
+      if (pauseStartRef.current !== null) {
+        accumPausedRef.current += Date.now() - pauseStartRef.current;
+        pauseStartRef.current = null;
+      }
+    } else {
+      // pausing
+      if (pauseStartRef.current === null) pauseStartRef.current = Date.now();
     }
-    return () => clearInterval(intervalRef.current);
   }, [running]);
 
-  // rest timer
+  // ── rest timer ─────────────────────────────────────────────────────────────
+  // Uses absolute deadline so it stays correct when screen sleeps.
   useEffect(() => {
-    if (rest > 0) {
-      restRef.current = setTimeout(() => {
-        setRest((r) => {
-          if (r <= 1) {
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            try { new Audio("data:audio/mp3;base64,").play().catch(() => {}); } catch {}
-            return 0;
-          }
-          return r - 1;
-        });
-      }, 1000);
+    function tick() {
+      if (restEndTsRef.current === null) return;
+      const remaining = Math.max(0, Math.ceil((restEndTsRef.current - Date.now()) / 1000));
+      setRest(remaining);
+      if (remaining === 0) {
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        try { new Audio("data:audio/mp3;base64,").play().catch(() => {}); } catch {}
+        restEndTsRef.current = null;
+        if (restRef.current) { clearInterval(restRef.current); restRef.current = null; }
+      }
     }
-    return () => clearTimeout(restRef.current);
-  }, [rest]);
+    if (rest > 0 && restEndTsRef.current !== null) {
+      restRef.current = setInterval(tick, 250); // faster poll so unlock catches up quickly
+      document.addEventListener("visibilitychange", tick);
+      window.addEventListener("focus", tick);
+      return () => {
+        clearInterval(restRef.current);
+        document.removeEventListener("visibilitychange", tick);
+        window.removeEventListener("focus", tick);
+      };
+    }
+  }, [rest > 0]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function fmtTime(s: number) {
     const m = Math.floor(s / 60);
@@ -69,6 +114,8 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
     const nowCompleted = !cur.completed;
     updateSet(exId, idx, { completed: nowCompleted });
     if (nowCompleted) {
+      // anchor the rest deadline so it survives screen lock / tab background
+      restEndTsRef.current = Date.now() + ex.restSec * 1000;
       setRest(ex.restSec);
       setRestFor(ex.restSec);
     }
@@ -187,7 +234,7 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
                 <div className="text-xs text-muted uppercase">Відпочинок</div>
                 <div className="text-3xl font-black text-accent">{fmtTime(rest)}</div>
               </div>
-              <button onClick={() => setRest(0)} className="btn"><X className="w-4 h-4" /> Пропустити</button>
+              <button onClick={() => { restEndTsRef.current = null; setRest(0); }} className="btn"><X className="w-4 h-4" /> Пропустити</button>
             </div>
             <div className="mt-3 h-1.5 rounded-full bg-surface overflow-hidden">
               <div className="h-full bg-accent transition-all" style={{ width: `${(rest / restFor) * 100}%` }} />
