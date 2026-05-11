@@ -60,7 +60,7 @@ export default async function DashboardHome() {
     <div>
       <PageHeader
         title={`Привіт, ${user.name.split(" ")[0]} 👋`}
-        subtitle={trainedToday ? "Тренування сьогодні — зроблено! 💪" : "Готовий до нового дня?"}
+        subtitle={trainedToday ? "Тренування сьогодні — зроблено! 💪" : "Час підкорювати новий день! 🚀"}
       />
 
       {/* Progress Rings */}

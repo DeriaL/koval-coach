@@ -207,8 +207,8 @@ export default async function Home() {
               icon={Wifi}
               title="Онлайн"
               tag="тренуєшся сам, я веду в кабінеті"
-              price={cfg?.priceOnline ?? "4 000"}
-              priceNote={cfg?.priceNote ?? "пакет 10 тренувань"}
+              price={cfg?.priceOnline ?? "5 000"}
+              priceNote="за місяць"
               perks={[
                 "Персональна програма тренувань та харчування",
                 "Моніторинг аналізів",
@@ -281,11 +281,11 @@ export default async function Home() {
       <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
         <Reveal>
           <div className="card p-8 md:p-14 text-center relative overflow-hidden">
-            <div aria-hidden className="absolute inset-0 -z-10 opacity-50 bg-gradient-to-br from-accent/30 via-transparent to-accent2/30 animate-gradient-spin" />
-            <div aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-40 blur-3xl bg-accent/40" />
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Готовий почати?</h2>
-            <p className="text-muted mt-3 max-w-lg mx-auto">Напиши мені, і вже завтра у тебе буде особистий план та доступ до кабінету.</p>
-            <Link href="/login" className="btn btn-primary px-6 py-3 mt-6 inline-flex group">
+            <div aria-hidden className="absolute inset-0 -z-10 opacity-50 bg-gradient-to-br from-accent/30 via-transparent to-accent2/30 animate-gradient-spin pointer-events-none" />
+            <div aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-40 blur-3xl bg-accent/40 -z-10 pointer-events-none" />
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Час почати!</h2>
+            <p className="text-muted mt-3 max-w-lg mx-auto">Напишіть мені, і вже завтра у вас буде особистий план та доступ до кабінету.</p>
+            <Link href="/login" className="btn btn-primary px-6 py-3 mt-6 inline-flex group relative z-10">
               Увійти в кабінет <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
