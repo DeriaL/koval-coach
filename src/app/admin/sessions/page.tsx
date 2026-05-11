@@ -264,9 +264,9 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="font-semibold truncate flex items-center gap-1.5">
-              {session.client.firstName} {session.client.lastName}
-              <span className={`chip text-[9px] py-0.5 px-1.5 ${isOnline ? "text-accent2 border-accent2/40" : "text-accent border-accent/40"}`}>
+            <div className="font-semibold flex items-center gap-1.5 min-w-0">
+              <span className="truncate min-w-0">{session.client.firstName} {session.client.lastName}</span>
+              <span className={`chip text-[9px] py-0.5 px-1.5 shrink-0 ${isOnline ? "text-accent2 border-accent2/40" : "text-accent border-accent/40"}`}>
                 {isOnline ? <Wifi className="w-2.5 h-2.5" /> : <Crown className="w-2.5 h-2.5" />}
                 {isOnline ? "Онл" : "Офл"}
               </span>
@@ -327,9 +327,9 @@ function CancelledRow({ session }: { session: any }) {
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="font-semibold truncate flex items-center gap-1.5">
-              {session.client.firstName} {session.client.lastName}
-              <span className={`chip text-[9px] py-0.5 px-1.5 ${byClient ? "text-danger border-danger/40" : "text-muted border-border"}`}>
+            <div className="font-semibold flex items-center gap-1.5 min-w-0">
+              <span className="truncate min-w-0">{session.client.firstName} {session.client.lastName}</span>
+              <span className={`chip text-[9px] py-0.5 px-1.5 shrink-0 ${byClient ? "text-danger border-danger/40" : "text-muted border-border"}`}>
                 <Ban className="w-2.5 h-2.5" /> {byClient ? "клієнт" : "тренер"}
               </span>
             </div>
