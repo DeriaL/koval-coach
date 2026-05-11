@@ -35,7 +35,7 @@ const adminNav: Item[] = [
   { href: "/admin/recipes", label: "Рецепти", icon: ChefHat },
   { href: "/admin/finance", label: "Фінанси", icon: Wallet },
   { href: "/admin/settings", label: "Налаштування", icon: Settings },
-  { href: "/admin/profile", label: "Мій профіль", icon: Settings },
+  { href: "/admin/profile", label: "Мій профіль", icon: User },
 ];
 
 export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userName: string }) {
