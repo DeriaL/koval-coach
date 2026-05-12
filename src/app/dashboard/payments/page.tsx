@@ -12,7 +12,7 @@ export default async function PaymentsPage() {
   const u = await requireClient();
   const [list, user] = await Promise.all([
     prisma.payment.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
-    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, priceMonthly: true, coachingPlan: true } as any }) as any,
+    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, priceMonthly: true, coachingPlan: true, subscriptionStartDate: true, nextBillingDate: true } as any }) as any,
   ]);
 
   const isDropIn = user?.coachingPlan === "DROP_IN";
@@ -108,6 +108,13 @@ export default async function PaymentsPage() {
                 <span>Підписка за <b>{monthLabel}</b> очікує оплати — <b>{thisMonthPayment.amount.toLocaleString("uk-UA")} ₴</b></span>
               </div>
               <PayButton amount={thisMonthPayment.amount} />
+            </div>
+          )}
+
+          {(user as any)?.nextBillingDate && (
+            <div className="mt-3 text-xs text-muted flex items-center gap-1.5">
+              <span>📅</span>
+              <span>Наступний рахунок: <b className="text-text">{new Date((user as any).nextBillingDate).toLocaleDateString("uk-UA", { dateStyle: "long" })}</b></span>
             </div>
           )}
         </div>

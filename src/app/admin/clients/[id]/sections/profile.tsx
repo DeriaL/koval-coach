@@ -74,17 +74,30 @@ export function ProfileTab({ client }: { client: any }) {
         {/* Price field depends on the plan */}
         {plan === "ONLINE" && (
           <>
-            <Field
-              label="Ціна за місяць підписки (₴)"
-              name="priceMonthly"
-              type="number"
-              step="50"
-              defaultValue={client.priceMonthly ?? ""}
-            />
-            <div className="text-[11px] text-muted -mt-2">
-              💡 Онлайн-клієнт: щомісячна підписка. Створюй один запис оплати на місяць у вкладці «Оплати».
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field
+                label="Ціна за місяць підписки (₴)"
+                name="priceMonthly"
+                type="number"
+                step="50"
+                defaultValue={client.priceMonthly ?? ""}
+              />
+              <Field
+                label="Старт підписки (дата)"
+                name="subscriptionStartDate"
+                type="date"
+                defaultValue={client.subscriptionStartDate ? new Date(client.subscriptionStartDate).toISOString().slice(0, 10) : ""}
+              />
             </div>
-            {/* hidden fields so we don't wipe other prices when switching plan */}
+            <div className="text-[11px] text-muted -mt-2">
+              💡 <b>Як працює:</b> вкажи дату коли клієнт почав займатись. Через <b>30 днів</b> система <b>автоматично</b> створить
+              рахунок «pending» на суму підписки і надішле клієнту сповіщення. Далі — нові рахунки кожні 30 днів.
+              {client.nextBillingDate && (
+                <div className="mt-1.5">
+                  📅 <span className="text-text">Наступний рахунок: <b>{new Date(client.nextBillingDate).toLocaleDateString("uk-UA", { dateStyle: "long" })}</b></span>
+                </div>
+              )}
+            </div>
             <input type="hidden" name="pricePer10" value={client.pricePer10 ?? ""} />
             <input type="hidden" name="pricePerSession" value={client.pricePerSession ?? ""} />
           </>

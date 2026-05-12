@@ -27,6 +27,8 @@ model User {
   pricePer10 Float?                       // ціна за 10 тренувань (пакет) — для FULL/офлайн
   pricePerSession Float?                  // ціна за одне тренування — для DROP_IN
   priceMonthly Float?                     // ціна за місяць — для ONLINE підписки
+  subscriptionStartDate DateTime?         // дата старту місячного відліку (ONLINE)
+  nextBillingDate DateTime?               // коли створиться наступний автоматичний рахунок
   telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
   telegramUsername String?
   telegramLinkCode String?  @unique       // тимчасовий код для прив'язки бота

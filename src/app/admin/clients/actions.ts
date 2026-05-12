@@ -51,6 +51,24 @@ export async function createClient(data: Record<string, any>): Promise<{ id: str
 
 export async function updateClient(id: string, data: Record<string, any>) {
   await requireTrainer();
+
+  // Subscription start logic — if trainer (re)sets the start date, reset
+  // nextBillingDate to (start + 30 days). If they clear the date, also clear next.
+  const existing: any = await (prisma as any).user.findUnique({
+    where: { id },
+    select: { subscriptionStartDate: true, nextBillingDate: true },
+  });
+  const newStart = toDate(data.subscriptionStartDate);
+  const prevStart = existing?.subscriptionStartDate ? new Date(existing.subscriptionStartDate) : null;
+  let nextBillingUpdate: Date | null | undefined = undefined; // undefined = don't touch
+  if (newStart && (!prevStart || prevStart.getTime() !== newStart.getTime())) {
+    // start changed → reset next billing to start + 30 days
+    nextBillingUpdate = new Date(newStart.getTime() + 30 * 86400_000);
+  } else if (!newStart && existing?.subscriptionStartDate) {
+    // start cleared → clear next too
+    nextBillingUpdate = null;
+  }
+
   await (prisma as any).user.update({
     where: { id },
     data: {
@@ -67,6 +85,8 @@ export async function updateClient(id: string, data: Record<string, any>) {
       pricePer10: toNum(data.pricePer10),
       pricePerSession: toNum(data.pricePerSession),
       priceMonthly: toNum(data.priceMonthly),
+      subscriptionStartDate: newStart,
+      ...(nextBillingUpdate !== undefined ? { nextBillingDate: nextBillingUpdate } : {}),
       isVip: data.isVip === "on" || data.isVip === true || data.isVip === "true",
     },
   });
