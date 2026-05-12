@@ -24,8 +24,9 @@ model User {
   notes     String?
   coachingPlan String @default("FULL")   // ONLINE | FULL | DROP_IN
   isVip      Boolean @default(false)
-  pricePer10 Float?                       // ціна за 10 тренувань (пакет)
-  pricePerSession Float?                  // ціна за одне тренування (для DROP_IN клієнтів)
+  pricePer10 Float?                       // ціна за 10 тренувань (пакет) — для FULL/офлайн
+  pricePerSession Float?                  // ціна за одне тренування — для DROP_IN
+  priceMonthly Float?                     // ціна за місяць — для ONLINE підписки
   telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
   telegramUsername String?
   telegramLinkCode String?  @unique       // тимчасовий код для прив'язки бота

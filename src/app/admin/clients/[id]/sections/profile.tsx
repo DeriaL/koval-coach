@@ -71,26 +71,54 @@ export function ProfileTab({ client }: { client: any }) {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field
-            label={plan === "DROP_IN" ? "Ціна за пакет (не використовується)" : "Ціна за пакет 10 тренувань (₴)"}
-            name="pricePer10"
-            type="number"
-            step="50"
-            defaultValue={client.pricePer10 ?? ""}
-          />
-          <Field
-            label="Ціна за одне тренування (₴)"
-            name="pricePerSession"
-            type="number"
-            step="50"
-            defaultValue={client.pricePerSession ?? ""}
-          />
-        </div>
+        {/* Price field depends on the plan */}
+        {plan === "ONLINE" && (
+          <>
+            <Field
+              label="Ціна за місяць підписки (₴)"
+              name="priceMonthly"
+              type="number"
+              step="50"
+              defaultValue={client.priceMonthly ?? ""}
+            />
+            <div className="text-[11px] text-muted -mt-2">
+              💡 Онлайн-клієнт: щомісячна підписка. Створюй один запис оплати на місяць у вкладці «Оплати».
+            </div>
+            {/* hidden fields so we don't wipe other prices when switching plan */}
+            <input type="hidden" name="pricePer10" value={client.pricePer10 ?? ""} />
+            <input type="hidden" name="pricePerSession" value={client.pricePerSession ?? ""} />
+          </>
+        )}
+
+        {plan === "FULL" && (
+          <>
+            <Field
+              label="Ціна за пакет 10 тренувань (₴)"
+              name="pricePer10"
+              type="number"
+              step="50"
+              defaultValue={client.pricePer10 ?? ""}
+            />
+            <input type="hidden" name="priceMonthly" value={client.priceMonthly ?? ""} />
+            <input type="hidden" name="pricePerSession" value={client.pricePerSession ?? ""} />
+          </>
+        )}
+
         {plan === "DROP_IN" && (
-          <div className="text-[11px] text-muted -mt-2">
-            💡 Разовий клієнт: кожне підтверджене тренування автоматично створить запис оплати на суму ціни за тренування.
-          </div>
+          <>
+            <Field
+              label="Ціна за одне тренування (₴)"
+              name="pricePerSession"
+              type="number"
+              step="50"
+              defaultValue={client.pricePerSession ?? ""}
+            />
+            <div className="text-[11px] text-muted -mt-2">
+              💡 Разовий клієнт: кожне підтверджене тренування автоматично створить запис оплати на суму ціни за тренування.
+            </div>
+            <input type="hidden" name="pricePer10" value={client.pricePer10 ?? ""} />
+            <input type="hidden" name="priceMonthly" value={client.priceMonthly ?? ""} />
+          </>
         )}
 
         <button type="button" onClick={() => setVip(!vip)}

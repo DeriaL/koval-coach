@@ -166,17 +166,25 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 </div>
               )}
 
-              {/* Workout progress to next 10-pack */}
+              {/* Workout progress — only meaningful for FULL (10-pack) clients */}
               <div className="mt-3">
                 <div className="flex items-center justify-between text-xs mb-1 gap-2">
                   <span className="text-muted flex items-center gap-1 min-w-0 truncate">
                     <Dumbbell className="w-3 h-3 shrink-0" /> Тренувань: <b className="text-text">{sessions}</b>
                   </span>
-                  <span className="text-muted shrink-0">до оплати: {toNextMilestone}</span>
+                  {isOnline ? (
+                    <span className="text-muted shrink-0">підписка: місяць</span>
+                  ) : isDropIn ? (
+                    <span className="text-muted shrink-0">оплата: за сесію</span>
+                  ) : (
+                    <span className="text-muted shrink-0">до оплати: {toNextMilestone}</span>
+                  )}
                 </div>
-                <div className="h-1.5 rounded-full bg-surface overflow-hidden">
-                  <div className="h-full accent-shine transition-all" style={{ width: `${((sessions % 10) / 10) * 100}%` }} />
-                </div>
+                {!isOnline && !isDropIn && (
+                  <div className="h-1.5 rounded-full bg-surface overflow-hidden">
+                    <div className="h-full accent-shine transition-all" style={{ width: `${((sessions % 10) / 10) * 100}%` }} />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-3">
@@ -200,6 +208,16 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 <div className="mt-3 text-xs flex items-center justify-between gap-2 p-2 rounded-lg bg-accent2/10 border border-accent2/30 text-accent2">
                   <span className="flex items-center gap-1 min-w-0 truncate"><Wallet className="w-3 h-3 shrink-0" /> Очікує оплати</span>
                   <span className="font-bold shrink-0">{pendingPay.amount} ₴</span>
+                </div>
+              ) : isOnline && (c as any).priceMonthly ? (
+                <div className="mt-3 text-[11px] text-muted flex items-center justify-between gap-2">
+                  <span className="truncate min-w-0">Місячна підписка</span>
+                  <span className="text-text font-medium shrink-0">{(c as any).priceMonthly} ₴</span>
+                </div>
+              ) : isDropIn && (c as any).pricePerSession ? (
+                <div className="mt-3 text-[11px] text-muted flex items-center justify-between gap-2">
+                  <span className="truncate min-w-0">За одне тренування</span>
+                  <span className="text-text font-medium shrink-0">{(c as any).pricePerSession} ₴</span>
                 </div>
               ) : c.pricePer10 ? (
                 <div className="mt-3 text-[11px] text-muted flex items-center justify-between gap-2">

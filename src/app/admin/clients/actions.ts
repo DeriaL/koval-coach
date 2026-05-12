@@ -38,6 +38,7 @@ export async function createClient(data: Record<string, any>): Promise<{ id: str
         coachingPlan: ["ONLINE", "FULL", "DROP_IN"].includes(data.coachingPlan) ? data.coachingPlan : "FULL",
         pricePer10: toNum(data.pricePer10),
         pricePerSession: toNum(data.pricePerSession),
+        priceMonthly: toNum(data.priceMonthly),
       },
     });
     revalidatePath("/admin");
@@ -65,6 +66,7 @@ export async function updateClient(id: string, data: Record<string, any>) {
       coachingPlan: ["ONLINE", "FULL", "DROP_IN"].includes(data.coachingPlan) ? data.coachingPlan : "FULL",
       pricePer10: toNum(data.pricePer10),
       pricePerSession: toNum(data.pricePerSession),
+      priceMonthly: toNum(data.priceMonthly),
       isVip: data.isVip === "on" || data.isVip === true || data.isVip === "true",
     },
   });
@@ -388,8 +390,9 @@ export async function confirmSession(sessionId: string, clientId: string, happen
           `💳 <b>Рахунок за тренування</b>\n«${s.title}» — <b>${amount} ₴</b>\nДеталі у вкладці «Оплати».`
         ).catch(() => {});
       }
-    } else {
-      // ── PACKAGE clients: milestone every 10 sessions ──
+    } else if (u?.coachingPlan === "FULL") {
+      // ── PACKAGE clients only: milestone every 10 sessions ──
+      // ONLINE clients pay monthly, not per package — skip the 10-pack trigger.
       const total = await prisma.workoutSession.count({
         where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
       });

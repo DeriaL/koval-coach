@@ -12,10 +12,11 @@ export default async function PaymentsPage() {
   const u = await requireClient();
   const [list, user] = await Promise.all([
     prisma.payment.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
-    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, coachingPlan: true } as any }) as any,
+    prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, priceMonthly: true, coachingPlan: true } as any }) as any,
   ]);
 
   const isDropIn = user?.coachingPlan === "DROP_IN";
+  const isOnline = user?.coachingPlan === "ONLINE";
 
   const paidPayments = list.filter(p => p.status === "paid");
   const paidCount = paidPayments.length;
@@ -56,6 +57,89 @@ export default async function PaymentsPage() {
     pending: { icon: Clock, color: "text-accent", label: "Очікує" },
     overdue: { icon: AlertTriangle, color: "text-danger", label: "Прострочено" },
   };
+
+  // ── ONLINE clients: monthly subscription view ────────────────────────────
+  if (isOnline) {
+    const monthly = (user as any)?.priceMonthly ?? 0;
+    // Find this-month's payment if any
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthPayment = list.find(p =>
+      (p.status === "paid" || p.status === "pending") && new Date(p.date) >= monthStart
+    );
+    const monthLabel = now.toLocaleDateString("uk-UA", { month: "long", year: "numeric" });
+
+    return (
+      <div>
+        <PageHeader title="Оплати" subtitle="Онлайн-супровід · щомісячна підписка" />
+
+        {/* Summary card */}
+        <div className="card p-5 md:p-6 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 opacity-30 bg-gradient-to-br from-accent/15 via-transparent to-accent2/15" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-muted">Поточний місяць</div>
+              <div className="text-base font-semibold mt-0.5 capitalize">{monthLabel}</div>
+              <div className={`text-xs mt-1 ${
+                thisMonthPayment?.status === "paid" ? "text-success" :
+                thisMonthPayment?.status === "pending" ? "text-accent2" : "text-muted"
+              }`}>
+                {thisMonthPayment?.status === "paid" ? "✓ оплачено" :
+                 thisMonthPayment?.status === "pending" ? "⏳ очікує оплати" :
+                 "— ще немає рахунку"}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-muted">Підписка</div>
+              <div className="text-2xl font-black mt-0.5">{monthly ? `${monthly.toLocaleString("uk-UA")} ₴` : "—"}</div>
+              <div className="text-xs text-muted mt-1">за місяць</div>
+            </div>
+            <div className="text-right col-span-2 sm:col-span-1">
+              <div className="text-[10px] uppercase tracking-wider text-muted">Всього сплачено</div>
+              <div className="text-xl font-bold text-success">{totalPaid.toLocaleString("uk-UA")} ₴</div>
+              <div className="text-xs text-muted mt-1">місяців: {paidCount}</div>
+            </div>
+          </div>
+
+          {thisMonthPayment?.status === "pending" && (
+            <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2 text-sm flex-1">
+                <Clock className="w-4 h-4 text-accent2 shrink-0" />
+                <span>Підписка за <b>{monthLabel}</b> очікує оплати — <b>{thisMonthPayment.amount.toLocaleString("uk-UA")} ₴</b></span>
+              </div>
+              <PayButton amount={thisMonthPayment.amount} />
+            </div>
+          )}
+        </div>
+
+        <MonobankQR url={process.env.NEXT_PUBLIC_MONOBANK_URL ?? ""} />
+        <PaymentDetails />
+
+        {list.length === 0 ? (
+          <EmptyState icon={Wallet} title="Платежів поки немає" />
+        ) : (
+          <div className="card divide-y divide-border">
+            {list.slice().reverse().map((p) => {
+              const s = statusMap[p.status] ?? statusMap.pending;
+              const Icon = s.icon;
+              return (
+                <div key={p.id} className="p-4 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
+                    <div className="min-w-0">
+                      <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
+                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA", { month: "long", year: "numeric" })}{p.notes ? ` · ${p.notes}` : ""}</div>
+                    </div>
+                  </div>
+                  <span className={`chip ${s.color} shrink-0`}>{s.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ── DROP_IN clients: simplified view (no 10-session progress) ─────────────
   if (isDropIn) {
