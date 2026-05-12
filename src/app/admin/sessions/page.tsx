@@ -23,7 +23,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   const planWhere = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
   const clientWhere = { role: "CLIENT", ...planWhere, ...(clientFilter ? { id: clientFilter } : {}) };
 
-  const [awaiting, upcoming, completed, cancelled, allClients, todaySessions, calSessions] = await Promise.all([
+  const [awaiting, upcoming, completed, completedCount, cancelled, allClients, todaySessions, calSessions] = await Promise.all([
     prisma.workoutSession.findMany({
       where: {
         scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null,
@@ -50,6 +50,15 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
       orderBy: { date: "desc" },
       take: 50,
+    }),
+    // Separate count for the KPI — not capped at 50
+    prisma.workoutSession.count({
+      where: {
+        OR: [{ completed: true }, { confirmedByTrainer: true }],
+        cancelledAt: null,
+        date: { gte: monthAgo },
+        client: clientWhere as any,
+      },
     }),
     prisma.workoutSession.findMany({
       where: { cancelledAt: { gte: monthAgo }, client: clientWhere as any },
@@ -106,7 +115,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         <KpiCard icon={AlertTriangle} label="Підтвердити" value={awaiting.length} color="accent2" pulse={awaiting.length > 0} />
         <KpiCard icon={Calendar} label="Сьогодні" value={todaySessions} color="accent" />
         <KpiCard icon={Clock} label="Найближчі 14 дн." value={upcoming.length} />
-        <KpiCard icon={CheckCircle2} label="Виконано · 30 дн." value={completed.length} color="success" />
+        <KpiCard icon={CheckCircle2} label="Виконано · 30 дн." value={completedCount} color="success" />
       </div>
 
       {/* Filters */}
@@ -180,7 +189,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
 
       {/* COMPLETED */}
       {completed.length > 0 && (
-        <Section icon={Sparkles} title="Виконані · 30 днів" count={completed.length} accent="success">
+        <Section icon={Sparkles} title="Виконані · 30 днів" count={completedCount} accent="success">
           <div className="space-y-2">
             {completed.map(s => <SessionCard key={s.id} session={s} mode="done" />)}
           </div>
