@@ -94,7 +94,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border hover:border-accent2/50 transition">
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{s.client.firstName} {s.client.lastName} · {s.title}</div>
-                  <div className="text-xs text-muted">{new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}</div>
+                  <div className="text-xs text-muted">{new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}</div>
                 </div>
                 <span className="chip text-xs text-accent2 border-accent2/40">підтвердити →</span>
               </Link>

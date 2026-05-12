@@ -77,7 +77,7 @@ export default async function ClientSessions() {
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{s.title}</div>
                   <div className="text-xs text-muted">
-                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })} · я ще не підтвердив
+                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })} · я ще не підтвердив
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default async function ClientSessions() {
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{s.title}</div>
                         <div className="text-xs text-muted truncate">
-                          {new Date(s.scheduledAt!).toLocaleString("uk-UA", { hour: "2-digit", minute: "2-digit" })} · {formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
+                          {new Date(s.scheduledAt!).toLocaleString("uk-UA", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Kyiv" })} · {formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
                         </div>
                         {s.notes && <div className="text-[11px] text-muted mt-1 truncate">📝 {s.notes}</div>}
                       </div>
@@ -157,7 +157,7 @@ export default async function ClientSessions() {
                       <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "вами" : "мною"}</span>
                     </div>
                     <div className="text-[11px] text-muted">
-                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) : "—"}
                       {s.cancelReason ? ` · ${s.cancelReason}` : ""}
                     </div>
                   </div>

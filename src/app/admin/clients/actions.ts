@@ -482,7 +482,7 @@ export async function saveReminder(id: string, data: Record<string, any>) {
     await prisma.reminder.update({ where: { id: data.id }, data: payload });
   } else {
     await prisma.reminder.create({ data: { ...payload, clientId: id } });
-    notifyUser(id, "training", `🔔 <b>Нагадування</b>\n${payload.title}\n🕐 ${payload.datetime.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}`).catch(()=>{});
+    notifyUser(id, "training", `🔔 <b>Нагадування</b>\n${payload.title}\n🕐 ${payload.datetime.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${id}`);
 }

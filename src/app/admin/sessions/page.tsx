@@ -289,7 +289,7 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
 
         <div className="text-right shrink-0 hidden sm:block">
           <div className="text-sm font-medium">
-            {new Date(dt).toLocaleString("uk-UA", { hour: "2-digit", minute: "2-digit" })}
+            {new Date(dt).toLocaleString("uk-UA", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Kyiv" })}
           </div>
           <div className="text-[11px] text-muted">
             {mode === "done"
@@ -353,7 +353,7 @@ function CancelledRow({ session }: { session: any }) {
         </Link>
         <div className="text-right shrink-0 hidden sm:block">
           <div className="text-[11px] text-muted">
-            {session.scheduledAt ? new Date(session.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+            {session.scheduledAt ? new Date(session.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) : "—"}
           </div>
           <div className="text-[10px] text-muted">скасовано {formatDistanceToNow(new Date(session.cancelledAt), { addSuffix: true, locale: uk })}</div>
         </div>

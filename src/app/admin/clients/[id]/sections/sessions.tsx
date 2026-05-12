@@ -107,7 +107,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold break-words">{s.title}</div>
                     <div className="text-xs text-muted mt-0.5">
-                      Запланована {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                      Запланована {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}
                     </div>
                     {s.notes && <div className="text-xs text-muted mt-1 break-words">{s.notes}</div>}
                   </div>
@@ -139,7 +139,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate">{s.title}</div>
                   <div className="text-xs text-muted truncate">
-                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })} ·{" "}
+                    {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })} ·{" "}
                     {formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                       <span className="chip text-[9px] py-0 px-1.5">{s.cancelledBy === "CLIENT" ? "клієнт" : "тренер"}</span>
                     </div>
                     <div className="text-[11px] text-muted">
-                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      {s.scheduledAt ? new Date(s.scheduledAt).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) : "—"}
                       {s.cancelReason ? ` · ${s.cancelReason}` : ""}
                     </div>
                   </div>
@@ -194,7 +194,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">{s.title}</div>
                   <div className="text-[11px] text-muted truncate">
-                    {new Date(s.date).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                    {new Date(s.date).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}
                     {s.durationSec ? ` · ${Math.round(s.durationSec/60)} хв` : ""}
                     {s.confirmedByTrainer ? " · підтв. тренером" : s.completed ? " · самостійно" : ""}
                   </div>

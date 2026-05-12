@@ -213,7 +213,7 @@ function Stat({ icon: Icon, value, label, color }: any) {
 function SessionRow({ s }: { s: S }) {
   const status = statusOf(s);
   const initials = `${s.client.firstName[0]}${s.client.lastName[0]}`;
-  const time = s.scheduledAt ? new Date(s.scheduledAt).toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }) : "";
+  const time = s.scheduledAt ? new Date(s.scheduledAt).toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Kyiv" }) : "";
   const cls =
     status === "done" ? "border-success/20 bg-success/5"
     : status === "cancelled" ? "border-danger/20 bg-danger/5"

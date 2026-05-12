@@ -93,7 +93,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-sm truncate">{s.title}</div>
                     <div className="text-xs text-muted">
-                      {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(s.scheduledAt!).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}
                       {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
                     </div>
                   </div>
