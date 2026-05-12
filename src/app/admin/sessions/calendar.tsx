@@ -13,7 +13,7 @@ type S = {
   cancelledAt: string | null;
   cancelledBy: string | null;
   durationSec: number | null;
-  client: { firstName: string; lastName: string; coachingPlan: string };
+  client: { firstName: string; lastName: string; coachingPlan: string; avatarUrl?: string | null };
 };
 
 type DayKey = string; // YYYY-MM-DD
@@ -222,8 +222,11 @@ function SessionRow({ s }: { s: S }) {
 
   return (
     <div className={`p-3 rounded-xl border flex items-center gap-3 ${cls}`}>
-      <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white font-black text-xs">
-        {initials}
+      <div className="w-10 h-10 rounded-xl accent-shine overflow-hidden flex items-center justify-center text-white font-black text-xs shrink-0">
+        {s.client.avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={s.client.avatarUrl} alt="" className="w-full h-full object-cover" />
+        ) : initials}
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-medium truncate">{s.client.firstName} {s.client.lastName}</div>

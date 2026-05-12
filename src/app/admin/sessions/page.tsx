@@ -29,7 +29,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null,
         client: clientWhere as any,
       },
-      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
+      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { scheduledAt: "desc" },
     }),
     prisma.workoutSession.findMany({
@@ -37,7 +37,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         scheduledAt: { gte: now, lte: weekAhead }, completed: false, confirmedByTrainer: false, cancelledAt: null,
         client: clientWhere as any,
       },
-      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
+      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { scheduledAt: "asc" },
     }),
     prisma.workoutSession.findMany({
@@ -47,7 +47,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         date: { gte: monthAgo },
         client: clientWhere as any,
       },
-      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
+      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { date: "desc" },
       take: 50,
     }),
@@ -62,7 +62,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     }),
     prisma.workoutSession.findMany({
       where: { cancelledAt: { gte: monthAgo }, client: clientWhere as any },
-      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true } } },
+      include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { cancelledAt: "desc" },
       take: 30,
     }),
@@ -81,7 +81,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         ],
         client: clientWhere as any,
       },
-      include: { client: { select: { firstName: true, lastName: true, coachingPlan: true } } },
+      include: { client: { select: { firstName: true, lastName: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { date: "asc" },
     }),
   ]);
@@ -269,8 +269,11 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
     <div className={`card p-4 ${card} card-hover transition-all`}>
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
         <Link href={`/admin/clients/${session.client.id}`} className="flex items-center gap-3 min-w-0 flex-1 group">
-          <div className="w-11 h-11 rounded-xl accent-shine flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform">
-            {initials}
+          <div className="w-11 h-11 rounded-xl accent-shine overflow-hidden flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform shrink-0">
+            {session.client.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={session.client.avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : initials}
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-semibold flex items-center gap-1.5 min-w-0">
@@ -332,8 +335,11 @@ function CancelledRow({ session }: { session: any }) {
     <div className="card p-4 border-danger/20 bg-danger/5">
       <div className="flex items-center gap-3 flex-wrap">
         <Link href={`/admin/clients/${session.client.id}`} className="flex items-center gap-3 min-w-0 flex-1 group">
-          <div className="w-11 h-11 rounded-xl accent-shine flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform">
-            {initials}
+          <div className="w-11 h-11 rounded-xl accent-shine overflow-hidden flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform shrink-0">
+            {session.client.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={session.client.avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : initials}
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-semibold flex items-center gap-1.5 min-w-0">
