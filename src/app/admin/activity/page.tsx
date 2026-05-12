@@ -25,6 +25,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: { r
     prisma.workoutSession.findMany({
       where: {
         OR: [{ completed: true }, { confirmedByTrainer: true }],
+        cancelledAt: null,
         date: { gte: since },
         client: { role: "CLIENT" },
       },
@@ -53,7 +54,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: { r
       where: { role: "CLIENT" },
       include: {
         checkIns: { orderBy: { date: "desc" }, take: 30 },
-        sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] }, orderBy: { date: "desc" }, take: 1 },
+        sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null }, orderBy: { date: "desc" }, take: 1 },
       },
       orderBy: [{ firstName: "asc" }],
     }),

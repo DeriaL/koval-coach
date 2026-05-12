@@ -28,7 +28,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
   const client = await prisma.user.findUnique({
     where: { id },
     include: {
-      _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
+      _count: { select: { sessions: { where: { AND: [{ OR: [{ completed: true }, { confirmedByTrainer: true }] }, { cancelledAt: null }] } } } },
       nutritionPlans: { orderBy: { updatedAt: "desc" } },
       trainingPlans: { orderBy: { updatedAt: "desc" }, include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } } },
       habits: { include: { logs: true }, orderBy: { order: "asc" } },

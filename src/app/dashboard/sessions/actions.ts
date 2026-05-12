@@ -30,7 +30,7 @@ export async function cancelSessionByClient(sessionId: string, reason: string) {
   // milestone trigger if late-cancel just brought it to a multiple of 10
   if (isLate) {
     const total = await prisma.workoutSession.count({
-      where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+      where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
     });
     if (total > 0 && total % 10 === 0) {
       const user = await prisma.user.findUnique({ where: { id: u.id } });

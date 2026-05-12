@@ -29,6 +29,7 @@ export default async function PaymentsPage() {
     where: {
       clientId: u.id,
       completed: true,
+      cancelledAt: null,
       ...(lastPaidDate ? { date: { gt: lastPaidDate } } : {}),
     },
   });

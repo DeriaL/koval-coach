@@ -27,7 +27,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         measurements: { orderBy: { date: "desc" }, take: 1 },
         checkIns: { orderBy: { date: "desc" }, take: 7 },
         payments: { orderBy: { date: "desc" }, take: 3 },
-        _count: { select: { sessions: { where: { OR: [{ completed: true }, { confirmedByTrainer: true }] } } } },
+        _count: { select: { sessions: { where: { AND: [{ OR: [{ completed: true }, { confirmedByTrainer: true }] }, { cancelledAt: null }] } } } },
       },
       orderBy: [{ isVip: "desc" }, { firstName: "asc" }, { lastName: "asc" }],
     }),

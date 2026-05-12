@@ -336,7 +336,7 @@ export async function scheduleSession(clientId: string, data: { title: string; s
   // If backfilled as done, check milestone
   if (alreadyDone) {
     const total = await prisma.workoutSession.count({
-      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
     });
     if (total > 0 && total % 10 === 0) {
       const u = await prisma.user.findUnique({ where: { id: clientId } });
@@ -391,7 +391,7 @@ export async function confirmSession(sessionId: string, clientId: string, happen
     } else {
       // ── PACKAGE clients: milestone every 10 sessions ──
       const total = await prisma.workoutSession.count({
-        where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+        where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
       });
       if (total > 0 && total % 10 === 0) {
         const amount = u?.pricePer10 ?? null;
