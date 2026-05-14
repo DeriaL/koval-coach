@@ -207,7 +207,7 @@ function MeasurementGuide() {
             <div className="rounded-xl bg-surface border border-border overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/measurement-guide.jpg"
+                src="/measurement-guide.png"
                 alt="Як правильно знімати заміри — схема тіла"
                 className="w-full h-auto block"
                 loading="lazy"
