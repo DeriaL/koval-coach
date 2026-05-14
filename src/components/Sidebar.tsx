@@ -181,14 +181,21 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
 
       {/* Mobile bottom nav (тільки для клієнта) */}
       {role === "CLIENT" && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 bg-surface/85 backdrop-blur-md border-t border-border z-30 grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">
+        <nav
+          className="md:hidden fixed bottom-0 inset-x-0 bg-surface/85 backdrop-blur-md border-t border-border z-30 grid grid-cols-5"
+          style={{
+            paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+            paddingLeft: "env(safe-area-inset-left)",
+            paddingRight: "env(safe-area-inset-right)",
+          }}
+        >
           {bottomItems.map((i) => {
             const active = pathname === i.href;
             return (
               <Link
                 key={i.href}
                 href={i.href}
-                className={`relative flex flex-col items-center justify-center py-2 text-[10px] gap-1 active:scale-90 transition-transform px-1 min-w-0 ${
+                className={`relative flex flex-col items-center justify-center pt-2 pb-1 text-[10px] gap-1 active:scale-90 transition-transform px-1 min-w-0 ${
                   active ? "text-accent" : "text-muted"
                 }`}
               >
