@@ -203,11 +203,26 @@ function MeasurementGuide() {
       >
         <div className="overflow-hidden">
           <div className="px-4 pb-4 space-y-2.5">
-            {/* Diagram (silhouette via /api/og/body or fallback to emoji) */}
-            <div className="rounded-xl bg-surface border border-border p-3 text-center">
-              <div className="text-5xl leading-none">🧍‍♂️</div>
-              <div className="text-[11px] text-muted mt-2">
-                Стрічку тримай горизонтально, без натягу. Не втягуй живіт. Краще робити вранці натщесерце.
+            {/* Diagram — full-bleed image, falls back to emoji silhouette if file missing */}
+            <div className="rounded-xl bg-surface border border-border overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/measurement-guide.jpg"
+                alt="Як правильно знімати заміри — схема тіла"
+                className="w-full h-auto block"
+                loading="lazy"
+                onError={(e) => {
+                  // If the file isn't uploaded yet, hide the image gracefully
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                  const fb = (e.currentTarget.parentElement?.querySelector(".fb") as HTMLElement);
+                  if (fb) fb.style.display = "block";
+                }}
+              />
+              <div className="fb p-4 text-center" style={{ display: "none" }}>
+                <div className="text-5xl leading-none">🧍‍♂️</div>
+                <div className="text-[11px] text-muted mt-2">
+                  Стрічку тримай горизонтально, без натягу. Не втягуй живіт. Краще робити вранці натщесерце.
+                </div>
               </div>
             </div>
             {items.map(it => (
