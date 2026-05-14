@@ -167,7 +167,7 @@ export function AddMeasurement({ initial, trigger }: Props) {
 }
 
 function Field({
-  name, label, step, defaultValue,
+  name, label, defaultValue,
 }: {
   name: string; label: string; step?: string; defaultValue?: number | null;
 }) {
@@ -177,8 +177,8 @@ function Field({
       <input
         name={name}
         type="number"
-        step={step}
-        min="0.1"
+        step="any" /* accept any decimal — server validates ≥ 0.1 */
+        min="0"
         inputMode="decimal"
         className="input"
         defaultValue={defaultValue ?? ""}

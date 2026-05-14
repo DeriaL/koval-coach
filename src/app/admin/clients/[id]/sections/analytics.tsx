@@ -155,8 +155,8 @@ function NumField({ name, label, defaultValue }: { name: string; label: string; 
       <input
         name={name}
         type="number"
-        step="0.1"
-        min="0.1"
+        step="any"
+        min="0"
         inputMode="decimal"
         defaultValue={defaultValue ?? ""}
         className="input"
