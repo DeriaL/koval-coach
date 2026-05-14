@@ -203,49 +203,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* PRODUCT SHOWCASE — phone screen mockups */}
-      <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Sparkles className="w-3 h-3 text-accent" /> Інтерфейс</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Як виглядає кабінет</h2>
-            <p className="text-muted mt-3">Все під рукою — у телефоні чи на компʼютері.</p>
-          </div>
-        </Reveal>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4">
-          {[
-            { screen: "dashboard", title: "Головна",    desc: "Кільця прогресу, швидкі дії" },
-            { screen: "training",  title: "В залі",     desc: "Підходи, ваги, таймер відпочинку" },
-            { screen: "recipes",   title: "Рецепти",    desc: "Збірки страв від тренера" },
-            { screen: "analytics", title: "Аналітика",  desc: "Вага, заміри, streak" },
-          ].map((s, i) => (
-            <Reveal key={s.screen} delay={i * 100}>
-              <div className="group">
-                {/* Phone frame */}
-                <div className="relative mx-auto w-full max-w-[260px] aspect-[390/844] rounded-[2.5rem] p-2 bg-gradient-to-b from-[#1c1f3a] to-[#0b0d1a] border border-border shadow-2xl group-hover:-translate-y-2 group-hover:shadow-glow transition-all duration-500">
-                  {/* Notch */}
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-5 rounded-b-2xl bg-black z-10" />
-                  {/* Screen */}
-                  <div className="rounded-[2rem] overflow-hidden h-full bg-bg">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/api/og/demo?screen=${s.screen}`}
-                      alt={`${s.title} — превʼю кабінету`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                </div>
-                <div className="text-center mt-5">
-                  <div className="font-bold text-lg">{s.title}</div>
-                  <div className="text-xs text-muted mt-1">{s.desc}</div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
 
       {/* FEATURES */}
       <section id="features" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
