@@ -53,7 +53,14 @@ export default async function TrainerProfile() {
       </Link>
 
       <div className="mt-4">
-        <AccountSettings user={user} />
+        <AccountSettings
+          user={{
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone ?? "",
+          }}
+        />
       </div>
     </div>
   );
