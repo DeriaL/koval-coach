@@ -6,6 +6,7 @@ import { Loader2, Check } from "lucide-react";
 export function CheckInForm({ defaults }: { defaults: any | null }) {
   const [mood, setMood] = useState<number>(defaults?.mood ?? 4);
   const [energy, setEnergy] = useState<number>(defaults?.energy ?? 4);
+  const [stress, setStress] = useState<number>(defaults?.stress ?? 2);
   const [sleep, setSleep] = useState<number>(defaults?.sleep ?? 7);
   const [water, setWater] = useState<number | "">(defaults?.water ?? "");
   const [steps, setSteps] = useState<number | "">(defaults?.steps ?? "");
@@ -17,7 +18,7 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
 
   function submit() {
     const data = {
-      mood, energy, sleep,
+      mood, energy, stress, sleep,
       weight: null,
       water: water === "" ? null : Number(water),
       steps: steps === "" ? null : Number(steps),
@@ -60,6 +61,31 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
         <input type="range" min={3} max={12} step={0.5} value={sleep}
           onChange={(e) => setSleep(Number(e.target.value))}
           className="w-full accent-[#6366f1]" />
+      </div>
+      <div>
+        <label className="label flex items-center justify-between">
+          <span>Рівень стресу: <b className="text-text">{stress}</b> / 5</span>
+          <span className="text-xs text-muted">{
+            stress === 1 ? "🧘 спокій" :
+            stress === 2 ? "🙂 норм" :
+            stress === 3 ? "😐 середній" :
+            stress === 4 ? "😟 напружений" :
+                           "🥵 сильний"
+          }</span>
+        </label>
+        <input
+          type="range" min={1} max={5} step={1} value={stress}
+          onChange={(e) => setStress(Number(e.target.value))}
+          className="w-full accent-[#6366f1]"
+          style={{
+            background: `linear-gradient(to right,
+              #10b981 0%, #facc15 50%, #ef4444 100%)`,
+            height: 6, borderRadius: 999, appearance: "none", outline: "none",
+          }}
+        />
+        <div className="flex justify-between text-[10px] text-muted mt-1">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+        </div>
       </div>
       <div>
         <label className="label">Вода (літри)</label>

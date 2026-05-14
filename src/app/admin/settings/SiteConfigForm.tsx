@@ -8,6 +8,7 @@ type Cfg = {
   instagram?: string | null; telegram?: string | null;
   priceOnline?: string | null; priceOffline?: string | null; priceNote?: string | null;
   paymentDescription?: string | null;
+  aboutMe?: string | null;
 } | null;
 
 export function SiteConfigForm({ initial }: { initial: Cfg }) {
@@ -20,13 +21,14 @@ export function SiteConfigForm({ initial }: { initial: Cfg }) {
   const [priceOffline, setPriceOffline] = useState(initial?.priceOffline ?? "");
   const [priceNote, setPriceNote] = useState(initial?.priceNote ?? "пакет 10 тренувань");
   const [paymentDescription, setPaymentDescription] = useState(initial?.paymentDescription ?? "Пакет 10 тренувань · {client}");
+  const [aboutMe, setAboutMe] = useState(initial?.aboutMe ?? "");
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     start(async () => {
-      await saveSiteConfig({ phone, email, city, instagram, telegram, priceOnline, priceOffline, priceNote, paymentDescription });
+      await saveSiteConfig({ phone, email, city, instagram, telegram, priceOnline, priceOffline, priceNote, paymentDescription, aboutMe });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     });
@@ -81,6 +83,25 @@ export function SiteConfigForm({ initial }: { initial: Cfg }) {
                   onChange={e => setTelegram(e.target.value)} />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* About me block */}
+        <div className="card overflow-hidden">
+          <div className="h-[3px] bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent2))]" />
+          <div className="p-5 space-y-4">
+            <div className="text-xs font-semibold text-muted uppercase tracking-wider">Про мене</div>
+            <div className="text-xs text-muted">
+              Текст з&apos;явиться на лендингу в окремому розділі. Опиши досвід, підхід, чому варто обрати тебе як тренера.
+            </div>
+            <textarea
+              className="textarea min-h-[160px]"
+              placeholder="Привіт! Я Дмитро, персональний тренер з 8+ років досвіду..."
+              value={aboutMe}
+              onChange={e => setAboutMe(e.target.value)}
+              rows={8}
+            />
+            <div className="text-[10px] text-muted text-right">{aboutMe.length} символів · підтримуються переноси рядків</div>
           </div>
         </div>
 

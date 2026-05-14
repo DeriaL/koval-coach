@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import { TelegramConnect } from "@/components/TelegramConnect";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { AccountSettings } from "./AccountSettings";
 import Link from "next/link";
-import { Wallet, ArrowRight } from "lucide-react";
+import { Wallet, ArrowRight, Settings as Cog } from "lucide-react";
 
 export default async function TrainerProfile() {
   const u = await requireTrainer();
@@ -42,8 +43,17 @@ export default async function TrainerProfile() {
         <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
       </Link>
 
-      <div className="card p-5 mt-4 text-sm text-muted">
-        Редагування кабінету тренера — у майбутніх оновленнях. Поки що ти можеш керувати клієнтами через вкладку «Клієнти».
+      <Link href="/admin/settings" className="card p-4 mt-4 flex items-center gap-3 hover:border-accent/40 transition group">
+        <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Cog className="w-4 h-4" /></div>
+        <div className="flex-1">
+          <div className="font-medium text-sm">Налаштування сайту</div>
+          <div className="text-xs text-muted">«Про мене», контакти, послуги, ціни — для лендингу</div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
+      </Link>
+
+      <div className="mt-4">
+        <AccountSettings user={user} />
       </div>
     </div>
   );

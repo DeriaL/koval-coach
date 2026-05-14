@@ -149,6 +149,35 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ABOUT ME — only shown when configured by trainer in admin/settings */}
+      {cfg?.aboutMe && cfg.aboutMe.trim() && (
+        <section id="about" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
+          <Reveal>
+            <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
+              <div className="relative aspect-square max-w-md mx-auto md:max-w-none">
+                <div className="absolute -inset-6 -z-10 opacity-60 blur-3xl rounded-full bg-gradient-to-br from-accent/40 via-accent2/30 to-transparent" />
+                <div className="absolute inset-0 rounded-3xl overflow-hidden border border-border bg-gradient-to-br from-accent/10 via-transparent to-accent2/15">
+                  <Image
+                    src="/trainer.png"
+                    alt="Дмитро Ковальчук — тренер"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover object-center"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="chip mb-4 inline-flex"><Sparkles className="w-3 h-3 text-accent" /> Про мене</div>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-5">Хто я і як працюю</h2>
+                <div className="text-muted text-base md:text-lg leading-relaxed whitespace-pre-wrap break-words">
+                  {cfg.aboutMe}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+      )}
+
       {/* PROCESS */}
       <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
         <Reveal>

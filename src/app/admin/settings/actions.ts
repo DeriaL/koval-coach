@@ -8,6 +8,7 @@ export async function saveSiteConfig(data: {
   instagram?: string; telegram?: string;
   priceOnline?: string; priceOffline?: string; priceNote?: string;
   paymentDescription?: string;
+  aboutMe?: string;
 }) {
   await requireTrainer();
   await (prisma as any).siteConfig.upsert({

@@ -2,7 +2,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { saveOwnMeasurement, updateOwnMeasurement, deleteOwnMeasurement } from "./actions";
-import { Plus, X, Save, Loader2, Ruler, Pencil, Trash2 } from "lucide-react";
+import { Plus, X, Save, Loader2, Ruler, Pencil, Trash2, HelpCircle, ChevronDown } from "lucide-react";
 
 type MeasurementInitial = {
   id: string;
@@ -116,6 +116,8 @@ export function AddMeasurement({ initial, trigger }: Props) {
                 <div className="text-[10px] text-muted mt-1">тільки {currentYear} рік</div>
               </div>
 
+              <MeasurementGuide />
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <Field name="weight" label="Вага (кг)" step="0.1" defaultValue={initial?.weight} />
                 <Field name="bodyFat" label="% жиру" step="0.1" defaultValue={initial?.bodyFat} />
@@ -163,6 +165,67 @@ export function AddMeasurement({ initial, trigger }: Props) {
         document.body
       )}
     </>
+  );
+}
+
+// Collapsible "Як правильно мірятися" panel — text + diagram of every body region
+function MeasurementGuide() {
+  const [open, setOpen] = useState(false);
+  const items = [
+    { emoji: "💪", name: "Плечовий пояс", hint: "Обхват по найширшій точці плечей, через дельти. Стій рівно, руки вздовж тіла." },
+    { emoji: "🫁", name: "Груди",         hint: "По найширшій частині грудної клітки. Стрічка горизонтально, видих без втягування." },
+    { emoji: "📏", name: "Талія",         hint: "Найвужча частина живота (на 1-2 см вище пупка). Не втягуй живіт, видих." },
+    { emoji: "🍑", name: "Сідниці",       hint: "По найширшій частині сідниць. Стопи разом, ноги рівно." },
+    { emoji: "🦾", name: "Руки",          hint: "Біцепс у напруженому стані, в найтовстішій точці. Окремо ліва і права." },
+    { emoji: "🦵", name: "Стегна",        hint: "Трохи вище середини стегна, по найтовстішій точці. Окремо ліве і праве." },
+    { emoji: "🦿", name: "Гомілки",       hint: "По найширшій частині литки. Стопа на підлозі, нога розслаблена." },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-accent/25 bg-accent/5 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-accent/5 transition"
+      >
+        <div className="w-8 h-8 rounded-lg bg-accent/15 text-accent flex items-center justify-center shrink-0">
+          <HelpCircle className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm">Як правильно мірятися</div>
+          <div className="text-[11px] text-muted truncate">Натисни щоб подивитися інструкцію по кожній зоні</div>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-muted shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <div
+        className="grid transition-all duration-300"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="px-4 pb-4 space-y-2.5">
+            {/* Diagram (silhouette via /api/og/body or fallback to emoji) */}
+            <div className="rounded-xl bg-surface border border-border p-3 text-center">
+              <div className="text-5xl leading-none">🧍‍♂️</div>
+              <div className="text-[11px] text-muted mt-2">
+                Стрічку тримай горизонтально, без натягу. Не втягуй живіт. Краще робити вранці натщесерце.
+              </div>
+            </div>
+            {items.map(it => (
+              <div key={it.name} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface border border-border">
+                <span className="text-xl shrink-0 leading-none">{it.emoji}</span>
+                <div className="min-w-0">
+                  <div className="font-semibold text-xs">{it.name}</div>
+                  <div className="text-[11px] text-muted mt-0.5 leading-relaxed">{it.hint}</div>
+                </div>
+              </div>
+            ))}
+            <div className="text-[10px] text-muted text-center pt-1">
+              💡 Заміряй у тих самих умовах — однаковий час доби, однакова поза. Тоді динаміка буде точною.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function saveCheckIn(data: {
-  mood: number; energy: number; sleep: number;
+  mood: number; energy: number; stress?: number; sleep: number;
   weight: number | null; water: number | null; steps: number | null; notes: string;
 }) {
   const u = await requireClient();
@@ -13,10 +13,12 @@ export async function saveCheckIn(data: {
   const existing = await prisma.checkIn.findFirst({
     where: { clientId: u.id, date: { gte: today } },
   });
+  // `stress` was added later; type-cast to avoid stale Prisma types locally.
+  const payload: any = { ...data, date: new Date() };
   if (existing) {
-    await prisma.checkIn.update({ where: { id: existing.id }, data: { ...data, date: new Date() } });
+    await (prisma as any).checkIn.update({ where: { id: existing.id }, data: payload });
   } else {
-    await prisma.checkIn.create({ data: { ...data, clientId: u.id, date: new Date() } });
+    await (prisma as any).checkIn.create({ data: { ...payload, clientId: u.id } });
   }
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/check-in");
