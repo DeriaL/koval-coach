@@ -345,41 +345,44 @@ function RecipesScreen() {
         </div>
       </div>
 
-      {/* Grid 2-col */}
-      <div style={{
-        margin: "16px 16px 0", display: "grid",
-        gridTemplateColumns: "1fr 1fr", gap: 10,
-      }}>
-        {cats.slice(0, 4).map(c => (
-          <div key={c.name} style={{
-            background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16,
-            overflow: "hidden", display: "flex", flexDirection: "column",
-          }}>
-            <div style={{
-              height: 110, background: c.grad, position: "relative",
-              display: "flex", alignItems: "flex-end", justifyContent: "flex-start",
-              padding: 12,
-            }}>
-              <div style={{
-                position: "absolute", top: 8, left: 8,
-                width: 32, height: 32, borderRadius: 10,
-                background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 17,
-              }}>{c.e}</div>
-              <div style={{
-                fontWeight: 900, fontSize: 18, color: "white",
-                textShadow: "0 2px 10px rgba(0,0,0,0.6)",
-              }}>{c.name}</div>
-            </div>
-            <div style={{
-              padding: "8px 12px", display: "flex", justifyContent: "space-between",
-              fontSize: 10, color: ACCENT, fontWeight: 600,
-            }}>
-              <span style={{ color: MUTED }}>📑 Слайди</span>
-              <span>Переглянути →</span>
-            </div>
+      {/* 2×2 grid via nested flex rows */}
+      <div style={{ margin: "16px 16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+        {[[0, 1], [2, 3]].map((pair, rowIdx) => (
+          <div key={rowIdx} style={{ display: "flex", gap: 10 }}>
+            {pair.map(i => {
+              const c = cats[i];
+              return (
+                <div key={c.name} style={{
+                  flex: 1, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16,
+                  overflow: "hidden", display: "flex", flexDirection: "column",
+                }}>
+                  <div style={{
+                    height: 110, background: c.grad, position: "relative",
+                    display: "flex", alignItems: "flex-end", justifyContent: "flex-start",
+                    padding: 12,
+                  }}>
+                    <div style={{
+                      position: "absolute", top: 8, left: 8,
+                      width: 32, height: 32, borderRadius: 10,
+                      background: "rgba(0,0,0,0.4)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 17,
+                    }}>{c.e}</div>
+                    <div style={{
+                      fontWeight: 900, fontSize: 18, color: "white",
+                    }}>{c.name}</div>
+                  </div>
+                  <div style={{
+                    padding: "8px 12px", display: "flex", justifyContent: "space-between",
+                    fontSize: 10, color: ACCENT, fontWeight: 600,
+                  }}>
+                    <span style={{ color: MUTED }}>📑 Слайди</span>
+                    <span>Переглянути →</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -421,10 +424,7 @@ function AnalyticsScreen() {
       </div>
 
       {/* KPI row */}
-      <div style={{
-        margin: "16px 16px 0", display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr", gap: 8,
-      }}>
+      <div style={{ margin: "16px 16px 0", display: "flex", gap: 8 }}>
         <Kpi value="−3.9 кг" label="ВТРАЧЕНО" color={SUCCESS} />
         <Kpi value="74.1" label="ВАГА (КГ)" color={TEXT} />
         <Kpi value="12.3%" label="% ЖИРУ" color={ACCENT} />
@@ -488,7 +488,7 @@ function AnalyticsScreen() {
 function Kpi({ value, label, color }: any) {
   return (
     <div style={{
-      padding: 12, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14,
+      flex: 1, padding: 12, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14,
       display: "flex", flexDirection: "column", gap: 2,
     }}>
       <span style={{ fontSize: 9, color: MUTED, letterSpacing: 1 }}>{label}</span>
