@@ -1,7 +1,7 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { EmptyState } from "@/components/ui";
-import { Dumbbell, Play, Clock, Trophy, Calendar, ChevronRight, CheckCircle2, Zap } from "lucide-react";
+import { Dumbbell, Play, Clock, Trophy, Calendar, ChevronRight, CheckCircle2, Zap, Pencil } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import Link from "next/link";
@@ -57,17 +57,17 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
     <div className="space-y-6 pb-4">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Тренування</h1>
           <p className="text-sm text-muted mt-0.5">Обери програму і день — і в зал 💪</p>
         </div>
-        {recentSessions.length > 0 && (
-          <div className="text-right hidden sm:block">
-            <div className="text-2xl font-black text-gradient">{recentSessions.length * 2}+</div>
-            <div className="text-xs text-muted">тренувань</div>
-          </div>
-        )}
+        <Link
+          href="/dashboard/workout/log"
+          className="btn btn-primary text-sm gap-1.5 shrink-0"
+        >
+          <Pencil className="w-4 h-4" /> Записати тренування
+        </Link>
       </div>
 
       {/* ── Заплановані ── */}

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { scheduleSession, confirmSession, deleteSession, cancelSessionByTrainer } from "../../actions";
 import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -59,12 +60,20 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
         who="TRAINER"
         title={cancelTarget?.title}
       />
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <h3 className="font-semibold flex items-center gap-2"><Calendar className="w-4 h-4 text-accent" /> Розклад тренувань</h3>
         {!editing && (
-          <button onClick={() => setEditing(true)} className="btn btn-primary">
-            <Plus className="w-4 h-4" /> Запланувати
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              href={`/admin/clients/${clientId}/log-workout`}
+              className="btn text-sm gap-1.5 border-accent/30 text-accent hover:bg-accent/10"
+            >
+              <Dumbbell className="w-3.5 h-3.5" /> Записати тренування
+            </Link>
+            <button onClick={() => setEditing(true)} className="btn btn-primary">
+              <Plus className="w-4 h-4" /> Запланувати
+            </button>
+          </div>
         )}
       </div>
 
