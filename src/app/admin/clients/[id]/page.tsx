@@ -40,7 +40,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       checkIns: { orderBy: { date: "desc" }, take: 60 },
       reminders: { orderBy: { datetime: "asc" } },
       messages: { orderBy: { createdAt: "asc" } },
-      sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }] },
+      sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }], include: { sets: { orderBy: { setIndex: "asc" } } } },
     },
   });
 

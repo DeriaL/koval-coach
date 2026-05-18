@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { CancelButton } from "./cancel-button";
+import { WorkoutDetailRow } from "@/components/WorkoutDetailRow";
 
 export default async function ClientSessions() {
   const u = await requireClient();
@@ -125,19 +126,20 @@ export default async function ClientSessions() {
       {done.length > 0 && (
         <Section icon={Sparkles} title="Виконані · 60 днів" accent="success" count={done.length}>
           <div className="space-y-2">
-            {done.map((s) => (
-              <div key={s.id} className="card p-4 card-hover flex items-center gap-3 border-success/20 bg-success/5">
-                <div className="w-10 h-10 rounded-xl bg-success/15 text-success flex items-center justify-center"><Dumbbell className="w-5 h-5" /></div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{s.title}</div>
-                  <div className="text-xs text-muted flex items-center gap-2 flex-wrap">
-                    <span>{new Date(s.date).toLocaleDateString("uk-UA")}</span>
-                    {s.durationSec ? <span>· {Math.round(s.durationSec/60)} хв</span> : null}
-                    {s.sets.length > 0 ? <span>· {s.sets.length} підходів</span> : null}
-                    {s.confirmedByTrainer ? <span className="chip text-[9px] py-0 px-1.5">я</span> : <span className="chip text-[9px] py-0 px-1.5">сам</span>}
-                  </div>
-                </div>
-              </div>
+            {done.map((s: any) => (
+              <WorkoutDetailRow
+                key={s.id}
+                session={{
+                  id: s.id,
+                  title: s.title,
+                  date: s.date,
+                  durationSec: s.durationSec,
+                  notes: s.notes,
+                  completed: s.completed,
+                  confirmedByTrainer: s.confirmedByTrainer,
+                  sets: s.sets ?? [],
+                }}
+              />
             ))}
           </div>
         </Section>

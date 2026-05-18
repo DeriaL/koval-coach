@@ -6,6 +6,12 @@ import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Cl
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { CancelModal } from "@/components/CancelModal";
+import { WorkoutDetailRow } from "@/components/WorkoutDetailRow";
+
+type SetRow = {
+  id: string; exerciseName: string; setIndex: number;
+  weight: number | null; reps: number | null; isPR: boolean;
+};
 
 type S = {
   id: string;
@@ -19,6 +25,7 @@ type S = {
   cancelReason?: string | null;
   durationSec: number | null;
   notes: string | null;
+  sets?: SetRow[];
 };
 
 export function SessionsTab({ clientId, items }: { clientId: string; items: S[] }) {
@@ -198,18 +205,20 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
           </div>
           <div className="space-y-2">
             {done.map(s => (
-              <div key={s.id} className="card p-3 flex items-center gap-2 sm:gap-3">
-                <div className="w-9 h-9 rounded-lg bg-success/10 text-success flex items-center justify-center shrink-0"><Dumbbell className="w-4 h-4" /></div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{s.title}</div>
-                  <div className="text-[11px] text-muted truncate">
-                    {new Date(s.date).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" })}
-                    {s.durationSec ? ` · ${Math.round(s.durationSec/60)} хв` : ""}
-                    {s.confirmedByTrainer ? " · підтв. тренером" : s.completed ? " · самостійно" : ""}
-                  </div>
-                </div>
-                <button onClick={() => del(s.id)} disabled={pending} className="btn text-sm px-2 text-muted shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
-              </div>
+              <WorkoutDetailRow
+                key={s.id}
+                session={{
+                  id: s.id,
+                  title: s.title,
+                  date: s.date,
+                  durationSec: s.durationSec,
+                  notes: s.notes,
+                  completed: s.completed,
+                  confirmedByTrainer: s.confirmedByTrainer,
+                  sets: s.sets ?? [],
+                }}
+                onDelete={async (id) => { await deleteSession(id, clientId); }}
+              />
             ))}
           </div>
         </div>
