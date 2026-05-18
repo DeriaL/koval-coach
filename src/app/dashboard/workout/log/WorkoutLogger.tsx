@@ -40,6 +40,7 @@ export function WorkoutLogger({
   const pauseStartRef = useRef<number | null>(null);
 
   const [err, setErr] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [pending, start] = useTransition();
 
   useEffect(() => {
@@ -123,8 +124,20 @@ export function WorkoutLogger({
           notes: notes.trim(),
           exercises: cleanEx,
         });
-        if (res.ok) {
-          router.push(isTrainer && clientId ? `/admin/clients/${clientId}?tab=sessions` : "/dashboard/sessions");
+        if (res?.ok) {
+          // Show success state so user gets clear feedback, then navigate.
+          setSuccess(true);
+          // Force the destination page to refetch fresh data
+          router.refresh();
+          setTimeout(() => {
+            router.push(
+              isTrainer && clientId
+                ? `/admin/clients/${clientId}?tab=sessions`
+                : "/dashboard/sessions"
+            );
+          }, 900);
+        } else {
+          setErr("Не вдалось зберегти. Спробуй ще раз.");
         }
       } catch (e: any) {
         setErr(e?.message ?? "Не вдалось зберегти");
@@ -207,21 +220,37 @@ export function WorkoutLogger({
         />
       </div>
 
-      {err && <div className="text-danger text-sm text-center">{err}</div>}
+      {err && (
+        <div className="card p-3 border-danger/40 bg-danger/5 text-danger text-sm flex items-center gap-2">
+          <X className="w-4 h-4 shrink-0" />
+          <span>{err}</span>
+        </div>
+      )}
 
-      {/* Submit */}
-      <div className="flex flex-col sm:flex-row gap-2 sticky bottom-[calc(7rem+env(safe-area-inset-bottom))] md:bottom-4 z-10">
+      {success && (
+        <div className="card p-3 border-success/40 bg-success/10 text-success text-sm flex items-center gap-2">
+          <Check className="w-4 h-4 shrink-0" />
+          <span>✓ Тренування збережено! Перенаправляю…</span>
+        </div>
+      )}
+
+      {/* Submit row — normal flow, NOT sticky (was overlapping the notes field) */}
+      <div className="flex flex-col sm:flex-row gap-2 pt-2 pb-4">
         <button
           onClick={submit}
-          disabled={pending || !title.trim()}
+          disabled={pending || success || !title.trim()}
           className="btn btn-primary flex-1 py-3 gap-2 shadow-glow"
         >
-          {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {pending ? "Зберігаю…" : <>Зберегти тренування{totalSets ? ` (${totalSets} підходів)` : ""}</>}
+          {pending ? <Loader2 className="w-4 h-4 animate-spin" /> :
+           success ? <Check className="w-4 h-4" /> :
+           <Save className="w-4 h-4" />}
+          {pending ? "Зберігаю…" :
+           success ? "Збережено!" :
+           <>Зберегти тренування{totalSets ? ` (${totalSets} підходів)` : ""}</>}
         </button>
         <button
           onClick={() => router.back()}
-          disabled={pending}
+          disabled={pending || success}
           className="btn"
         >
           Скасувати
