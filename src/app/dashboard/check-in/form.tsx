@@ -1,16 +1,31 @@
 "use client";
 import { useState, useTransition } from "react";
 import { saveCheckIn } from "./actions";
+import { useDraft, DraftBanner } from "@/lib/useDraft";
 import { Loader2, Check } from "lucide-react";
 
 export function CheckInForm({ defaults }: { defaults: any | null }) {
-  const [mood, setMood] = useState<number>(defaults?.mood ?? 4);
-  const [energy, setEnergy] = useState<number>(defaults?.energy ?? 4);
-  const [stress, setStress] = useState<number>(defaults?.stress ?? 2);
-  const [sleep, setSleep] = useState<number>(defaults?.sleep ?? 7);
-  const [water, setWater] = useState<number | "">(defaults?.water ?? "");
-  const [steps, setSteps] = useState<number | "">(defaults?.steps ?? "");
-  const [notes, setNotes] = useState<string>(defaults?.notes ?? "");
+  // Autosaved draft only when there's no server-side check-in for today yet.
+  const draft = useDraft<{
+    mood: number; energy: number; stress: number; sleep: number;
+    water: number | ""; steps: number | ""; notes: string;
+  }>("checkin", {
+    mood: defaults?.mood ?? 4,
+    energy: defaults?.energy ?? 4,
+    stress: defaults?.stress ?? 2,
+    sleep: defaults?.sleep ?? 7,
+    water: defaults?.water ?? "",
+    steps: defaults?.steps ?? "",
+    notes: defaults?.notes ?? "",
+  });
+  const { mood, energy, stress, sleep, water, steps, notes } = draft.value;
+  const setMood = (v: number) => draft.setValue(p => ({ ...p, mood: v }));
+  const setEnergy = (v: number) => draft.setValue(p => ({ ...p, energy: v }));
+  const setStress = (v: number) => draft.setValue(p => ({ ...p, stress: v }));
+  const setSleep = (v: number) => draft.setValue(p => ({ ...p, sleep: v }));
+  const setWater = (v: number | "") => draft.setValue(p => ({ ...p, water: v }));
+  const setSteps = (v: number | "") => draft.setValue(p => ({ ...p, steps: v }));
+  const setNotes = (v: string) => draft.setValue(p => ({ ...p, notes: v }));
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
 
@@ -26,13 +41,16 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
     };
     start(async () => {
       await saveCheckIn(data);
+      draft.clear();
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     });
   }
 
   return (
-    <div className="mt-6 grid md:grid-cols-2 gap-5">
+    <div className="mt-6">
+      {draft.restored && <div className="mb-4"><DraftBanner onDiscard={draft.discard} /></div>}
+      <div className="grid md:grid-cols-2 gap-5">
       <div>
         <label className="label">Настрій</label>
         <div className="flex gap-2">
@@ -105,6 +123,7 @@ export function CheckInForm({ defaults }: { defaults: any | null }) {
         <button onClick={submit} disabled={pending} className="btn btn-primary px-6 py-3">
           {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <><Check className="w-4 h-4" /> Збережено</> : "Зберегти check-in"}
         </button>
+      </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { logManualWorkout } from "./actions";
+import { useDraft, DraftBanner } from "@/lib/useDraft";
 import {
   Plus, Trash2, Save, Loader2, Play, Pause, Dumbbell,
   Check, X, ChevronDown, ChevronUp, Sparkles,
@@ -28,9 +29,19 @@ export function WorkoutLogger({
   recentExercises: string[];    // for suggestions
 }) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [exercises, setExercises] = useState<Ex[]>([emptyEx()]);
-  const [notes, setNotes] = useState("");
+
+  // Auto-saved draft (title + exercises + notes). Timer is NOT persisted.
+  const draft = useDraft<{ title: string; exercises: Ex[]; notes: string }>(
+    `workout-log:${clientId ?? "self"}`,
+    { title: "", exercises: [emptyEx()], notes: "" }
+  );
+  const title = draft.value.title;
+  const exercises = draft.value.exercises;
+  const notes = draft.value.notes;
+  const setTitle = (t: string) => draft.setValue(v => ({ ...v, title: t }));
+  const setExercises = (fn: Ex[] | ((p: Ex[]) => Ex[])) =>
+    draft.setValue(v => ({ ...v, exercises: typeof fn === "function" ? (fn as any)(v.exercises) : fn }));
+  const setNotes = (n: string) => draft.setValue(v => ({ ...v, notes: n }));
 
   // Workout timer (anchor-based, survives screen lock)
   const [running, setRunning] = useState(true);
@@ -127,6 +138,7 @@ export function WorkoutLogger({
         if (res?.ok) {
           // Show success state so user gets clear feedback, then navigate.
           setSuccess(true);
+          draft.clear(); // remove autosaved draft once saved
           // Force the destination page to refetch fresh data
           router.refresh();
           setTimeout(() => {
@@ -149,6 +161,8 @@ export function WorkoutLogger({
 
   return (
     <div className="space-y-4">
+      {draft.restored && <DraftBanner onDiscard={draft.discard} />}
+
       {/* Header card with title + timer */}
       <div className="card p-4 md:p-5 border-accent/30">
         <div className="flex items-center gap-3 mb-3">
