@@ -5,7 +5,7 @@ import { Dumbbell, Menu, X } from "lucide-react";
 
 type NavItem = { href: string; label: string };
 
-export function StickyNav({ items }: { items: NavItem[] }) {
+export function StickyNav({ items, tgHref = "/login" }: { items: NavItem[]; tgHref?: string }) {
   const [active, setActive] = useState(items[0]?.href ?? "");
   const [open, setOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export function StickyNav({ items }: { items: NavItem[] }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/login" className="btn btn-primary !py-2 !px-4 text-sm">Залишити заявку</Link>
+          <a href={tgHref} target="_blank" rel="noreferrer" className="btn btn-primary !py-2 !px-4 text-sm">Залишити заявку</a>
           <button
             onClick={() => setOpen((o) => !o)}
             className="md:hidden h-9 w-9 grid place-items-center rounded-lg border border-border"

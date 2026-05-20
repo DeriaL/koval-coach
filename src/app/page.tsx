@@ -33,6 +33,10 @@ export default async function Home() {
   // =======================
 
   const city = cfg?.city || "Львів";
+  // «Залишити заявку» / «Записатись» ведуть у Telegram
+  const tg = cfg?.telegram
+    ? `https://t.me/${String(cfg.telegram).replace(/^@/, "")}`
+    : "https://t.me/dmytro_kovalchuk_coach";
   const priceOnline = cfg?.priceOnline || "5 000";
   const priceOffline = cfg?.priceOffline || "5 000";
   const priceNote = cfg?.priceNote || "пакет 10 тренувань";
@@ -87,7 +91,7 @@ export default async function Home() {
 
   return (
     <main className="relative overflow-x-hidden">
-      <StickyNav items={navItems} />
+      <StickyNav items={navItems} tgHref={tg} />
 
       {/* ============ HERO ============ */}
       <section className="relative pt-28 lg:pt-36 pb-20 lg:pb-28 overflow-hidden noise">
@@ -342,9 +346,9 @@ export default async function Home() {
                   <span className="text-muted text-sm">грн / міс</span>
                 </div>
                 <Magnetic className="block mt-7 w-full">
-                  <Link href="/login" className="btn btn-primary w-full justify-center">
+                  <a href={tg} target="_blank" rel="noreferrer" className="btn btn-primary w-full justify-center">
                     Залишити заявку <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </a>
                 </Magnetic>
                 <ul className="mt-8 space-y-3 text-sm">
                   {onlinePerks.map((x) => (
@@ -367,9 +371,9 @@ export default async function Home() {
                   <span className="font-display text-5xl sm:text-6xl font-black tracking-tight">{priceOffline}</span>
                   <span className="text-muted text-sm">грн / {priceNote}</span>
                 </div>
-                <Link href="/login" className="btn w-full justify-center mt-7">
+                <a href={tg} target="_blank" rel="noreferrer" className="btn w-full justify-center mt-7">
                   Записатись <ArrowRight className="w-4 h-4" />
-                </Link>
+                </a>
                 <ul className="mt-8 space-y-3 text-sm">
                   {offlinePerks.map((x) => (
                     <li key={x} className="flex items-start gap-3"><Check className="w-4 h-4 mt-0.5 text-accent shrink-0" /> {x}</li>

@@ -17,7 +17,7 @@ export function FloatingContact() {
   }, []);
 
   return (
-    <div className={`fixed right-4 md:right-6 bottom-4 md:bottom-6 z-40 transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}>
+    <div className={`fixed right-4 md:right-6 bottom-4 md:bottom-6 z-40 flex flex-col items-end transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}>
       {/* Buttons stack */}
       <div className={`flex flex-col items-end gap-2 mb-2 transition-all duration-300 ${open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
         <ContactBtn href={TELEGRAM} label="Telegram" icon={Send} color="#0088cc" />
