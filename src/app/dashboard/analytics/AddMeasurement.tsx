@@ -2,6 +2,8 @@
 import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { saveOwnMeasurement, updateOwnMeasurement, deleteOwnMeasurement } from "./actions";
+import { useFormDraft } from "@/lib/useFormDraft";
+import { DraftBanner } from "@/lib/useDraft";
 import { Plus, X, Save, Loader2, Ruler, Pencil, Trash2, HelpCircle, ChevronDown } from "lucide-react";
 
 type MeasurementInitial = {
@@ -35,6 +37,9 @@ export function AddMeasurement({ initial, trigger }: Props) {
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
+  // Autosave only for NEW measurements (not when editing an existing one)
+  const { formRef, restored, clear, discard } = useFormDraft("measurement-new", !isEdit);
+
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
     if (!open) return;
@@ -61,6 +66,7 @@ export function AddMeasurement({ initial, trigger }: Props) {
           await updateOwnMeasurement(initial!.id, data);
         } else {
           await saveOwnMeasurement(data);
+          clear();
         }
         setOpen(false);
       } catch (e: any) { setErr(e?.message ?? "Помилка"); }
@@ -101,7 +107,8 @@ export function AddMeasurement({ initial, trigger }: Props) {
               <button onClick={() => setOpen(false)} className="btn px-3 py-2"><X className="w-4 h-4" /></button>
             </div>
 
-            <form action={submit} className="space-y-3">
+            <form ref={formRef} action={submit} className="space-y-3">
+              {restored && <DraftBanner onDiscard={discard} />}
               <div>
                 <label className="label">Дата</label>
                 <input

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useTransition } from "react";
 import { saveAchievement, deleteAchievement } from "../../actions";
+import { useFormDraft } from "@/lib/useFormDraft";
+import { DraftBanner } from "@/lib/useDraft";
 import { Trash2, Plus, Save, X, Loader2, Trophy } from "lucide-react";
 
 const icons: { key: string; label: string }[] = [
@@ -18,10 +20,12 @@ const icons: { key: string; label: string }[] = [
 export function AchievementsTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [pending, start] = useTransition();
+  const isNew = editing && !editing.id;
+  const { formRef, restored, clear, discard } = useFormDraft(`achievement-new:${clientId}`, !!isNew);
 
   function save(fd: FormData) {
     const data = Object.fromEntries(fd);
-    start(async () => { await saveAchievement(clientId, { ...data, id: editing?.id }); setEditing(null); });
+    start(async () => { await saveAchievement(clientId, { ...data, id: editing?.id }); clear(); setEditing(null); });
   }
   function del(id: string) { if (!confirm("Видалити ачівку?")) return; start(async () => { await deleteAchievement(id, clientId); }); }
 
@@ -32,9 +36,10 @@ export function AchievementsTab({ clientId, items }: { clientId: string; items: 
         {!editing && <button onClick={() => setEditing({})} className="btn btn-primary"><Plus className="w-4 h-4" /> Видати ачівку</button>}
       </div>
       {editing && (
-        <form action={save} className="card p-6 space-y-3 mb-4">
+        <form ref={isNew ? formRef : undefined} action={save} className="card p-6 space-y-3 mb-4">
           <div className="flex justify-between"><h3 className="font-semibold">{editing.id ? "Редагувати" : "Нова ачівка"}</h3>
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button></div>
+          {isNew && restored && <DraftBanner onDiscard={discard} />}
           <div className="grid md:grid-cols-2 gap-3">
             <div><label className="label">Назва</label><input name="title" defaultValue={editing.title ?? ""} required className="input" /></div>
             <div><label className="label">Іконка</label>

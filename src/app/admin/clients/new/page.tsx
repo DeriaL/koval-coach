@@ -3,6 +3,8 @@ import { useState, useTransition } from "react";
 import { createClient } from "../actions";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui";
+import { useFormDraft } from "@/lib/useFormDraft";
+import { DraftBanner } from "@/lib/useDraft";
 import { Loader2, Wifi, Crown } from "lucide-react";
 
 export default function NewClientPage() {
@@ -10,6 +12,7 @@ export default function NewClientPage() {
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
   const [plan, setPlan] = useState<"ONLINE" | "FULL">("ONLINE");
+  const { formRef, restored, clear, discard } = useFormDraft("new-client");
 
   function submit(fd: FormData) {
     fd.set("coachingPlan", plan);
@@ -18,6 +21,7 @@ export default function NewClientPage() {
       if ("error" in result) {
         setErr(result.error);
       } else {
+        clear();
         router.push(`/admin/clients/${result.id}`);
       }
     });
@@ -26,7 +30,8 @@ export default function NewClientPage() {
   return (
     <div className="max-w-3xl">
       <PageHeader title="Новий клієнт" subtitle="Заповни основні дані та обери тариф" />
-      <form action={submit} className="space-y-4">
+      {restored && <div className="mb-4"><DraftBanner onDiscard={discard} /></div>}
+      <form ref={formRef} action={submit} className="space-y-4">
         {/* Format selector */}
         <div className="card p-5 animate-fade-up">
           <div className="label mb-1">Формат ведення</div>
