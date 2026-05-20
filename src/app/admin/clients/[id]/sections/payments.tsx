@@ -1,19 +1,15 @@
 "use client";
 import { useState, useTransition } from "react";
 import { savePayment, deletePayment } from "../../actions";
-import { useFormDraft } from "@/lib/useFormDraft";
-import { DraftBanner } from "@/lib/useDraft";
 import { Pencil, Trash2, Plus, Save, X, Loader2 } from "lucide-react";
 
 export function PaymentsTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [pending, start] = useTransition();
-  const isNew = editing && !editing.id;
-  const { formRef, restored, clear, discard } = useFormDraft(`payment-new:${clientId}`, !!isNew);
 
   function save(fd: FormData) {
     const data = Object.fromEntries(fd);
-    start(async () => { await savePayment(clientId, { ...data, id: editing?.id }); clear(); setEditing(null); });
+    start(async () => { await savePayment(clientId, { ...data, id: editing?.id }); setEditing(null); });
   }
   function del(id: string) { if (!confirm("Видалити?")) return; start(async () => { await deletePayment(id, clientId); }); }
 
@@ -30,10 +26,9 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
       </div>
 
       {editing && (
-        <form ref={isNew ? formRef : undefined} action={save} className="card p-6 space-y-3 mb-4">
+        <form action={save} className="card p-6 space-y-3 mb-4">
           <div className="flex justify-between items-center"><h3 className="font-semibold">{editing.id ? "Редагувати" : "Новий платіж"}</h3>
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button></div>
-          {isNew && restored && <DraftBanner onDiscard={discard} />}
           <div className="grid md:grid-cols-4 gap-3">
             <div><label className="label">Сума</label><input name="amount" type="number" step="0.01" defaultValue={editing.amount ?? ""} required className="input" /></div>
             <div><label className="label">Валюта</label><input name="currency" defaultValue={editing.currency ?? "UAH"} className="input" /></div>

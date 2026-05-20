@@ -1,20 +1,16 @@
 "use client";
 import { useState, useTransition } from "react";
 import { saveTraining, deleteTraining, saveExercise, deleteExercise } from "../../actions";
-import { useFormDraft } from "@/lib/useFormDraft";
-import { DraftBanner } from "@/lib/useDraft";
 import { Pencil, Trash2, Plus, Save, X, Loader2, Dumbbell } from "lucide-react";
 
 export function TrainingTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [exEditing, setExEditing] = useState<{ planId: string; ex: any } | null>(null);
   const [pending, start] = useTransition();
-  const isNewPlan = editing && !editing.id;
-  const planDraft = useFormDraft(`training-plan-new:${clientId}`, !!isNewPlan);
 
   function save(fd: FormData) {
     const data = Object.fromEntries(fd);
-    start(async () => { await saveTraining(clientId, { ...data, id: editing?.id }); planDraft.clear(); setEditing(null); });
+    start(async () => { await saveTraining(clientId, { ...data, id: editing?.id }); setEditing(null); });
   }
   function del(id: string) {
     if (!confirm("Видалити програму?")) return;
@@ -38,12 +34,11 @@ export function TrainingTab({ clientId, items }: { clientId: string; items: any[
         <button onClick={() => setEditing({})} className="btn btn-primary mb-4"><Plus className="w-4 h-4" /> Нова програма</button>
       )}
       {editing && (
-        <form ref={isNewPlan ? planDraft.formRef : undefined} action={save} className="card p-6 space-y-3 mb-4">
+        <form action={save} className="card p-6 space-y-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing.id ? "Редагувати" : "Нова програма"}</h3>
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button>
           </div>
-          {isNewPlan && planDraft.restored && <DraftBanner onDiscard={planDraft.discard} />}
           <div className="grid md:grid-cols-2 gap-3">
             <div><label className="label">Назва</label><input name="title" defaultValue={editing.title ?? ""} required className="input" /></div>
             <div><label className="label">Днів на тиждень</label><input name="daysPerWeek" type="number" defaultValue={editing.daysPerWeek ?? ""} className="input" /></div>

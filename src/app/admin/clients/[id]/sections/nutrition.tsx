@@ -1,20 +1,15 @@
 "use client";
 import { useState, useTransition } from "react";
 import { saveNutrition, deleteNutrition } from "../../actions";
-import { useFormDraft } from "@/lib/useFormDraft";
-import { DraftBanner } from "@/lib/useDraft";
 import { Pencil, Trash2, Plus, Save, X, Loader2 } from "lucide-react";
 
 export function NutritionTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [pending, start] = useTransition();
-  // Draft only for NEW plans (not when editing existing). Keyed per client.
-  const isNew = editing && !editing.id;
-  const { formRef, restored, clear, discard } = useFormDraft(`nutrition-new:${clientId}`, !!isNew);
 
   function save(fd: FormData) {
     const data = Object.fromEntries(fd);
-    start(async () => { await saveNutrition(clientId, { ...data, id: editing?.id }); clear(); setEditing(null); });
+    start(async () => { await saveNutrition(clientId, { ...data, id: editing?.id }); setEditing(null); });
   }
 
   function del(id: string) {
@@ -31,12 +26,11 @@ export function NutritionTab({ clientId, items }: { clientId: string; items: any
       )}
 
       {editing ? (
-        <form ref={isNew ? formRef : undefined} action={save} className="card p-6 space-y-3">
+        <form action={save} className="card p-6 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing.id ? "Редагувати" : "Новий план харчування"}</h3>
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button>
           </div>
-          {isNew && restored && <DraftBanner onDiscard={discard} />}
           <div>
             <label className="label">Назва</label>
             <input name="title" defaultValue={editing.title ?? ""} required className="input" />

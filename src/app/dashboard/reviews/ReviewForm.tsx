@@ -2,15 +2,11 @@
 import { useState, useTransition } from "react";
 import { Star, Send, Loader2, CheckCircle2 } from "lucide-react";
 import { submitReview } from "./actions";
-import { useDraft, DraftBanner } from "@/lib/useDraft";
 
 export function ReviewForm({ canEdit }: { canEdit: boolean }) {
-  const draft = useDraft<{ rating: number; text: string }>("review", { rating: 0, text: "" });
-  const rating = draft.value.rating;
-  const text = draft.value.text;
-  const setRating = (r: number) => draft.setValue(v => ({ ...v, rating: r }));
-  const setText = (t: string) => draft.setValue(v => ({ ...v, text: t }));
+  const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
+  const [text, setText] = useState("");
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -42,7 +38,6 @@ export function ReviewForm({ canEdit }: { canEdit: boolean }) {
     start(async () => {
       try {
         await submitReview({ rating, text });
-        draft.clear();
         setDone(true);
       } catch (err: any) {
         setError(err?.message ?? "Не вдалось надіслати");
@@ -52,7 +47,6 @@ export function ReviewForm({ canEdit }: { canEdit: boolean }) {
 
   return (
     <form onSubmit={submit} className="card p-5 space-y-4">
-      {draft.restored && <DraftBanner onDiscard={draft.discard} />}
       <div>
         <div className="text-xs text-muted uppercase tracking-wider mb-2">Оцінка</div>
         <div className="flex items-center gap-1.5">
