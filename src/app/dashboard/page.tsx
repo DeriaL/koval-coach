@@ -14,7 +14,7 @@ export default async function DashboardHome() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [checkIns, workoutSessions, achievements, reminders, measurements, client, habits, todayWorkouts] = await Promise.all([
+  const [checkIns, workoutSessions, achievements, reminders, measurements, client, habits, todayWorkouts, upcomingSessions] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true }, orderBy: { date: "desc" }, take: 30 }),
     prisma.achievement.findMany({ where: { clientId: user.id }, orderBy: { earnedAt: "desc" }, take: 4 }),
@@ -23,12 +23,11 @@ export default async function DashboardHome() {
     prisma.user.findUnique({ where: { id: user.id } }),
     prisma.habit.findMany({ where: { clientId: user.id, active: true }, include: { logs: { where: { date: today } } }, orderBy: { order: "asc" } }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, date: { gte: today } } }),
+    prisma.workoutSession.findMany({
+      where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
+      orderBy: { scheduledAt: "asc" }, take: 3,
+    }),
   ]);
-
-  const upcomingSessions = await prisma.workoutSession.findMany({
-    where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
-    orderBy: { scheduledAt: "asc" }, take: 3,
-  });
 
   const streak = calcStreak(checkIns.map(c => c.date));
   // latest weight across check-ins and measurements
