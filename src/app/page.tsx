@@ -241,7 +241,7 @@ export default async function Home() {
             </h2>
           </Reveal>
 
-          <div className="mt-10 grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-5 auto-rows-[180px]">
+          <div className="mt-10 grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-5 lg:auto-rows-[180px]">
             {/* HERO TILE — тренування */}
             <Reveal className="col-span-2 lg:col-span-3 lg:row-span-2">
               <CardSpot className="p-6 lg:p-7 relative">
@@ -302,7 +302,7 @@ export default async function Home() {
             {/* SMALL TILES */}
             {smallFeatures.map((f, i) => (
               <Reveal key={f.t} delay={i * 40} className={f.span}>
-                <CardSpot className="p-5">
+                <CardSpot className="p-5 min-h-[150px]">
                   <span className="h-9 w-9 rounded-xl bg-accent/10 border border-accent/20 grid place-items-center text-accent">
                     <f.Icon className="w-4 h-4" />
                   </span>
