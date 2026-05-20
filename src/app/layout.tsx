@@ -51,26 +51,22 @@ html[data-theme="dark"] #app-splash{--bg:9 11 26;--text:233 235 245}
 const splashScript = `
 (function(){
   var start = Date.now();
-  var MIN_SHOW = 350;   // brief so the logo doesn't just flicker
-  var MAX_SHOW = 1500;  // hard cap — never hang longer than this
-  var done = false;
+  var MIN_SHOW = 300;   // brief so the logo doesn't just flicker
+  var MAX_SHOW = 1200;  // hard cap — never hang longer than this
   function hide(){
-    if (done) return; done = true;
     var wait = Math.max(0, MIN_SHOW - (Date.now() - start));
     setTimeout(function(){
       var el = document.getElementById('app-splash');
-      if (!el) return;
-      el.classList.add('hide');
-      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 450);
+      // Only add the hide class. Do NOT removeChild — that fights React's
+      // virtual DOM and can re-insert the splash without the .hide class,
+      // covering the whole page (buttons gone / looks stuck loading).
+      // .hide sets opacity:0 + visibility:hidden + pointer-events:none, so
+      // even if it stays in the DOM it can never block the UI.
+      if (el) el.classList.add('hide');
     }, wait);
   }
-  // Hide as soon as the document is interactive (DOM parsed) — don't wait for images
-  if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    hide();
-  } else {
-    document.addEventListener('DOMContentLoaded', hide);
-  }
-  // Safety net: force-hide after MAX_SHOW no matter what
+  if (document.readyState === 'interactive' || document.readyState === 'complete') hide();
+  else document.addEventListener('DOMContentLoaded', hide);
   setTimeout(hide, MAX_SHOW);
 })();
 `;
