@@ -14,3 +14,5 @@ out
 page.html
 cookies.txt
 *.log
+tsconfig.tsbuildinfo
+.claude/launch.json
