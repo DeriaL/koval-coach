@@ -14,7 +14,6 @@ type Item = { href: string; label: string; icon: any };
 const clientNav: Item[] = [
   { href: "/dashboard", label: "Головна", icon: LayoutDashboard },
   { href: "/dashboard/check-in", label: "Check-in", icon: Flame },
-  { href: "/dashboard/habits", label: "Звички", icon: Target },
   { href: "/dashboard/workout", label: "В залі", icon: Play },
   { href: "/dashboard/sessions", label: "Мої тренування", icon: Calendar },
   { href: "/dashboard/training", label: "Програма", icon: Dumbbell },
@@ -23,9 +22,7 @@ const clientNav: Item[] = [
   { href: "/dashboard/supplements", label: "Добавки", icon: Pill },
   { href: "/dashboard/analytics", label: "Аналітика", icon: LineChart },
   { href: "/dashboard/photos", label: "Фото", icon: Camera },
-  { href: "/dashboard/achievements", label: "Досягнення", icon: Trophy },
   { href: "/dashboard/payments", label: "Оплати", icon: Wallet },
-  { href: "/dashboard/chat", label: "Чат", icon: MessageCircle },
   { href: "/dashboard/reviews", label: "Відгук", icon: Star },
 ];
 

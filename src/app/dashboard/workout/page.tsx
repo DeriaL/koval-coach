@@ -218,9 +218,6 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
               <h3 className="font-semibold text-sm flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-accent" /> Рекорди
               </h3>
-              <Link href="/dashboard/achievements" className="text-xs text-accent hover:underline flex items-center gap-0.5">
-                Усі <ChevronRight className="w-3 h-3" />
-              </Link>
             </div>
             <div className="space-y-2">
               {prSets.map((s) => (

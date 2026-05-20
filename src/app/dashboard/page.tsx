@@ -14,14 +14,12 @@ export default async function DashboardHome() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [checkIns, workoutSessions, achievements, reminders, measurements, client, habits, todayWorkouts, upcomingSessions] = await Promise.all([
+  const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true }, orderBy: { date: "desc" }, take: 30 }),
-    prisma.achievement.findMany({ where: { clientId: user.id }, orderBy: { earnedAt: "desc" }, take: 4 }),
     prisma.reminder.findMany({ where: { clientId: user.id, done: false, datetime: { gte: new Date(Date.now() - 86400000) } }, orderBy: { datetime: "asc" }, take: 5 }),
     prisma.measurement.findMany({ where: { clientId: user.id }, orderBy: { date: "asc" } }),
     prisma.user.findUnique({ where: { id: user.id } }),
-    prisma.habit.findMany({ where: { clientId: user.id, active: true }, include: { logs: { where: { date: today } } }, orderBy: { order: "asc" } }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, date: { gte: today } } }),
     prisma.workoutSession.findMany({
       where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
@@ -40,7 +38,6 @@ export default async function DashboardHome() {
   const delta = latestWeight && firstWeight ? latestWeight - firstWeight : 0;
 
   const todayCheckIn = checkIns.find(c => c.date >= today);
-  const habitsDone = habits.filter(h => h.logs.length > 0).length;
   const waterToday = todayCheckIn?.water ?? 0;
   const stepsToday = todayCheckIn?.steps ?? 0;
   const trainedToday = todayWorkouts.filter(w => w.completed).length > 0;
@@ -48,7 +45,6 @@ export default async function DashboardHome() {
   // daily rings
   const ringsData = [
     { label: "Check-in", value: todayCheckIn ? 1 : 0, max: 1, color: "#6366f1" },
-    { label: "Звички", value: habitsDone, max: Math.max(1, habits.length), color: "#3b82f6" },
     { label: "Вода", value: Math.min(3, waterToday), max: 3, color: "#60a5fa" },
     { label: "Кроки", value: Math.min(10000, stepsToday), max: 10000, color: "#f472b6" },
   ];
@@ -84,7 +80,7 @@ export default async function DashboardHome() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4">
         <QuickAction href="/dashboard/check-in" icon={Flame} title={todayCheckIn ? "Check-in ✓" : "Check-in"} done={!!todayCheckIn} />
         <QuickAction href="/dashboard/workout" icon={Play} title="В зал" accent />
-        <QuickAction href="/dashboard/habits" icon={Target} title={`Звички ${habitsDone}/${habits.length}`} done={habitsDone === habits.length && habits.length > 0} />
+        <QuickAction href="/dashboard/sessions" icon={Calendar} title="Тренування" />
         <QuickAction href="/dashboard/analytics" icon={TrendingDown} title={`${delta > 0 ? "+" : ""}${delta.toFixed(1)} кг`} />
       </div>
 
@@ -128,26 +124,6 @@ export default async function DashboardHome() {
                   <div className="text-xs text-muted">{formatDistanceToNow(r.datetime, { addSuffix: true, locale: uk })}</div>
                 </div>
                 <span className="chip text-xs">{r.type}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {achievements.length > 0 && (
-        <div className="card p-5 mt-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold flex items-center gap-2"><Trophy className="w-4 h-4 text-accent" /> Останні ачівки</h3>
-            <Link href="/dashboard/achievements" className="text-xs text-accent flex items-center gap-1">Усі <ArrowRight className="w-3 h-3" /></Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {achievements.map((a) => (
-              <div key={a.id} className="p-3 rounded-xl bg-surface border border-border">
-                <div className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center mb-2">
-                  <Trophy className="w-4 h-4" />
-                </div>
-                <div className="font-medium text-xs">{a.title}</div>
               </div>
             ))}
           </div>

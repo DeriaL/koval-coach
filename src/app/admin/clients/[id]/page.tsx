@@ -10,11 +10,8 @@ import { SupplementsTab } from "./sections/supplements";
 import { PaymentsTab } from "./sections/payments";
 import { AnalyticsTab } from "./sections/analytics";
 import { PhotosTab } from "./sections/photos";
-import { AchievementsTab } from "./sections/achievements";
 import { CheckInsTab } from "./sections/checkins";
 import { RemindersTab } from "./sections/reminders";
-import { ChatTab } from "./sections/chat";
-import { HabitsTab } from "./sections/habits";
 import { SessionsTab } from "./sections/sessions";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet, Star } from "lucide-react";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -31,23 +28,17 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       _count: { select: { sessions: { where: { AND: [{ OR: [{ completed: true }, { confirmedByTrainer: true }] }, { cancelledAt: null }] } } } },
       nutritionPlans: { orderBy: { updatedAt: "desc" } },
       trainingPlans: { orderBy: { updatedAt: "desc" }, include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } } },
-      habits: { include: { logs: true }, orderBy: { order: "asc" } },
       supplements: { orderBy: { createdAt: "desc" } },
       payments: { orderBy: { date: "desc" } },
       measurements: { orderBy: { date: "asc" } },
       photos: { orderBy: { date: "asc" }, take: 100 },
-      achievements: { orderBy: { earnedAt: "desc" } },
       checkIns: { orderBy: { date: "desc" }, take: 60 },
       reminders: { orderBy: { datetime: "asc" }, take: 50 },
-      messages: { orderBy: { createdAt: "desc" }, take: 200 },
       sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }], take: 60, include: { sets: { orderBy: { setIndex: "asc" } } } },
     },
   });
 
   if (!client || client.role !== "CLIENT") notFound();
-
-  // messages were fetched desc (last 200) — restore chronological order for the chat
-  client.messages.reverse();
 
   return (
     <div className="max-w-6xl">
@@ -134,12 +125,9 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "payments" && <PaymentsTab clientId={client.id} items={client.payments} />}
         {tab === "analytics" && <AnalyticsTab clientId={client.id} items={client.measurements} />}
         {tab === "photos" && <PhotosTab clientId={client.id} items={client.photos} />}
-        {tab === "achievements" && <AchievementsTab clientId={client.id} items={client.achievements} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
-        {tab === "habits" && <HabitsTab clientId={client.id} items={client.habits} />}
         {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} />}
         {tab === "reminders" && <RemindersTab clientId={client.id} items={client.reminders} />}
-        {tab === "chat" && <ChatTab clientId={client.id} initial={client.messages.map(m => ({ ...m, createdAt: m.createdAt.toISOString() }))} />}
       </div>
     </div>
   );

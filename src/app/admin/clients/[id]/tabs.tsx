@@ -8,16 +8,13 @@ const tabs = [
   { id: "profile", label: "Профіль", icon: User },
   { id: "sessions", label: "Тренування", icon: Calendar },
   { id: "checkins", label: "Check-ins", icon: Flame },
-  { id: "habits", label: "Звички", icon: Target },
   { id: "nutrition", label: "Харчування", icon: Apple },
   { id: "training", label: "Тренування", icon: Dumbbell },
   { id: "supplements", label: "Добавки", icon: Pill },
   { id: "analytics", label: "Аналітика", icon: LineChart },
   { id: "photos", label: "Фото", icon: Camera },
-  { id: "achievements", label: "Ачівки", icon: Trophy },
   { id: "payments", label: "Оплати", icon: Wallet },
   { id: "reminders", label: "Нагадування", icon: Bell },
-  { id: "chat", label: "Чат", icon: MessageCircle },
 ];
 
 export function Tabs({ active, id }: { active: string; id: string }) {

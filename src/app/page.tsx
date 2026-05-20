@@ -62,8 +62,7 @@ export default async function Home() {
     { t: "Добавки", d: "Що, коли і скільки. Без плутанини.", Icon: Pill, span: "col-span-1 lg:col-span-2" },
     { t: "Фото-прогрес", d: "Таймлайн до/після з повзунком порівняння.", Icon: Camera, span: "col-span-2 lg:col-span-2" },
     { t: "Щоденний звіт", d: "Сон, енергія, настрій — я бачу все.", Icon: Flame, span: "col-span-1 lg:col-span-2" },
-    { t: "Досягнення", d: "Серії, віхи ваги й нагороди для мотивації.", Icon: Trophy, span: "col-span-1 lg:col-span-2" },
-    { t: "Прямий чат", d: "Пиши мені напряму у своєму кабінеті.", Icon: MessageCircle, span: "col-span-2 lg:col-span-2" },
+    { t: "Нагадування", d: "Вчасні нагадування про тренування й заміри.", Icon: ShieldCheck, span: "col-span-1 lg:col-span-2" },
     { t: "Оплати", d: "Історія платежів і статус підписки.", Icon: Wallet, span: "col-span-2 lg:col-span-2" },
   ];
 
@@ -78,7 +77,7 @@ export default async function Home() {
     "Моніторинг аналізів",
     "Підбір добавок",
     "Щоденний звіт самопочуття",
-    "Чат і звіти",
+    "Зворотний звʼязок і звіти",
     "Фото-прогрес",
   ];
   const offlinePerks = [
