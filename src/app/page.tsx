@@ -321,7 +321,7 @@ export default async function Home() {
           <Reveal className="max-w-2xl">
             <span className="chip"><ShieldCheck className="w-3 h-3 text-accent" /> Тарифи</span>
             <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
-              Один формат — для тих, хто всюди.<br className="hidden sm:block" /> Інший — для тих, хто у {city.replace(/^м\.?\s*/i, "")}.
+              Один формат — для тих, хто всюди.<br className="hidden sm:block" /> Інший — для тих, хто у залі.
             </h2>
             <p className="text-muted mt-4 max-w-xl">Обери формат, що підходить твоєму ритму життя.</p>
           </Reveal>
