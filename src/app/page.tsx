@@ -52,7 +52,7 @@ export default async function Home() {
     { href: "#features", label: "Можливості" },
     { href: "#pricing", label: "Тарифи" },
     { href: "#reviews", label: "Відгуки" },
-    (cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) ? { href: "#contacts", label: "Контакти" } : null,
+    (cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) ? { href: "#contacts", label: "Контакти" } : null,
   ].filter(Boolean) as { href: string; label: string }[];
 
   const smallFeatures = [
@@ -464,7 +464,7 @@ export default async function Home() {
       </section>
 
       {/* ============ КОНТАКТИ (лише заповнені поля) ============ */}
-      {(cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) && (
+      {(cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) && (
         <section id="contacts" className="relative py-20 lg:py-24">
           <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
             <Reveal className="lg:col-span-5">
@@ -475,7 +475,6 @@ export default async function Home() {
               <p className="text-muted mt-3">Маєш питання? Пиши або дзвони — відповім швидко.</p>
             </Reveal>
             <Reveal delay={100} className="lg:col-span-7 grid sm:grid-cols-2 gap-4">
-              {cfg?.phone && <ContactCard href={`tel:${String(cfg.phone).replace(/\s/g, "")}`} Icon={Phone} k="Телефон" v={cfg.phone} />}
               {cfg?.email && <ContactCard href={`mailto:${cfg.email}`} Icon={Mail} k="Пошта" v={cfg.email} />}
               {cfg?.telegram && <ContactCard href={`https://t.me/${String(cfg.telegram).replace(/^@/, "")}`} Icon={Send} k="Telegram" v={cfg.telegram} />}
               {cfg?.instagram && <ContactCard href={`https://instagram.com/${String(cfg.instagram).replace(/^@/, "")}`} Icon={Instagram} k="Instagram" v={cfg.instagram} />}
