@@ -35,16 +35,19 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       supplements: { orderBy: { createdAt: "desc" } },
       payments: { orderBy: { date: "desc" } },
       measurements: { orderBy: { date: "asc" } },
-      photos: { orderBy: { date: "asc" } },
+      photos: { orderBy: { date: "asc" }, take: 100 },
       achievements: { orderBy: { earnedAt: "desc" } },
       checkIns: { orderBy: { date: "desc" }, take: 60 },
-      reminders: { orderBy: { datetime: "asc" } },
-      messages: { orderBy: { createdAt: "asc" } },
-      sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }], include: { sets: { orderBy: { setIndex: "asc" } } } },
+      reminders: { orderBy: { datetime: "asc" }, take: 50 },
+      messages: { orderBy: { createdAt: "desc" }, take: 200 },
+      sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }], take: 60, include: { sets: { orderBy: { setIndex: "asc" } } } },
     },
   });
 
   if (!client || client.role !== "CLIENT") notFound();
+
+  // messages were fetched desc (last 200) — restore chronological order for the chat
+  client.messages.reverse();
 
   return (
     <div className="max-w-6xl">
