@@ -33,10 +33,8 @@ export default async function Home() {
   // =======================
 
   const city = cfg?.city || "Львів";
-  // «Залишити заявку» / «Записатись» ведуть у Telegram
-  const tg = cfg?.telegram
-    ? `https://t.me/${String(cfg.telegram).replace(/^@/, "")}`
-    : "https://t.me/dmytro_kovalchuk_coach";
+  // «Залишити заявку» / «Записатись» ведуть прямо в Telegram тренера
+  const tg = "https://t.me/dmytro_kovalchuk_coach";
   const priceOnline = cfg?.priceOnline || "5 000";
   const priceOffline = cfg?.priceOffline || "5 000";
   const priceNote = cfg?.priceNote || "пакет 10 тренувань";
