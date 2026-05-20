@@ -51,7 +51,7 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // bottom-nav: 4 основних + Профіль (5 columns total)
+  // bottom-nav: 5 основних пунктів (5 columns total) — окремо для клієнта й тренера
   const bottomItems: Item[] = role === "CLIENT"
     ? [
         clientNav.find(i => i.href === "/dashboard")!,
@@ -62,7 +62,13 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
         // declare it inline so the 5th column always renders.
         { href: "/dashboard/profile", label: "Профіль", icon: User },
       ].filter(Boolean) as Item[]
-    : [adminNav[0]];
+    : [
+        adminNav.find(i => i.href === "/admin")!,            // Клієнти
+        adminNav.find(i => i.href === "/admin/activity")!,   // Активність
+        adminNav.find(i => i.href === "/admin/sessions")!,   // Тренування
+        adminNav.find(i => i.href === "/admin/finance")!,    // Фінанси
+        adminNav.find(i => i.href === "/admin/profile")!,    // Мій профіль
+      ].filter(Boolean) as Item[];
 
   const NavList = (
     <nav className="flex-1 space-y-1 overflow-y-auto stagger">
@@ -179,8 +185,8 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
         </div>
       )}
 
-      {/* Mobile bottom nav (тільки для клієнта) */}
-      {role === "CLIENT" && (
+      {/* Mobile bottom nav (клієнт і тренер) */}
+      {bottomItems.length > 0 && (
         <nav
           className="md:hidden fixed bottom-0 inset-x-0 bg-surface/85 backdrop-blur-md border-t border-border z-30 grid grid-cols-5"
           style={{
@@ -190,7 +196,7 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
           }}
         >
           {bottomItems.map((i) => {
-            const active = pathname === i.href;
+            const active = pathname === i.href || (i.href !== "/dashboard" && i.href !== "/admin" && pathname.startsWith(i.href));
             return (
               <Link
                 key={i.href}
