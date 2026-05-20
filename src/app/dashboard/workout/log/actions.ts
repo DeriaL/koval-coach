@@ -48,34 +48,39 @@ export async function logManualWorkout(data: {
     });
   }
 
-  const session = await prisma.workoutSession.create({
-    data: {
-      clientId,
-      title,
-      date: new Date(),
-      completed: true,
-      durationSec,
-      notes,
-      sets: setsCreate.length > 0 ? { create: setsCreate } : undefined,
-    },
-    include: { client: { select: { firstName: true, lastName: true } } },
-  });
+  try {
+    const session = await prisma.workoutSession.create({
+      data: {
+        clientId,
+        title,
+        date: new Date(),
+        completed: true,
+        durationSec,
+        notes,
+        sets: setsCreate.length > 0 ? { create: setsCreate } : undefined,
+      },
+      include: { client: { select: { firstName: true, lastName: true } } },
+    });
 
-  // Notify trainer(s) when CLIENT logs a manual session (so they know it happened).
-  if (u.role === "CLIENT") {
-    const total = setsCreate.length;
-    notifyAllTrainers(
-      `💪 <b>${session.client.firstName} ${session.client.lastName}</b> записав(ла) самостійне тренування\n` +
-      `«${title}»${durationSec ? ` · ${Math.round(durationSec/60)} хв` : ""}${total ? ` · ${total} підходів` : ""}`
-    ).catch(() => {});
+    // Notify trainer(s) when CLIENT logs a manual session (so they know it happened).
+    if (u.role === "CLIENT") {
+      const total = setsCreate.length;
+      notifyAllTrainers(
+        `💪 <b>${session.client.firstName} ${session.client.lastName}</b> записав(ла) самостійне тренування\n` +
+        `«${title}»${durationSec ? ` · ${Math.round(durationSec/60)} хв` : ""}${total ? ` · ${total} підходів` : ""}`
+      ).catch(() => {});
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/workout");
+    revalidatePath("/dashboard/sessions");
+    revalidatePath(`/admin/clients/${clientId}`);
+    revalidatePath("/admin/sessions");
+    revalidatePath("/admin/activity");
+
+    return { ok: true, id: session.id };
+  } catch (e: any) {
+    console.error("logManualWorkout error:", e);
+    return { ok: false, error: e?.message ?? "Помилка збереження в БД" };
   }
-
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/workout");
-  revalidatePath("/dashboard/sessions");
-  revalidatePath(`/admin/clients/${clientId}`);
-  revalidatePath("/admin/sessions");
-  revalidatePath("/admin/activity");
-
-  return { ok: true, id: session.id };
 }

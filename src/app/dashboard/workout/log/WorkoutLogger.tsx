@@ -137,7 +137,7 @@ export function WorkoutLogger({
             );
           }, 900);
         } else {
-          setErr("Не вдалось зберегти. Спробуй ще раз.");
+          setErr((res as any)?.error ?? "Не вдалось зберегти. Спробуй ще раз.");
         }
       } catch (e: any) {
         setErr(e?.message ?? "Не вдалось зберегти");
