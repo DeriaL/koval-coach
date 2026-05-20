@@ -25,7 +25,8 @@ function makeClient() {
 
 export const prisma = globalForPrisma.prisma ?? makeClient();
 
-// Cache the client on globalThis in ALL environments. On Vercel a warm
-// serverless instance reuses the same module scope, so this keeps the Neon
-// connection pool alive across invocations instead of reconnecting.
-globalForPrisma.prisma = prisma;
+// Only cache in dev. In production the Neon WebSocket pool must NOT be reused
+// across serverless invocations — a cached pool's WS connection drops on idle
+// and reusing it throws a server-side exception. Each cold start makes a fresh
+// client (module scope is per-instance anyway).
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
