@@ -44,23 +44,34 @@ html[data-theme="dark"] #app-splash{--bg:9 11 26;--text:233 235 245}
 @keyframes splash-bar{0%{left:-45%}100%{left:105%}}
 `;
 
-// Splash overlay shown immediately on first paint, fades out once the page is loaded.
+// Splash overlay shown immediately on first paint, fades out as soon as the
+// DOM is ready (NOT window.load — that waits for every image/asset, which made
+// heavy pages keep the splash up for seconds). Hard cap so it never lingers.
 // Lives outside React tree so React hydration doesn't strip/re-render it.
 const splashScript = `
 (function(){
   var start = Date.now();
-  var MIN_SHOW = 500;
+  var MIN_SHOW = 350;   // brief so the logo doesn't just flicker
+  var MAX_SHOW = 1500;  // hard cap — never hang longer than this
+  var done = false;
   function hide(){
+    if (done) return; done = true;
     var wait = Math.max(0, MIN_SHOW - (Date.now() - start));
     setTimeout(function(){
       var el = document.getElementById('app-splash');
       if (!el) return;
       el.classList.add('hide');
-      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 500);
+      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 450);
     }, wait);
   }
-  if (document.readyState === 'complete') hide();
-  else window.addEventListener('load', hide);
+  // Hide as soon as the document is interactive (DOM parsed) — don't wait for images
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    hide();
+  } else {
+    document.addEventListener('DOMContentLoaded', hide);
+  }
+  // Safety net: force-hide after MAX_SHOW no matter what
+  setTimeout(hide, MAX_SHOW);
 })();
 `;
 
