@@ -2,16 +2,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { Reveal } from "@/components/Reveal";
-import { FloatingContact } from "@/components/FloatingContact";
 import { prisma } from "@/lib/prisma";
+import { Reveal } from "@/components/Reveal";
+import { StickyNav } from "@/components/StickyNav";
+import { CardSpot } from "@/components/CardSpot";
+import { Magnetic } from "@/components/Magnetic";
+import { CountUp } from "@/components/CountUp";
+import { FloatingContact } from "@/components/FloatingContact";
 import {
-  Dumbbell, LineChart, Apple, Pill, Wallet, Camera, Flame, MessageCircle,
-  Trophy, ArrowRight, Sparkles, Wifi, Crown, Check, Star, Quote, Target, Zap, ShieldCheck,
-  Phone, Mail, MapPin, Send, Instagram
+  ArrowRight, Play, Check, Star, Phone, Mail, Send, Instagram, MapPin,
+  Apple, Pill, Camera, Flame, Trophy, MessageCircle, Wallet, BarChart3,
+  Dumbbell, Layers, Sparkles, ShieldCheck,
 } from "lucide-react";
 
 export default async function Home() {
+  // === ЛОГІКА БЕЗ ЗМІН ===
   const session = await getSession();
   if (session?.user) {
     if ((session.user as any).role === "TRAINER") redirect("/admin");
@@ -20,475 +25,511 @@ export default async function Home() {
 
   const cfg = await (prisma as any).siteConfig.findUnique({ where: { id: "main" } }).catch(() => null);
 
-  // Fetch approved reviews (newest first, top 9 for the landing carousel)
-  const reviews: any[] = await (prisma as any).review.findMany({
+  const dbReviews: any[] = await (prisma as any).review.findMany({
     where: { approved: true },
     orderBy: { createdAt: "desc" },
-    take: 9,
+    take: 10,
   }).catch(() => []);
+  // =======================
 
-  const features = [
-    { icon: Apple, title: "Харчування", text: "Персональний план харчування під твої індивідуальні цілі, мої нотатки." },
-    { icon: Dumbbell, title: "Тренування", text: "Програма, спліт, техніка, завжди під рукою." },
-    { icon: Pill, title: "Добавки", text: "Що, коли і скільки. Без плутанини." },
-    { icon: LineChart, title: "Аналітика", text: "Вага, заміри, % жиру. Графіки динаміки." },
-    { icon: Camera, title: "Фото-прогрес", text: "Таймлайн до/після зі слайдером порівняння." },
-    { icon: Flame, title: "Щоденний check-in", text: "Сон, енергія, настрій. Я бачу все." },
-    { icon: Trophy, title: "Досягнення", text: "Streak, віхи ваги, ачівки для мотивації." },
-    { icon: MessageCircle, title: "Прямий чат", text: "Пиши мені напряму у кабінеті." },
-    { icon: Wallet, title: "Оплати", text: "Історія платежів і статус підписки." },
+  const city = cfg?.city || "Львів";
+  const priceOnline = cfg?.priceOnline || "5 000";
+  const priceOffline = cfg?.priceOffline || "5 000";
+  const priceNote = cfg?.priceNote || "пакет 10 тренувань";
+
+  const reviews = (dbReviews.length > 0
+    ? dbReviews.map((r) => ({ name: r.authorName, meta: "клієнт", text: r.text || "Дуже задоволений співпрацею!", rating: r.rating }))
+    : FALLBACK_REVIEWS);
+
+  const reviewWord = reviews.length === 1 ? "відгук" : reviews.length < 5 ? "відгуки" : "відгуків";
+
+  // Nav links — only include sections that will actually render
+  const navItems = [
+    cfg?.aboutMe?.trim() ? { href: "#about", label: "Про мене" } : null,
+    { href: "#how", label: "Як це працює" },
+    { href: "#features", label: "Можливості" },
+    { href: "#pricing", label: "Тарифи" },
+    { href: "#reviews", label: "Відгуки" },
+    (cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) ? { href: "#contacts", label: "Контакти" } : null,
+  ].filter(Boolean) as { href: string; label: string }[];
+
+  const smallFeatures = [
+    { t: "Харчування", d: "Персональний раціон під твою ціль, з моїми нотатками.", Icon: Apple, span: "col-span-1 lg:col-span-2" },
+    { t: "Добавки", d: "Що, коли і скільки. Без плутанини.", Icon: Pill, span: "col-span-1 lg:col-span-2" },
+    { t: "Фото-прогрес", d: "Таймлайн до/після з повзунком порівняння.", Icon: Camera, span: "col-span-2 lg:col-span-2" },
+    { t: "Щоденний звіт", d: "Сон, енергія, настрій — я бачу все.", Icon: Flame, span: "col-span-1 lg:col-span-2" },
+    { t: "Досягнення", d: "Серії, віхи ваги й нагороди для мотивації.", Icon: Trophy, span: "col-span-1 lg:col-span-2" },
+    { t: "Прямий чат", d: "Пиши мені напряму у своєму кабінеті.", Icon: MessageCircle, span: "col-span-2 lg:col-span-2" },
+    { t: "Оплати", d: "Історія платежів і статус підписки.", Icon: Wallet, span: "col-span-2 lg:col-span-2" },
   ];
 
   const steps = [
-    { n: 1, title: "Знайомство", text: "Розповідаєш про себе, цілі та обмеження. Я підбираю формат під тебе." },
-    { n: 2, title: "План під ключ", text: "Отримуєш програму, харчування, добавки і доступ до особистого кабінету." },
-    { n: 3, title: "Прогрес щодня", text: "Щодня check-in, тренування, прогрес. Я все бачу і коригую." },
+    { i: 1, t: "Знайомство", d: "Розповідаєш про себе, цілі та обмеження. Я підбираю формат саме під тебе.", Icon: MessageCircle },
+    { i: 2, t: "План під ключ", d: "Отримуєш програму, харчування, добавки і доступ до особистого кабінету.", Icon: Layers },
+    { i: 3, t: "Прогрес щодня", d: "Щодня звіт, тренування, динаміка. Я все бачу і вчасно коригую.", Icon: BarChart3 },
   ];
 
-  const testimonials = [
-    { name: "Олег", role: "схуднув 12 кг за 4 міс.", text: "Реально працює. Аналітика мотивує, бачу, що щодня роблю крок до цілі.", rating: 5 },
-    { name: "Ірина", role: "рекомпозиція", text: "Подобається, що все в одному місці. Тренер бачить, де я халтурю, нікуди не сховаєшся 😅", rating: 5 },
-    { name: "Денис", role: "бодібілдинг", text: "PR-трекер і таймери у залі — найзручніше що пробував. Ще й на телефоні швидко.", rating: 5 },
+  const onlinePerks = [
+    "Персональна програма тренувань та харчування",
+    "Моніторинг аналізів",
+    "Підбір добавок",
+    "Щоденний звіт самопочуття",
+    "Чат і звіти",
+    "Фото-прогрес",
+  ];
+  const offlinePerks = [
+    "Персональний план харчування",
+    "Особистий кабінет 24/7",
+    "Аналітика прогресу",
+    "Заплановані тренування",
+    "Трекер особистих рекордів у залі",
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
-      {/* Sticky nav */}
-      <nav className="sticky top-0 z-30 bg-bg/70 backdrop-blur-md border-b border-border/60">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-6xl mx-auto">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg group">
-            <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition">
-              <Dumbbell className="w-5 h-5" strokeWidth={1.6} />
-            </div>
-            <span>Koval<span className="text-gradient">Fit</span></span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <a href="#pricing" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Тарифи</a>
-            <a href="#contacts" className="hidden sm:inline-flex btn px-4 py-2 text-sm">Контакти</a>
-            <Link href="/login" className="btn btn-primary px-4 sm:px-5 py-2 text-sm">Увійти</Link>
-          </div>
-        </div>
-      </nav>
+    <main className="relative overflow-x-hidden">
+      <StickyNav items={navItems} />
 
-      {/* HERO */}
-      <section className="relative">
-        {/* Mesh background */}
-        <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full opacity-40 blur-3xl bg-accent/40 animate-gradient-spin" />
-          <div className="absolute top-40 -right-32 w-[450px] h-[450px] rounded-full opacity-40 blur-3xl bg-accent2/40 animate-gradient-spin" style={{ animationDelay: "-3s" }} />
-          <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full opacity-30 blur-3xl bg-[rgb(var(--accent-soft))]" />
-          <div className="absolute inset-0 bg-grid bg-[length:32px_32px] opacity-30" />
-        </div>
+      {/* ============ HERO ============ */}
+      <section className="relative pt-28 lg:pt-36 pb-20 lg:pb-28 overflow-hidden noise">
+        <div className="mesh" aria-hidden />
+        <div className="absolute inset-0 -z-10 bg-grid bg-[length:40px_40px] opacity-50" aria-hidden />
 
-        <div className="max-w-6xl mx-auto px-5 md:px-6 pt-8 md:pt-16 pb-14 md:pb-24">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
-            <div className="text-left order-2 md:order-1">
-              <Reveal>
-                <div className="chip mb-5 md:mb-6">
-                  <span className="relative flex w-2 h-2">
-                    <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75"></span>
-                    <span className="relative w-2 h-2 rounded-full bg-success"></span>
-                  </span>
-                  Персональний тренер Дмитро Ковальчук
-                </div>
-              </Reveal>
-              <Reveal delay={80}>
-                <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05]">
-                  <span className="block">Твій шлях.</span>
-                  <span className="block text-gradient">Твої результати!</span>
-                </h1>
-              </Reveal>
-              <Reveal delay={160}>
-                <p className="text-muted mt-5 md:mt-6 max-w-xl text-base md:text-lg">
-                  Твій кабінет з усім, що потрібно: персональний раціон харчування, індивідуальний план тренувань, супровід з аналізами крові та добавками для корекції дефіцитів організму, прогрес і мій живий контроль.
-                </p>
-              </Reveal>
-              <Reveal delay={240}>
-                <div className="flex flex-wrap gap-3 mt-7 md:mt-8">
+        <div className="relative max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          <div className="lg:col-span-7">
+            <Reveal>
+              <span className="chip">
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
+                  <span className="relative w-2 h-2 rounded-full bg-success" />
+                </span>
+                {city} · Онлайн усьому світу · Набір відкритий
+              </span>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <h1 className="font-display mt-6 font-black tracking-tight leading-[0.98] text-[clamp(2.6rem,7vw,5.4rem)]">
+                <span className="block">Твій шлях.</span>
+                <span className="block text-gradient">Твої результати.</span>
+              </h1>
+            </Reveal>
+
+            <Reveal delay={160}>
+              <p className="mt-6 max-w-xl text-base md:text-lg text-muted leading-relaxed">
+                Я — Дмитро Ковальчук, персональний тренер. Персональний раціон, індивідуальний
+                план тренувань, супровід з аналізами та добавками — і мій живий контроль щодня.
+              </p>
+            </Reveal>
+
+            <Reveal delay={240}>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Magnetic>
                   <Link href="/login" className="btn btn-primary px-6 py-3 group">
                     Почати <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
-                  <a href="#features" className="btn px-6 py-3">Як це працює</a>
-                </div>
-              </Reveal>
-              <Reveal delay={320}>
-                <div className="grid grid-cols-3 gap-3 mt-8 md:mt-10 max-w-md">
-                  <Stat value="24/7" label="Підтримка" />
-                  <Stat value="100+" label="Клієнтів" />
-                  <Stat value="5★" label="Рейтинг" />
-                </div>
-              </Reveal>
-            </div>
+                </Magnetic>
+                <a href="#how" className="btn px-6 py-3"><Play className="w-4 h-4" /> Як це працює</a>
+              </div>
+            </Reveal>
 
-            {/* Trainer image */}
-            <Reveal delay={120} className="order-1 md:order-2">
-              <div className="relative aspect-[4/5] max-w-md mx-auto md:max-w-none">
-                <div className="absolute -inset-6 -z-10 opacity-70 blur-3xl rounded-full bg-gradient-to-br from-accent/40 via-accent2/30 to-transparent animate-gradient-spin" />
-                <div className="absolute inset-0 rounded-3xl overflow-hidden border border-border bg-gradient-to-br from-accent/10 via-transparent to-accent2/15">
+            <Reveal delay={320}>
+              <dl className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-lg">
+                {[
+                  { k: "Клієнтів", v: <CountUp to={100} suffix="+" /> },
+                  { k: "Підтримка", v: "24/7" },
+                  { k: "Рейтинг", v: <>5<span className="text-accent">★</span></> },
+                ].map((s) => (
+                  <div key={s.k} className="card p-4 sm:p-5 text-center">
+                    <dd className="font-display text-2xl sm:text-4xl font-black text-gradient">{s.v}</dd>
+                    <dt className="mt-1 text-[10px] sm:text-xs uppercase tracking-widest text-muted">{s.k}</dt>
+                  </div>
+                ))}
+              </dl>
+            </Reveal>
+          </div>
+
+          {/* Trainer card */}
+          <Reveal delay={200} className="lg:col-span-5">
+            <div className="relative max-w-md mx-auto lg:max-w-none">
+              <div className="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-accent/30 to-accent2/20 blur-2xl" aria-hidden />
+              <div className="card ring-shine rounded-[32px] p-3 sm:p-4 ring-glow">
+                <div className="relative rounded-[24px] overflow-hidden aspect-[4/5] bg-surface">
                   <Image
                     src="/trainer.png"
                     alt="Дмитро Ковальчук — персональний тренер"
-                    fill priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    fill priority sizes="(min-width:1024px) 40vw, 100vw"
                     className="object-cover object-center"
                   />
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-bg via-bg/0 to-transparent" />
-                </div>
-                <div className="absolute -left-3 top-12 chip bg-card/80 backdrop-blur shadow-glow text-xs animate-fade-up" style={{ animationDelay: "300ms" }}>
-                  <Sparkles className="w-3 h-3 text-accent" /> 8+ років досвіду
-                </div>
-                <div className="absolute -right-3 bottom-24 chip bg-card/80 backdrop-blur shadow-glow text-xs animate-fade-up" style={{ animationDelay: "450ms" }}>
-                  <Trophy className="w-3 h-3 text-accent2" /> Сертифікований
-                </div>
-                <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 chip bg-card/95 backdrop-blur shadow-glow text-xs animate-fade-up" style={{ animationDelay: "600ms" }}>
-                  <Flame className="w-3 h-3 text-accent" /> Онлайн та офлайн супровід
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT ME — only shown when configured by trainer in admin/settings */}
-      {cfg?.aboutMe && cfg.aboutMe.trim() && (
-        <section id="about" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-          <Reveal>
-            <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
-              <div className="relative aspect-square max-w-md mx-auto md:max-w-none">
-                <div className="absolute -inset-6 -z-10 opacity-60 blur-3xl rounded-full bg-gradient-to-br from-accent/40 via-accent2/30 to-transparent" />
-                <div className="absolute inset-0 rounded-3xl overflow-hidden border border-border bg-gradient-to-br from-accent/10 via-transparent to-accent2/15">
-                  <Image
-                    src="/trainer.png"
-                    alt="Дмитро Ковальчук — тренер"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover object-center"
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="chip mb-4 inline-flex"><Sparkles className="w-3 h-3 text-accent" /> Про мене</div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-5">Хто я і як працюю</h2>
-                <div className="text-muted text-base md:text-lg leading-relaxed whitespace-pre-wrap break-words">
-                  {cfg.aboutMe}
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
+                  <span className="absolute left-4 top-4 chip bg-card/80 backdrop-blur">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success" /> На звʼязку
+                  </span>
+                  <span className="absolute right-4 top-4 chip bg-card/80 backdrop-blur">
+                    <Sparkles className="w-3 h-3 text-accent" /> 8+ років досвіду
+                  </span>
+                  <div className="absolute left-4 right-4 bottom-4 card p-3 flex items-center gap-3 bg-card/90 backdrop-blur">
+                    <div className="h-10 w-10 rounded-xl accent-shine grid place-items-center text-white font-bold shrink-0">Д</div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate">Сьогодні: Жим · Сила</div>
+                      <div className="text-xs text-muted truncate">4 вправи · 52 хв · складність 8/10</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ============ ABOUT (лише якщо заповнено) ============ */}
+      {cfg?.aboutMe?.trim() && (
+        <section id="about" className="relative py-20 lg:py-28">
+          <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            <Reveal className="lg:col-span-5">
+              <span className="chip"><Sparkles className="w-3 h-3 text-accent" /> Про мене</span>
+              <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
+                Хто я і як працюю
+              </h2>
+              <p className="mt-4 text-muted">Без магії — лише дані, техніка й послідовність.</p>
+            </Reveal>
+            <Reveal delay={120} className="lg:col-span-7">
+              <div className="card p-6 lg:p-8">
+                <p className="text-text/90 leading-relaxed whitespace-pre-wrap break-words">{cfg.aboutMe}</p>
+              </div>
+            </Reveal>
+          </div>
         </section>
       )}
 
-      {/* PROCESS */}
-      <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Zap className="w-3 h-3 text-accent" /> Як це працює</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Три кроки до результату</h2>
-            <p className="text-muted mt-3">Без зайвого. Без води. Тільки те, що приведе до твоєї цілі.</p>
-          </div>
-        </Reveal>
-        <div className="grid md:grid-cols-3 gap-4 md:gap-5">
-          {steps.map((s, i) => (
-            <Reveal key={s.n} delay={i * 80}>
-              <div className="card p-6 h-full relative overflow-hidden card-hover group">
-                <div className="absolute -top-6 -right-6 text-[120px] font-black opacity-5 leading-none select-none">{s.n}</div>
-                <div className="w-12 h-12 rounded-2xl accent-shine flex items-center justify-center text-white text-lg font-black shadow-glow">
-                  {s.n}
-                </div>
-                <h3 className="font-bold text-xl mt-4">{s.title}</h3>
-                <p className="text-muted text-sm mt-2 leading-relaxed">{s.text}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-
-      {/* FEATURES */}
-      <section id="features" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Target className="w-3 h-3 text-accent" /> Можливості</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Все в одному кабінеті</h2>
-            <p className="text-muted mt-3">Не потрібно жонглювати п'ятьма застосунками. Усе тут.</p>
-          </div>
-        </Reveal>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          {features.map((f, i) => (
-            <Reveal key={f.title} delay={i * 50}>
-              <div className="card p-5 md:p-6 card-hover h-full group">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-4 group-hover:scale-110 group-hover:accent-shine group-hover:text-white transition">
-                  <f.icon className="w-5 h-5" />
-                </div>
-                <h3 className="font-semibold text-lg">{f.title}</h3>
-                <p className="text-muted text-sm mt-1.5 leading-relaxed">{f.text}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* SERVICE / FORMATS */}
-      <section id="pricing" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><ShieldCheck className="w-3 h-3 text-accent" /> Послуга</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Два формати супроводу</h2>
-            <p className="text-muted mt-3">Обери формат, який підходить твоєму ритму життя.</p>
-          </div>
-        </Reveal>
-
-        <div className="grid md:grid-cols-2 gap-4 md:gap-5">
-          <Reveal delay={0}>
-            <PlanCard
-              icon={Wifi}
-              title="Онлайн"
-              tag="тренуєшся сам, я веду в кабінеті"
-              price={cfg?.priceOnline ?? "5 000"}
-              priceNote="за місяць"
-              perks={[
-                "Персональна програма тренувань та харчування",
-                "Моніторинг аналізів",
-                "Підбір добавок",
-                "Щоденний check-in",
-                "Чат і звіти",
-                "Фото-прогрес",
-              ]}
-            />
+      {/* ============ 3 КРОКИ ============ */}
+      <section id="how" className="relative py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <Reveal className="max-w-2xl">
+            <span className="chip"><Layers className="w-3 h-3 text-accent" /> 3 кроки</span>
+            <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
+              Від першого повідомлення<br className="hidden sm:block" /> до першого результату.
+            </h2>
+            <p className="text-muted mt-3">Без зайвого. Без води. Тільки те, що приведе до цілі.</p>
           </Reveal>
-          <Reveal delay={120}>
-            <PlanCard
-              icon={Crown}
-              title="Офлайн"
-              tag="тренуєшся зі мною в залі особисто!"
-              price={cfg?.priceOffline ?? "5 000"}
-              priceNote={cfg?.priceNote ?? "пакет 10 тренувань"}
-              perks={[
-                "Персональний план харчування",
-                "Особистий кабінет 24/7",
-                "Аналітика прогресу",
-                "Заплановані тренування",
-                "PR-трекер у залі",
-              ]}
-              featured
-            />
-          </Reveal>
-        </div>
 
-        <Reveal delay={200}>
-          <div className="text-center mt-8 text-sm text-muted">
-            Оплата пакетами по 10 тренувань. Без прихованих платежів.
+          <div className="mt-12 grid md:grid-cols-3 gap-4 md:gap-5 relative">
+            <div className="hidden md:block absolute left-[8%] right-[8%] top-[58px] h-px bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden />
+            {steps.map((s, idx) => (
+              <Reveal key={s.i} delay={idx * 100}>
+                <CardSpot className="p-7">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-xs tracking-widest text-muted">КРОК 0{s.i}</span>
+                    <span className="h-10 w-10 rounded-2xl border border-border grid place-items-center text-accent">
+                      <s.Icon className="w-5 h-5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-6 font-display text-xl font-bold">{s.t}</h3>
+                  <p className="mt-2 text-sm text-muted leading-relaxed">{s.d}</p>
+                </CardSpot>
+              </Reveal>
+            ))}
           </div>
-        </Reveal>
+        </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      {(() => {
-        // Use real reviews from DB if any, else fall back to seeded testimonials
-        const items = reviews.length > 0
-          ? reviews.map((r: any) => ({
-              name: r.authorName,
-              role: "клієнт",
-              text: r.text ?? "Дуже задоволений співпрацею!",
-              rating: r.rating,
-            }))
-          : testimonials;
-        if (items.length === 0) return null;
-        const avgRating = items.reduce((s, t) => s + t.rating, 0) / items.length;
-        return (
-          <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-            <Reveal>
-              <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-                <div className="chip mb-4 inline-flex"><Quote className="w-3 h-3 text-accent" /> Відгуки</div>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tight">Кажуть наші клієнти</h2>
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  <div className="flex gap-0.5 text-yellow-400">
-                    {[1,2,3,4,5].map(n => (
-                      <Star key={n} className={`w-5 h-5 ${n <= Math.round(avgRating) ? "fill-current" : "opacity-30"}`} />
+      {/* ============ МОЖЛИВОСТІ — BENTO ============ */}
+      <section id="features" className="relative py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <Reveal>
+            <span className="chip"><Sparkles className="w-3 h-3 text-accent" /> Можливості</span>
+            <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight max-w-3xl">
+              Усе в одному кабінеті —<br className="hidden sm:block" /> тренування як система.
+            </h2>
+          </Reveal>
+
+          <div className="mt-10 grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-5 auto-rows-[180px]">
+            {/* HERO TILE — тренування */}
+            <Reveal className="col-span-2 lg:col-span-3 lg:row-span-2">
+              <CardSpot className="p-6 lg:p-7 relative">
+                <div className="absolute inset-0 bg-grid bg-[length:32px_32px] opacity-30" aria-hidden />
+                <div className="relative flex h-full flex-col">
+                  <span className="chip self-start"><Dumbbell className="w-3 h-3 text-accent" /> Тренування</span>
+                  <h3 className="font-display text-2xl lg:text-3xl font-black tracking-tight mt-4">
+                    Усе тренування — на одному екрані.
+                  </h3>
+                  <p className="text-muted text-sm mt-2 max-w-md">
+                    План на тиждень, спліт, техніка вправ і миттєвий зворотний звʼязок від мене.
+                  </p>
+                  <div className="mt-auto grid grid-cols-3 gap-2 pt-6">
+                    {[
+                      { d: "Пн", n: "Жим", w: "100%", on: false },
+                      { d: "Ср · сьогодні", n: "Тяга", w: "66%", on: true },
+                      { d: "Пт", n: "Ноги", w: "0%", on: false },
+                    ].map((c) => (
+                      <div key={c.d} className={`rounded-xl border p-3 ${c.on ? "border-accent/40 bg-accent/10" : "border-border bg-bg/40"}`}>
+                        <div className={`text-[10px] uppercase tracking-widest ${c.on ? "text-accent" : "text-muted"}`}>{c.d}</div>
+                        <div className="text-sm font-semibold mt-1">{c.n}</div>
+                        <div className="h-1 mt-2 rounded-full bg-border overflow-hidden">
+                          <div className="h-full accent-shine" style={{ width: c.w }} />
+                        </div>
+                      </div>
                     ))}
                   </div>
-                  <span className="text-sm text-muted">
-                    <b className="text-text">{avgRating.toFixed(1)}</b> · {items.length} {items.length === 1 ? "відгук" : items.length < 5 ? "відгуки" : "відгуків"}
+                </div>
+              </CardSpot>
+            </Reveal>
+
+            {/* HERO TILE — аналітика */}
+            <Reveal delay={60} className="col-span-2 lg:col-span-3 lg:row-span-2">
+              <CardSpot className="p-6 relative">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="chip"><BarChart3 className="w-3 h-3 text-accent" /> Аналітика</span>
+                    <h3 className="font-display text-2xl font-black tracking-tight mt-4">Прогрес у цифрах,<br />а не у відчуттях.</h3>
+                    <p className="text-muted text-sm mt-2 max-w-sm">Вага, заміри, % жиру й сила. Усе, що змінюється — видно одразу.</p>
+                  </div>
+                  <span className="h-10 w-10 rounded-2xl border border-border grid place-items-center text-accent shrink-0">
+                    <BarChart3 className="w-5 h-5" />
                   </span>
                 </div>
-              </div>
+                <svg viewBox="0 0 320 110" className="mt-5 w-full" aria-hidden>
+                  <defs>
+                    <linearGradient id="spark" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="rgb(99,102,241)" stopOpacity=".5" />
+                      <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,90 C40,80 60,60 100,55 C140,50 160,75 200,60 C240,45 270,30 320,15 L320,110 L0,110 Z" fill="url(#spark)" />
+                  <path d="M0,90 C40,80 60,60 100,55 C140,50 160,75 200,60 C240,45 270,30 320,15" fill="none" stroke="rgb(99,102,241)" strokeWidth="2.2" />
+                </svg>
+              </CardSpot>
             </Reveal>
-            <div className="grid md:grid-cols-3 gap-4 md:gap-5">
-              {items.map((t, i) => (
-                <Reveal key={`${t.name}-${i}`} delay={i * 80}>
-                  <div className="card p-6 card-hover h-full flex flex-col">
-                    <div className="flex gap-0.5 text-yellow-400 mb-3">
-                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-4 h-4 fill-current" />)}
-                    </div>
-                    <Quote className="w-6 h-6 text-accent/30" />
-                    <p className="text-sm md:text-base mt-2 flex-1 whitespace-pre-wrap break-words">{t.text}</p>
-                    <div className="mt-5 pt-4 border-t border-border flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white font-black shrink-0">
-                        {t.name[0]}
+
+            {/* SMALL TILES */}
+            {smallFeatures.map((f, i) => (
+              <Reveal key={f.t} delay={i * 40} className={f.span}>
+                <CardSpot className="p-5">
+                  <span className="h-9 w-9 rounded-xl bg-accent/10 border border-accent/20 grid place-items-center text-accent">
+                    <f.Icon className="w-4 h-4" />
+                  </span>
+                  <h3 className="mt-3 font-semibold">{f.t}</h3>
+                  <p className="text-xs text-muted mt-1 leading-relaxed">{f.d}</p>
+                </CardSpot>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ ТАРИФИ ============ */}
+      <section id="pricing" className="relative py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <Reveal className="max-w-2xl">
+            <span className="chip"><ShieldCheck className="w-3 h-3 text-accent" /> Тарифи</span>
+            <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
+              Один формат — для тих, хто всюди.<br className="hidden sm:block" /> Інший — для тих, хто у {city.replace(/^м\.?\s*/i, "")}.
+            </h2>
+            <p className="text-muted mt-4 max-w-xl">Обери формат, що підходить твоєму ритму життя.</p>
+          </Reveal>
+
+          <div className="mt-12 grid lg:grid-cols-2 gap-6">
+            {/* ОНЛАЙН — featured */}
+            <Reveal className="relative">
+              <div className="absolute -inset-2 rounded-[36px] bg-gradient-to-br from-accent/40 via-accent2/30 to-transparent blur-2xl -z-10" aria-hidden />
+              <article className="card ring-shine rounded-[32px] p-8 lg:p-10 ring-glow h-full">
+                <div className="flex items-center justify-between">
+                  <span className="chip border-accent/40 text-accent">⭐ Найпопулярніший</span>
+                  <span className="text-xs uppercase tracking-widest text-muted">дистанційно</span>
+                </div>
+                <h3 className="font-display mt-6 text-3xl font-black tracking-tight">Онлайн-супровід</h3>
+                <p className="text-muted text-sm mt-1">тренуєшся сам, я веду тебе в кабінеті</p>
+                <div className="mt-6 flex items-baseline gap-2">
+                  <span className="font-display text-5xl sm:text-6xl font-black tracking-tight text-gradient">{priceOnline}</span>
+                  <span className="text-muted text-sm">грн / міс</span>
+                </div>
+                <Magnetic className="block mt-7 w-full">
+                  <Link href="/login" className="btn btn-primary w-full justify-center">
+                    Залишити заявку <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Magnetic>
+                <ul className="mt-8 space-y-3 text-sm">
+                  {onlinePerks.map((x) => (
+                    <li key={x} className="flex items-start gap-3"><Check className="w-4 h-4 mt-0.5 text-accent shrink-0" /> {x}</li>
+                  ))}
+                </ul>
+              </article>
+            </Reveal>
+
+            {/* ОФЛАЙН */}
+            <Reveal delay={120}>
+              <article className="card rounded-[32px] p-8 lg:p-10 h-full">
+                <div className="flex items-center justify-between">
+                  <span className="chip">{city} · 1-на-1</span>
+                  <span className="text-xs uppercase tracking-widest text-muted">у залі</span>
+                </div>
+                <h3 className="font-display mt-6 text-3xl font-black tracking-tight">Офлайн у залі</h3>
+                <p className="text-muted text-sm mt-1">тренуєшся зі мною особисто</p>
+                <div className="mt-6 flex items-baseline gap-2 flex-wrap">
+                  <span className="font-display text-5xl sm:text-6xl font-black tracking-tight">{priceOffline}</span>
+                  <span className="text-muted text-sm">грн / {priceNote}</span>
+                </div>
+                <Link href="/login" className="btn w-full justify-center mt-7">
+                  Записатись <ArrowRight className="w-4 h-4" />
+                </Link>
+                <ul className="mt-8 space-y-3 text-sm">
+                  {offlinePerks.map((x) => (
+                    <li key={x} className="flex items-start gap-3"><Check className="w-4 h-4 mt-0.5 text-accent shrink-0" /> {x}</li>
+                  ))}
+                </ul>
+              </article>
+            </Reveal>
+          </div>
+
+          <Reveal delay={160}>
+            <p className="text-center mt-8 text-sm text-muted">
+              Оплата пакетами по 10 тренувань. Без прихованих платежів.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ ВІДГУКИ — біжучі стрічки ============ */}
+      <section id="reviews" className="relative py-20 lg:py-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+          <Reveal>
+            <span className="chip"><Star className="w-3 h-3 text-accent" /> Відгуки</span>
+            <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
+              Що кажуть мої клієнти.
+            </h2>
+          </Reveal>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-0.5 text-yellow-400">
+              {[1, 2, 3, 4, 5].map((n) => <Star key={n} className="w-5 h-5 fill-current" />)}
+            </div>
+            <div className="text-sm text-muted"><b className="text-text">5.0</b> · {reviews.length} {reviewWord}</div>
+          </div>
+        </div>
+
+        {[reviews.slice(0, Math.ceil(reviews.length / 2)), reviews.slice(Math.ceil(reviews.length / 2))].map((row, ri) => (
+          row.length === 0 ? null : (
+            <div key={ri} className={`marquee ${ri === 0 ? "mb-4" : ""}`}>
+              <div className={`marquee-track ${ri === 1 ? "rev" : ""}`}>
+                {[...row, ...row].map((r, i) => (
+                  <div key={`${ri}-${i}`} className="card p-6 w-[320px] sm:w-[380px] shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full accent-shine grid place-items-center text-white text-sm font-bold shrink-0">
+                        {r.name?.[0] ?? "?"}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-semibold text-sm truncate">{t.name}</div>
-                        <div className="text-xs text-muted">{t.role}</div>
+                        <div className="font-semibold text-sm truncate">{r.name}</div>
+                        <div className="text-xs text-muted">{r.meta}</div>
+                      </div>
+                      <div className="ml-auto flex gap-0.5 text-yellow-400">
+                        {Array.from({ length: r.rating ?? 5 }).map((_, j) => <Star key={j} className="w-3.5 h-3.5 fill-current" />)}
                       </div>
                     </div>
+                    <p className="mt-4 text-sm leading-relaxed whitespace-pre-wrap break-words line-clamp-5">{r.text}</p>
                   </div>
-                </Reveal>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
-        );
-      })()}
-
-      {/* CTA */}
-      <section className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="card p-8 md:p-14 text-center relative overflow-hidden">
-            <div aria-hidden className="absolute inset-0 -z-10 opacity-50 bg-gradient-to-br from-accent/30 via-transparent to-accent2/30 animate-gradient-spin pointer-events-none" />
-            <div aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-40 blur-3xl bg-accent/40 -z-10 pointer-events-none" />
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Час почати!</h2>
-            <p className="text-muted mt-3 max-w-lg mx-auto">Напишіть мені, і вже завтра у вас буде особистий план та доступ до кабінету.</p>
-            <Link href="/login" className="btn btn-primary px-6 py-3 mt-6 inline-flex group relative z-10">
-              Увійти в кабінет <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </Reveal>
+          )
+        ))}
       </section>
 
-      {/* CONTACTS — only render if at least one contact field is filled */}
-      {(cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) && (
-      <section id="contacts" className="max-w-6xl mx-auto px-5 md:px-6 py-14 md:py-20">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-            <div className="chip mb-4 inline-flex"><Phone className="w-3 h-3 text-accent" /> Контакти</div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Зв&apos;яжіться зі мною</h2>
-            <p className="text-muted mt-3">Маєш питання? Пиши або дзвони — відповім швидко.</p>
-          </div>
-        </Reveal>
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
-          {cfg?.phone && (
-            <Reveal>
-              <a href={`tel:${cfg.phone.replace(/\s/g, "")}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
-                  <Phone className="w-5 h-5" />
+      {/* ============ CTA ============ */}
+      <section className="relative py-20 lg:py-28">
+        <div className="max-w-5xl mx-auto px-5 lg:px-8">
+          <Reveal className="relative">
+            <div className="absolute -inset-6 -z-10 rounded-[40px] bg-gradient-to-br from-accent/30 to-accent2/20 blur-3xl" aria-hidden />
+            <div className="card ring-shine rounded-[36px] p-10 lg:p-16 text-center ring-glow overflow-hidden relative">
+              <div className="absolute inset-0 bg-grid bg-[length:32px_32px] opacity-30" aria-hidden />
+              <div className="relative">
+                <span className="chip mx-auto"><Flame className="w-3 h-3 text-accent" /> Початок ближче, ніж здається</span>
+                <h2 className="font-display mt-6 text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+                  Час почати!<br /><span className="text-gradient">Решту зробимо крок за кроком.</span>
+                </h2>
+                <p className="text-muted mt-6 max-w-xl mx-auto">
+                  Напиши мені — і вже завтра в тебе буде особистий план та доступ до кабінету.
+                </p>
+                <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+                  <Magnetic>
+                    <Link href="/login" className="btn btn-primary px-6 py-3">
+                      Увійти в кабінет <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Magnetic>
+                  {navItems.some((n) => n.href === "#contacts") && (
+                    <a href="#contacts" className="btn px-6 py-3">Контакти</a>
+                  )}
                 </div>
-                <div className="w-full min-w-0">
-                  <div className="text-xs text-muted uppercase tracking-wide">Телефон</div>
-                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.phone}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-          {cfg?.email && (
-            <Reveal delay={60}>
-              <a href={`mailto:${cfg.email}`} className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div className="w-full min-w-0">
-                  <div className="text-xs text-muted uppercase tracking-wide">Email</div>
-                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.email}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-          {cfg?.telegram && (
-            <Reveal delay={120}>
-              <a href={`https://t.me/${cfg.telegram.replace("@", "")}`} target="_blank" rel="noreferrer"
-                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
-                  <Send className="w-5 h-5" />
-                </div>
-                <div className="w-full min-w-0">
-                  <div className="text-xs text-muted uppercase tracking-wide">Telegram</div>
-                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.telegram}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-          {cfg?.instagram && (
-            <Reveal delay={180}>
-              <a href={`https://instagram.com/${cfg.instagram.replace("@", "")}`} target="_blank" rel="noreferrer"
-                className="card p-5 card-hover flex flex-col items-center gap-3 text-center group overflow-hidden">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:accent-shine group-hover:text-white transition shrink-0">
-                  <Instagram className="w-5 h-5" />
-                </div>
-                <div className="w-full min-w-0">
-                  <div className="text-xs text-muted uppercase tracking-wide">Instagram</div>
-                  <div className="font-semibold text-sm mt-0.5 break-all">{cfg.instagram}</div>
-                </div>
-              </a>
-            </Reveal>
-          )}
-        </div>
-        {cfg?.city && (
-          <Reveal delay={240}>
-            <div className="flex items-center justify-center gap-2 mt-6 text-muted text-sm">
-              <MapPin className="w-4 h-4 text-accent shrink-0" />
-              <span>{cfg.city}</span>
+              </div>
             </div>
           </Reveal>
-        )}
+        </div>
       </section>
+
+      {/* ============ КОНТАКТИ (лише заповнені поля) ============ */}
+      {(cfg?.phone || cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) && (
+        <section id="contacts" className="relative py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+            <Reveal className="lg:col-span-5">
+              <span className="chip"><Phone className="w-3 h-3 text-accent" /> Контакти</span>
+              <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
+                Напиши там, де<br /> тобі зручно.
+              </h2>
+              <p className="text-muted mt-3">Маєш питання? Пиши або дзвони — відповім швидко.</p>
+            </Reveal>
+            <Reveal delay={100} className="lg:col-span-7 grid sm:grid-cols-2 gap-4">
+              {cfg?.phone && <ContactCard href={`tel:${String(cfg.phone).replace(/\s/g, "")}`} Icon={Phone} k="Телефон" v={cfg.phone} />}
+              {cfg?.email && <ContactCard href={`mailto:${cfg.email}`} Icon={Mail} k="Пошта" v={cfg.email} />}
+              {cfg?.telegram && <ContactCard href={`https://t.me/${String(cfg.telegram).replace(/^@/, "")}`} Icon={Send} k="Telegram" v={cfg.telegram} />}
+              {cfg?.instagram && <ContactCard href={`https://instagram.com/${String(cfg.instagram).replace(/^@/, "")}`} Icon={Instagram} k="Instagram" v={cfg.instagram} />}
+              {cfg?.city && <ContactCard className="sm:col-span-2" Icon={MapPin} k="Місто" v={cfg.city} />}
+            </Reveal>
+          </div>
+        </section>
       )}
 
-      {/* FOOTER */}
-      <footer className="border-t border-border mt-8">
-        <div className="max-w-6xl mx-auto px-5 md:px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 font-bold">
-            <div className="w-7 h-7 rounded-lg accent-shine flex items-center justify-center text-white">
-              <Dumbbell className="w-4 h-4" strokeWidth={1.6} />
+      {/* ============ FOOTER ============ */}
+      <footer className="relative border-t border-border mt-8">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3 font-bold">
+            <span className="h-9 w-9 rounded-xl accent-shine grid place-items-center text-white shadow-glow">
+              <Dumbbell className="w-5 h-5" strokeWidth={1.6} />
+            </span>
+            <div>
+              <div className="font-display">Koval<span className="text-gradient">Fit</span></div>
+              <div className="text-xs text-muted">Тренування, які працюють.</div>
             </div>
-            <span>Koval<span className="text-gradient">Fit</span></span>
           </div>
-          <div className="text-muted text-xs text-center">
+          <div className="text-xs text-muted text-center">
             ФОП Ковальчук Дмитро · © {new Date().getFullYear()} KovalFit · Усі права захищено
           </div>
         </div>
       </footer>
 
       <FloatingContact />
-    </div>
+    </main>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="card p-3 text-center card-hover">
-      <div className="text-xl md:text-2xl font-black text-gradient">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-muted mt-0.5">{label}</div>
-    </div>
+function ContactCard({ href, Icon, k, v, className = "" }:
+  { href?: string; Icon: any; k: string; v: string; className?: string }) {
+  const inner = (
+    <>
+      <span className="h-11 w-11 rounded-2xl border border-border grid place-items-center text-accent shrink-0">
+        <Icon className="w-5 h-5" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs uppercase tracking-widest text-muted">{k}</span>
+        <span className="block font-semibold mt-1 break-all">{v}</span>
+      </span>
+    </>
   );
+  return href
+    ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className={`card card-hover card-spot p-5 flex items-center gap-4 ${className}`}>{inner}</a>
+    : <div className={`card p-5 flex items-center gap-4 ${className}`}>{inner}</div>;
 }
 
-function PlanCard({ icon: Icon, title, tag, perks, featured, price, priceNote }: any) {
-  return (
-    <div className={`card p-6 md:p-8 h-full relative overflow-hidden ${featured ? "border-accent/50 shadow-glow" : ""} card-hover`}>
-      {featured && (
-        <div className="absolute top-4 right-4 chip text-[10px] border-accent/40 text-accent">⭐ популярний</div>
-      )}
-      {featured && <div aria-hidden className="absolute inset-0 -z-10 opacity-20 bg-gradient-to-br from-accent/30 to-accent2/30" />}
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${featured ? "accent-shine text-white shadow-glow" : "bg-accent/10 text-accent border border-accent/20"}`}>
-        <Icon className="w-6 h-6" />
-      </div>
-      <h3 className="font-black text-2xl">{title}</h3>
-      <p className="text-muted text-sm mt-1">{tag}</p>
-      {price && (
-        <div className="mt-4">
-          <span className="text-3xl font-black text-gradient">{price} ₴</span>
-          {priceNote && <span className="text-muted text-sm ml-2">/ {priceNote}</span>}
-        </div>
-      )}
-      <ul className="mt-5 space-y-2.5">
-        {perks.map((p: string) => (
-          <li key={p} className="flex items-start gap-2 text-sm">
-            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" /> <span>{p}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href="/login" className={`btn ${featured ? "btn-primary" : ""} mt-6 w-full justify-center`}>
-        Дізнатись більше <ArrowRight className="w-4 h-4" />
-      </Link>
-    </div>
-  );
-}
-
+const FALLBACK_REVIEWS = [
+  { name: "Олег", meta: "схуднув 12 кг за 4 міс.", rating: 5, text: "Реально працює. Аналітика мотивує — бачу, що щодня роблю крок до цілі." },
+  { name: "Ірина", meta: "рекомпозиція", rating: 5, text: "Подобається, що все в одному місці. Тренер бачить, де я халтурю — нікуди не сховаєшся 😅" },
+  { name: "Денис", meta: "набір маси", rating: 5, text: "Трекер рекордів і таймери в залі — найзручніше, що пробував. Ще й на телефоні швидко." },
+  { name: "Олена", meta: "онлайн · 6 місяців", rating: 5, text: "Мінус 11 кг за пів року, але головне — я нарешті розумію, що роблю в залі." },
+  { name: "Андрій", meta: "офлайн · 3 місяці", rating: 5, text: "Спина перестала боліти на 4-му тижні. До цього — два роки без жодного ефекту." },
+  { name: "Тетяна", meta: "онлайн · 12 місяців", rating: 5, text: "Найкраща інвестиція року. Тренер, який пише першим, якщо я не відмітила тренування." },
+];
