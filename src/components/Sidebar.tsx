@@ -185,11 +185,13 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
       {/* Mobile bottom nav (клієнт і тренер) */}
       {bottomItems.length > 0 && (
         <nav
-          className="md:hidden fixed bottom-0 inset-x-0 bg-surface/85 backdrop-blur-md border-t border-border z-30 grid grid-cols-5"
+          className="md:hidden fixed bottom-0 inset-x-0 bg-bg/75 backdrop-blur-xl border-t border-border z-30 grid grid-cols-5"
           style={{
-            paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+            paddingBottom: "max(env(safe-area-inset-bottom), 10px)",
+            paddingTop: "8px",
             paddingLeft: "env(safe-area-inset-left)",
             paddingRight: "env(safe-area-inset-right)",
+            boxShadow: "0 -8px 24px -12px rgba(0,0,0,0.35)",
           }}
         >
           {bottomItems.map((i) => {
@@ -198,13 +200,49 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
               <Link
                 key={i.href}
                 href={i.href}
-                className={`relative flex flex-col items-center justify-center pt-2 pb-1 text-[10px] gap-1 active:scale-90 transition-transform px-1 min-w-0 ${
-                  active ? "text-accent" : "text-muted"
-                }`}
+                className="relative flex flex-col items-center justify-center pt-1 pb-0.5 px-1 min-w-0 gap-1 active:scale-95 transition-transform"
               >
-                {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full accent-shine" />}
-                <i.icon className={`w-5 h-5 transition-transform shrink-0 ${active ? "scale-110" : ""}`} />
-                <span className="truncate max-w-full">{i.label}</span>
+                {/* Active indicator — gradient bar at the very top of the bar */}
+                <span
+                  className={`absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full transition-all duration-300 ${
+                    active ? "w-8 bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent2))]" : "w-0 bg-transparent"
+                  }`}
+                />
+
+                {/* Icon bubble — 3D when active, flat otherwise */}
+                <span
+                  className={`relative h-10 w-10 grid place-items-center rounded-2xl transition-all duration-300 ${
+                    active ? "text-white -translate-y-1.5" : "text-muted"
+                  }`}
+                  style={
+                    active
+                      ? {
+                          background:
+                            "linear-gradient(135deg, rgb(var(--accent2)) 0%, rgb(var(--accent)) 55%, rgb(var(--accent-soft)) 100%)",
+                          boxShadow:
+                            "inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(0,0,0,0.15), 0 10px 22px -6px rgb(var(--accent) / 0.6), 0 16px 30px -10px rgb(var(--accent2) / 0.45)",
+                        }
+                      : undefined
+                  }
+                >
+                  {/* glow halo behind active bubble */}
+                  {active && (
+                    <span
+                      aria-hidden
+                      className="absolute -inset-2 -z-10 rounded-full opacity-70 blur-xl"
+                      style={{ background: "radial-gradient(closest-side, rgb(var(--accent) / 0.55), transparent 70%)" }}
+                    />
+                  )}
+                  <i.icon className={`shrink-0 ${active ? "w-5 h-5" : "w-[22px] h-[22px]"}`} strokeWidth={active ? 2.4 : 1.8} />
+                </span>
+
+                <span
+                  className={`text-[10px] leading-none truncate max-w-full transition-colors ${
+                    active ? "text-accent font-semibold" : "text-muted"
+                  }`}
+                >
+                  {i.label}
+                </span>
               </Link>
             );
           })}
