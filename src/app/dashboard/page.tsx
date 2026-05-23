@@ -1,8 +1,10 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { PageHeader } from "@/components/ui";
 import { ProgressRing } from "@/components/charts2";
-import { Flame, Trophy, Dumbbell, Scale, TrendingDown, Bell, CheckCircle2, Play, Target, Droplet, ArrowRight, Calendar } from "lucide-react";
+import {
+  Flame, Dumbbell, Scale, TrendingDown, Bell, CheckCircle2, Play, ArrowRight, Calendar,
+  Sparkles, ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
@@ -28,7 +30,6 @@ export default async function DashboardHome() {
   ]);
 
   const streak = calcStreak(checkIns.map(c => c.date));
-  // latest weight across check-ins and measurements
   const allW = [
     ...checkIns.filter(c => c.weight).map(c => ({ d: c.date, v: c.weight! })),
     ...measurements.filter(m => m.weight).map(m => ({ d: m.date, v: m.weight! })),
@@ -42,7 +43,6 @@ export default async function DashboardHome() {
   const stepsToday = todayCheckIn?.steps ?? 0;
   const trainedToday = todayWorkouts.filter(w => w.completed).length > 0;
 
-  // daily rings
   const ringsData = [
     { label: "Check-in", value: todayCheckIn ? 1 : 0, max: 1, color: "#6366f1" },
     { label: "Вода", value: Math.min(3, waterToday), max: 3, color: "#60a5fa" },
@@ -50,54 +50,130 @@ export default async function DashboardHome() {
   ];
 
   const workoutsLast30 = workoutSessions.filter(s => (Date.now() - s.date.getTime()) < 30 * 86400000).length;
+  const firstName = user.name.split(" ")[0];
+  const dateLabel = today.toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div>
-      <PageHeader
-        title={`Привіт, ${user.name.split(" ")[0]} 👋`}
-        subtitle={trainedToday ? "Тренування сьогодні — зроблено! 💪" : "Час підкорювати новий день! 🚀"}
-      />
-
-      {/* Progress Rings */}
-      <div className="card p-5 md:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Сьогоднішні кільця</h3>
-          <div className="text-xs text-muted">{today.toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" })}</div>
+    <div className="space-y-5">
+      {/* ============ HERO HEADER ============ */}
+      <header className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs uppercase tracking-widest text-muted">{dateLabel}</div>
+          <h1 className="text-3xl md:text-4xl font-black mt-1 leading-tight">
+            Привіт, <span className="text-gradient">{firstName}</span> 👋
+          </h1>
+          <p className="text-sm text-muted mt-1">
+            {trainedToday ? "Тренування сьогодні — зроблено 💪" : "Готовий до нового дня?"}
+          </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 place-items-center">
-          {ringsData.map((r) => (
-            <div key={r.label} className="flex flex-col items-center gap-1">
-              <ProgressRing value={r.value} max={r.max} color={r.color} label={r.label} size={110} />
+        {streak > 0 && (
+          <div className="chip border-accent/40 text-accent shrink-0">
+            <Flame className="w-3.5 h-3.5" /> {streak} {pluralUk(streak, ["день", "дні", "днів"])} поспіль
+          </div>
+        )}
+      </header>
+
+      {/* ============ HERO BUTTON «В ЗАЛ» (3D) ============ */}
+      <Link
+        href="/dashboard/workout"
+        className="group relative block rounded-3xl overflow-hidden will-change-transform
+                   transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[.995]"
+        style={{
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 0 rgba(0,0,0,0.18), 0 22px 50px -18px rgb(var(--accent) / 0.6), 0 32px 80px -28px rgb(var(--accent2) / 0.5)",
+        }}
+      >
+        {/* gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--accent2))] via-[rgb(var(--accent))] to-[rgb(var(--accent-soft))]" />
+        {/* decorative orbs */}
+        <div className="absolute -top-16 -right-12 w-56 h-56 rounded-full bg-white/15 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full bg-black/20 blur-3xl pointer-events-none" />
+        {/* top sheen */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_15%,rgba(255,255,255,0.22),transparent_55%)] pointer-events-none" />
+        {/* bottom dim */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/15 to-transparent pointer-events-none" />
+
+        <div className="relative flex items-center gap-4 p-5 md:p-6 text-white">
+          <div
+            className="h-16 w-16 md:h-[72px] md:w-[72px] rounded-2xl bg-white/15 backdrop-blur-sm grid place-items-center shrink-0"
+            style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 8px 22px -6px rgba(0,0,0,0.3)" }}
+          >
+            <Play className="w-7 h-7 md:w-8 md:h-8 fill-current" strokeWidth={1.5} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-widest opacity-80 flex items-center gap-1.5">
+              {trainedToday ? <><CheckCircle2 className="w-3 h-3" /> сьогодні · готово</> : <><Sparkles className="w-3 h-3" /> час тренуватись</>}
             </div>
-          ))}
+            <div className="font-black text-2xl md:text-3xl leading-tight mt-0.5">
+              {trainedToday ? "Чудова робота!" : "Готовий тренуватись?"}
+            </div>
+            <div className="text-sm opacity-90 mt-1 truncate">
+              {trainedToday ? "Можеш переглянути результати або додати ще" : "Натисни — і починаємо"}
+            </div>
+          </div>
+          <ArrowRight className="w-7 h-7 opacity-90 shrink-0 group-hover:translate-x-1 transition-transform" />
+        </div>
+        {/* inner ring highlight */}
+        <span className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/15" />
+      </Link>
+
+      {/* ============ СЬОГОДНІШНІ КІЛЬЦЯ ============ */}
+      <div className="card overflow-hidden">
+        <div className="h-[3px] bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent2))]" />
+        <div className="p-5 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-sm uppercase tracking-wider text-muted">Сьогоднішні кільця</h3>
+          </div>
+          <div className="grid grid-cols-3 gap-3 md:gap-4 place-items-center">
+            {ringsData.map((r) => (
+              <div key={r.label} className="flex flex-col items-center gap-1">
+                <ProgressRing value={r.value} max={r.max} color={r.color} label={r.label} size={108} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Quick water + steps tap */}
+      {/* ============ Швидкий приріст води/кроків ============ */}
       <QuickTaps water={waterToday} steps={stepsToday} />
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4">
-        <QuickAction href="/dashboard/check-in" icon={Flame} title={todayCheckIn ? "Check-in ✓" : "Check-in"} done={!!todayCheckIn} />
-        <QuickAction href="/dashboard/workout" icon={Play} title="В зал" accent />
-        <QuickAction href="/dashboard/sessions" icon={Calendar} title="Тренування" />
-        <QuickAction href="/dashboard/analytics" icon={TrendingDown} title={`${delta > 0 ? "+" : ""}${delta.toFixed(1)} кг`} />
+      {/* ============ ШВИДКІ ДІЇ ============ */}
+      <div>
+        <SectionLabel>Швидкі дії</SectionLabel>
+        <div className="grid grid-cols-3 gap-3">
+          <QuickAction
+            href="/dashboard/check-in"
+            icon={Flame}
+            title={todayCheckIn ? "Check-in ✓" : "Check-in"}
+            done={!!todayCheckIn}
+          />
+          <QuickAction href="/dashboard/sessions" icon={Calendar} title="Тренування" />
+          <QuickAction
+            href="/dashboard/analytics"
+            icon={TrendingDown}
+            title={latestWeight ? `${delta > 0 ? "+" : ""}${delta.toFixed(1)} кг` : "Аналітика"}
+          />
+        </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3 md:gap-4 mt-4">
-        <KPI icon={Flame} label="Streak" value={`${streak} дн`} />
+      {/* ============ KPI ============ */}
+      <div className="grid grid-cols-3 gap-3">
+        <KPI icon={Flame} label="Серія" value={`${streak}`} sub={pluralUk(streak, ["день", "дні", "днів"])} />
         <KPI icon={Dumbbell} label="Тренувань" value={workoutsLast30} sub="за 30 днів" />
-        <KPI icon={Scale} label="Вага" value={latestWeight ? `${latestWeight.toFixed(1)}` : "—"} sub="кг" />
+        <KPI icon={Scale} label="Вага" value={latestWeight ? latestWeight.toFixed(1) : "—"} sub="кг" />
       </div>
 
-      {/* Upcoming planned sessions */}
+      {/* ============ Найближчі заплановані тренування ============ */}
       {upcomingSessions.length > 0 && (
-        <div className="card p-5 mt-4 border-accent/30">
-          <h3 className="font-semibold flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-accent" /> Найближчі тренування зі мною</h3>
-          <div className="space-y-2">
+        <div>
+          <SectionLabel>Найближчі тренування</SectionLabel>
+          <div className="card p-4 border-accent/30 space-y-2">
             {upcomingSessions.map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+              <Link
+                key={s.id}
+                href="/dashboard/sessions"
+                className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border hover:border-accent/40 transition-colors"
+              >
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{s.title}</div>
                   <div className="text-xs text-muted">
@@ -105,44 +181,51 @@ export default async function DashboardHome() {
                     {" · "}{formatDistanceToNow(new Date(s.scheduledAt!), { addSuffix: true, locale: uk })}
                   </div>
                 </div>
-                <span className="chip text-xs text-accent border-accent/40">заплановано</span>
-              </div>
+                <ChevronRight className="w-4 h-4 text-muted shrink-0" />
+              </Link>
             ))}
           </div>
         </div>
       )}
 
-      {/* Reminders */}
+      {/* ============ Нагадування ============ */}
       {reminders.length > 0 && (
-        <div className="card p-5 mt-4">
-          <h3 className="font-semibold flex items-center gap-2"><Bell className="w-4 h-4 text-accent" /> Нагадування</h3>
-          <div className="mt-3 space-y-2">
+        <div>
+          <SectionLabel><Bell className="w-3.5 h-3.5 inline -mt-0.5 mr-1" /> Нагадування</SectionLabel>
+          <div className="card p-4 space-y-2">
             {reminders.map((r) => (
               <div key={r.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
-                <div>
-                  <div className="font-medium text-sm">{r.title}</div>
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{r.title}</div>
                   <div className="text-xs text-muted">{formatDistanceToNow(r.datetime, { addSuffix: true, locale: uk })}</div>
                 </div>
-                <span className="chip text-xs">{r.type}</span>
+                <span className="chip text-xs shrink-0">{r.type}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Recent workouts */}
+      {/* ============ Останні тренування ============ */}
       {workoutSessions.length > 0 && (
-        <div className="card p-5 mt-4">
-          <h3 className="font-semibold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-success" /> Останні тренування</h3>
-          <div className="mt-3 space-y-2">
+        <div>
+          <SectionLabel><CheckCircle2 className="w-3.5 h-3.5 inline -mt-0.5 mr-1 text-success" /> Останні тренування</SectionLabel>
+          <div className="card p-4 space-y-2">
             {workoutSessions.slice(0, 5).map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
-                <div>
-                  <div className="font-medium text-sm">{s.title}</div>
-                  <div className="text-xs text-muted">{s.date.toLocaleDateString("uk-UA")} · {Math.round((s.durationSec ?? 0)/60)} хв</div>
+              <Link
+                key={s.id}
+                href="/dashboard/sessions"
+                className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border hover:border-accent/40 transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{s.title}</div>
+                  <div className="text-xs text-muted">
+                    {s.date.toLocaleDateString("uk-UA")}
+                    {s.durationSec ? ` · ${Math.round(s.durationSec / 60)} хв` : ""}
+                  </div>
                 </div>
-                <div className="w-2 h-2 rounded-full bg-success" />
-              </div>
+                <div className="w-2 h-2 rounded-full bg-success shrink-0" />
+              </Link>
             ))}
           </div>
         </div>
@@ -151,26 +234,55 @@ export default async function DashboardHome() {
   );
 }
 
-function QuickAction({ href, icon: Icon, title, accent, done }: any) {
+/* ───────────── helpers ───────────── */
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Link href={href} className={`card p-4 flex flex-col items-start gap-2 hover:border-accent/40 transition ${accent ? "border-accent/40 bg-accent/5" : ""} ${done ? "border-success/40" : ""}`}>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent ? "accent-shine text-white" : done ? "bg-success/10 text-success" : "bg-surface border border-border text-accent"}`}>
+    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted mb-2.5 px-1">
+      {children}
+    </h3>
+  );
+}
+
+function QuickAction({ href, icon: Icon, title, done }: any) {
+  return (
+    <Link
+      href={href}
+      className={`card p-4 flex flex-col items-start gap-2.5 hover:border-accent/40 hover:-translate-y-0.5 transition-all ${
+        done ? "border-success/40 bg-success/5" : ""
+      }`}
+    >
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+          done ? "bg-success/10 text-success border border-success/30" : "bg-accent/10 text-accent border border-accent/20"
+        }`}
+      >
         <Icon className="w-5 h-5" />
       </div>
-      <div className="font-semibold text-sm">{title}</div>
+      <div className="font-semibold text-sm leading-tight">{title}</div>
     </Link>
   );
 }
 
 function KPI({ icon: Icon, label, value, sub }: any) {
   return (
-    <div className="card p-4">
-      <div className="flex items-center gap-1.5 text-muted text-[10px] md:text-xs uppercase tracking-wider min-w-0">
-        <Icon className="w-4 h-4 text-accent shrink-0" strokeWidth={2} />
+    <div className="card p-4 relative overflow-hidden">
+      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-accent/10 blur-xl pointer-events-none" />
+      <div className="relative flex items-center gap-1.5 text-muted text-[10px] uppercase tracking-widest">
+        <Icon className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={2} />
         <span className="truncate">{label}</span>
       </div>
-      <div className="text-xl md:text-2xl font-bold mt-1">{value}</div>
-      {sub && <div className="text-[10px] md:text-xs text-muted mt-0.5 truncate">{sub}</div>}
+      <div className="relative text-2xl md:text-3xl font-black mt-1 leading-none">{value}</div>
+      {sub && <div className="relative text-[10px] text-muted mt-1 truncate">{sub}</div>}
     </div>
   );
+}
+
+function pluralUk(n: number, forms: [string, string, string]) {
+  const a = Math.abs(n) % 100;
+  const b = a % 10;
+  if (a > 10 && a < 20) return forms[2];
+  if (b > 1 && b < 5) return forms[1];
+  if (b === 1) return forms[0];
+  return forms[2];
 }
