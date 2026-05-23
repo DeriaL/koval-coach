@@ -51,7 +51,7 @@ export function WorkoutDetailRow({
   const subtitle =
     new Date(session.date).toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" }) +
     (session.durationSec ? ` · ${Math.round(session.durationSec / 60)} хв` : "") +
-    (session.confirmedByTrainer ? " · підтв. тренером" : session.completed ? " · самостійно" : "");
+    (session.confirmedByTrainer ? " · записано тренером" : session.completed ? " · самостійно" : "");
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();

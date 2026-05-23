@@ -55,6 +55,9 @@ export async function logManualWorkout(data: {
         title,
         date: new Date(),
         completed: true,
+        // Mark trainer-logged sessions so the UI can show "записано тренером"
+        // instead of "самостійно" (which now only means the client logged it themselves).
+        confirmedByTrainer: u.role === "TRAINER",
         durationSec,
         notes,
         sets: setsCreate.length > 0 ? { create: setsCreate } : undefined,

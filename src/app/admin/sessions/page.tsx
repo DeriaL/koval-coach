@@ -320,7 +320,7 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
       {mode === "done" && session.durationSec ? (
         <div className="mt-2 pl-14 flex items-center gap-2 text-[11px] text-muted">
           <Activity className="w-3 h-3" /> {Math.round(session.durationSec / 60)} хв
-          {session.confirmedByTrainer && <span className="chip text-[9px] py-0.5 px-1.5">підтв. тренером</span>}
+          {session.confirmedByTrainer && <span className="chip text-[9px] py-0.5 px-1.5">записано тренером</span>}
           {session.completed && !session.confirmedByTrainer && <span className="chip text-[9px] py-0.5 px-1.5">самостійно</span>}
         </div>
       ) : null}
