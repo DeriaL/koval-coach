@@ -10,13 +10,14 @@ import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { calcStreak } from "@/lib/analytics";
 import { QuickTaps } from "./QuickTaps";
+import { parsePlanContent } from "@/lib/nutritionPlan";
 
 export default async function DashboardHome() {
   const user = await requireClient();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions] = await Promise.all([
+  const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions, latestNutritionPlan] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true }, orderBy: { date: "desc" }, take: 30 }),
     prisma.reminder.findMany({ where: { clientId: user.id, done: false, datetime: { gte: new Date(Date.now() - 86400000) } }, orderBy: { datetime: "asc" }, take: 5 }),
@@ -27,7 +28,11 @@ export default async function DashboardHome() {
       where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
       orderBy: { scheduledAt: "asc" }, take: 3,
     }),
+    prisma.nutritionPlan.findFirst({ where: { clientId: user.id }, orderBy: { updatedAt: "desc" }, select: { content: true } }),
   ]);
+
+  // Water target comes from the active nutrition plan; fallback to 3 L.
+  const waterTarget = parsePlanContent(latestNutritionPlan?.content)?.waterL ?? 3;
 
   const streak = calcStreak(checkIns.map(c => c.date));
   const allW = [
@@ -45,7 +50,7 @@ export default async function DashboardHome() {
 
   const ringsData = [
     { label: "Check-in", value: todayCheckIn ? 1 : 0, max: 1, color: "#6366f1" },
-    { label: "Вода", value: Math.min(3, waterToday), max: 3, color: "#60a5fa" },
+    { label: "Вода", value: Math.min(waterTarget, waterToday), max: waterTarget, color: "#60a5fa" },
     { label: "Кроки", value: Math.min(10000, stepsToday), max: 10000, color: "#f472b6" },
   ];
 
