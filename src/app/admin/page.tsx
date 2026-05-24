@@ -193,7 +193,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                   <div className="text-sm font-bold truncate">{latest?.weight?.toFixed(1) ?? "—"}</div>
                 </div>
                 <div className="p-2 rounded-lg bg-surface border border-border min-w-0">
-                  <div className="text-[10px] text-muted uppercase truncate">Δ кг</div>
+                  <div className="text-[10px] text-muted uppercase truncate">Зміна, кг</div>
                   <div className={`text-sm font-bold truncate ${delta < 0 ? "text-success" : delta > 0 ? "text-danger" : ""}`}>
                     {delta > 0 ? "+" : ""}{delta.toFixed(1)}
                   </div>
