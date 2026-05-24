@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { ProgressRing } from "@/components/charts2";
 import {
   Flame, Dumbbell, Scale, TrendingDown, Bell, CheckCircle2, Play, ArrowRight, Calendar,
-  Sparkles, ChevronRight,
+  Sparkles, ChevronRight, Wallet, AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
@@ -17,7 +17,7 @@ export default async function DashboardHome() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions, latestNutritionPlan] = await Promise.all([
+  const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions, latestNutritionPlan, pendingPayment] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true }, orderBy: { date: "desc" }, take: 30 }),
     prisma.reminder.findMany({ where: { clientId: user.id, done: false, datetime: { gte: new Date(Date.now() - 86400000) } }, orderBy: { datetime: "asc" }, take: 5 }),
@@ -29,6 +29,10 @@ export default async function DashboardHome() {
       orderBy: { scheduledAt: "asc" }, take: 3,
     }),
     prisma.nutritionPlan.findFirst({ where: { clientId: user.id }, orderBy: { updatedAt: "desc" }, select: { content: true } }),
+    prisma.payment.findFirst({
+      where: { clientId: user.id, status: { in: ["pending", "overdue"] } },
+      orderBy: { date: "asc" },
+    }),
   ]);
 
   // Water + steps targets come from the active nutrition plan; fallbacks 3 L / 10k.
@@ -80,6 +84,31 @@ export default async function DashboardHome() {
         )}
       </header>
 
+      {/* ============ PENDING-PAYMENT ALERT ============ */}
+      {pendingPayment && (
+        <Link
+          href="/dashboard/payments"
+          className="group relative block rounded-2xl overflow-hidden border border-danger/40 bg-danger/10 p-4 hover:-translate-y-0.5 transition-transform"
+        >
+          <div className="flex items-center gap-3">
+            <span className="relative h-12 w-12 rounded-xl bg-danger/15 grid place-items-center text-danger shrink-0">
+              <Wallet className="w-5 h-5" />
+              <span aria-hidden className="absolute inset-0 rounded-xl animate-ping bg-danger/40 -z-10" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-danger font-semibold flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {pendingPayment.status === "overdue" ? "прострочено" : "очікує оплати"}
+              </div>
+              <div className="font-bold text-base mt-0.5">
+                До сплати: <span className="text-danger">{pendingPayment.amount} ₴</span>
+              </div>
+              <div className="text-xs text-muted truncate mt-0.5">Натисни — деталі та оплата</div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted shrink-0 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </Link>
+      )}
+
       {/* ============ HERO BUTTON «В ЗАЛ» (3D) ============ */}
       <Link
         href="/dashboard/workout"
@@ -92,13 +121,11 @@ export default async function DashboardHome() {
       >
         {/* gradient base */}
         <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--accent2))] via-[rgb(var(--accent))] to-[rgb(var(--accent-soft))]" />
-        {/* decorative orbs */}
+        {/* decorative light orb only — dark orb caused visible dark corner on light theme */}
         <div className="absolute -top-16 -right-12 w-56 h-56 rounded-full bg-white/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full bg-black/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
         {/* top sheen */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_15%,rgba(255,255,255,0.22),transparent_55%)] pointer-events-none" />
-        {/* bottom dim */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/15 to-transparent pointer-events-none" />
 
         <div className="relative flex items-center gap-4 p-5 md:p-6 text-white">
           <div

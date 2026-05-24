@@ -37,7 +37,7 @@ const adminNav: Item[] = [
   { href: "/admin/profile", label: "Мій профіль", icon: User },
 ];
 
-export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userName: string }) {
+export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "CLIENT" | "TRAINER"; userName: string; hasPendingPayment?: boolean }) {
   const pathname = usePathname();
   const items = role === "TRAINER" ? adminNav : clientNav;
   const [open, setOpen] = useState(false);
@@ -135,8 +135,14 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
         {Brand}
         <div className="flex items-center gap-2">
           <ThemeToggle compact />
-          <button onClick={() => setOpen(true)} className="btn px-3 py-2" aria-label="Меню">
+          <button onClick={() => setOpen(true)} className="btn px-3 py-2 relative" aria-label="Меню">
             <Menu className="w-5 h-5" />
+            {hasPendingPayment && (
+              <>
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-danger ring-2 ring-bg" />
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-danger animate-ping" />
+              </>
+            )}
           </button>
         </div>
       </header>
