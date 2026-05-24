@@ -202,13 +202,6 @@ export function Sidebar({ role, userName }: { role: "CLIENT" | "TRAINER"; userNa
                 href={i.href}
                 className="relative flex flex-col items-center justify-center pt-1 pb-0.5 px-1 min-w-0 gap-1 active:scale-95 transition-transform"
               >
-                {/* Active indicator — gradient bar at the very top of the bar */}
-                <span
-                  className={`absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full transition-all duration-300 ${
-                    active ? "w-8 bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent2))]" : "w-0 bg-transparent"
-                  }`}
-                />
-
                 {/* Icon bubble — 3D when active, flat otherwise */}
                 <span
                   className={`relative h-10 w-10 grid place-items-center rounded-2xl transition-all duration-300 ${
