@@ -116,7 +116,7 @@ export default async function DashboardHome() {
                    transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[.995]"
         style={{
           boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.22), 0 12px 30px -12px rgba(0,0,0,0.35), 0 18px 40px -22px rgb(var(--accent) / 0.35)",
+            "inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 22px -10px rgba(0,0,0,0.4)",
         }}
       >
         {/* gradient base */}
