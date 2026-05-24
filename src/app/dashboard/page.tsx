@@ -31,8 +31,10 @@ export default async function DashboardHome() {
     prisma.nutritionPlan.findFirst({ where: { clientId: user.id }, orderBy: { updatedAt: "desc" }, select: { content: true } }),
   ]);
 
-  // Water target comes from the active nutrition plan; fallback to 3 L.
-  const waterTarget = parsePlanContent(latestNutritionPlan?.content)?.waterL ?? 3;
+  // Water + steps targets come from the active nutrition plan; fallbacks 3 L / 10k.
+  const planData = parsePlanContent(latestNutritionPlan?.content);
+  const waterTarget = planData?.waterL ?? 3;
+  const stepsTarget = planData?.stepsTarget ?? 10000;
 
   const streak = calcStreak(checkIns.map(c => c.date));
   const allW = [
@@ -51,7 +53,7 @@ export default async function DashboardHome() {
   const ringsData = [
     { label: "Check-in", value: todayCheckIn ? 1 : 0, max: 1, color: "#6366f1" },
     { label: "Вода", value: Math.min(waterTarget, waterToday), max: waterTarget, color: "#60a5fa" },
-    { label: "Кроки", value: Math.min(10000, stepsToday), max: 10000, color: "#f472b6" },
+    { label: "Кроки", value: Math.min(stepsTarget, stepsToday), max: stepsTarget, color: "#f472b6" },
   ];
 
   const workoutsLast30 = workoutSessions.filter(s => (Date.now() - s.date.getTime()) < 30 * 86400000).length;

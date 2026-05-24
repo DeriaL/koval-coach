@@ -19,6 +19,7 @@ export type NutritionPlanData = {
   goal?: string;          // "Lean Bulk" / "Схуднення"
   phase?: string;         // "Mass Gain" / "Дефіцит"
   waterL?: number;        // 3.5
+  stepsTarget?: number;   // 10000
   meals: NutritionMeal[];
   swaps: NutritionSwap[];
   notes: string[];        // bullet list — тренерські нотатки
@@ -41,6 +42,7 @@ export function parsePlanContent(content: string | null | undefined): NutritionP
       goal: typeof v.goal === "string" && v.goal.trim() ? v.goal : undefined,
       phase: typeof v.phase === "string" && v.phase.trim() ? v.phase : undefined,
       waterL: numOrUndef(v.waterL),
+      stepsTarget: numOrUndef(v.stepsTarget),
       meals: v.meals.map((m: any) => ({
         name: typeof m?.name === "string" ? m.name : "",
         time: typeof m?.time === "string" && m.time.trim() ? m.time : undefined,

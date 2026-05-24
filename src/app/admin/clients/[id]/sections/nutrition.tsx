@@ -93,6 +93,7 @@ function PlanEditor({
   const [goal, setGoal] = useState(initial.goal ?? "");
   const [phase, setPhase] = useState(initial.phase ?? "");
   const [waterL, setWaterL] = useState<string>(initial.waterL ? String(initial.waterL) : "");
+  const [stepsTarget, setStepsTarget] = useState<string>(initial.stepsTarget ? String(initial.stepsTarget) : "");
   const [calories, setCalories] = useState<string>(plan.calories ? String(plan.calories) : "");
   const [protein, setProtein] = useState<string>(plan.protein ? String(plan.protein) : "");
   const [fats, setFats] = useState<string>(plan.fats ? String(plan.fats) : "");
@@ -137,6 +138,7 @@ function PlanEditor({
       goal: goal.trim() || undefined,
       phase: phase.trim() || undefined,
       waterL: waterL ? Number(waterL) : undefined,
+      stepsTarget: stepsTarget ? Number(stepsTarget) : undefined,
       meals: meals.map((m) => ({
         name: m.name.trim(),
         time: m.time?.trim() || undefined,
@@ -178,10 +180,11 @@ function PlanEditor({
           <label className="label">Назва плану</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} className="input" required />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div><label className="label">Ціль</label><input value={goal} onChange={(e) => setGoal(e.target.value)} className="input" placeholder="напр. Набір маси" /></div>
           <div><label className="label">Фаза</label><input value={phase} onChange={(e) => setPhase(e.target.value)} className="input" placeholder="напр. Дефіцит" /></div>
           <div><label className="label">Вода (л)</label><input value={waterL} onChange={(e) => setWaterL(e.target.value)} className="input" inputMode="decimal" placeholder="3.5" /></div>
+          <div><label className="label">Кроки (ціль)</label><input value={stepsTarget} onChange={(e) => setStepsTarget(e.target.value)} className="input" inputMode="numeric" placeholder="10000" /></div>
         </div>
       </div>
 
