@@ -56,8 +56,10 @@ export default async function DashboardHome() {
 
   const ringsData = [
     { label: "Check-in", value: todayCheckIn ? 1 : 0, max: 1, color: "#6366f1" },
-    { label: "Вода", value: Math.min(waterTarget, waterToday), max: waterTarget, color: "#60a5fa" },
-    { label: "Кроки", value: Math.min(stepsTarget, stepsToday), max: stepsTarget, color: "#f472b6" },
+    // Pass raw value — the ring visually caps fill at 100% but shows the real
+    // number, so e.g. 22 000 steps with a 10k goal still reads as "22k/10k".
+    { label: "Вода", value: waterToday, max: waterTarget, color: "#60a5fa" },
+    { label: "Кроки", value: stepsToday, max: stepsTarget, color: "#f472b6" },
   ];
 
   const workoutsLast30 = workoutSessions.filter(s => (Date.now() - s.date.getTime()) < 30 * 86400000).length;

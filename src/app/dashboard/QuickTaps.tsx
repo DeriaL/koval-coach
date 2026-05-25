@@ -23,8 +23,11 @@ export function QuickTaps({ water, steps }: { water: number; steps: number }) {
     <div className="grid grid-cols-2 gap-3 mt-4">
       <div className="card p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider">
-            <Droplet className="w-3.5 h-3.5" /> Вода
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted">
+            <span className="h-6 w-6 rounded-lg bg-sky-400/15 grid place-items-center text-sky-400">
+              <Droplet className="w-3.5 h-3.5 fill-current" />
+            </span>
+            Вода
           </div>
           <div className={`text-lg font-bold transition-transform ${bumpedW ? "scale-125 text-accent" : ""}`}>
             {water.toFixed(1)} л
@@ -42,8 +45,11 @@ export function QuickTaps({ water, steps }: { water: number; steps: number }) {
 
       <div className="card p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider">
-            <Footprints className="w-3.5 h-3.5" /> Кроки
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted">
+            <span className="h-6 w-6 rounded-lg bg-pink-400/15 grid place-items-center text-pink-400">
+              <Footprints className="w-3.5 h-3.5" />
+            </span>
+            Кроки
           </div>
           <div className={`text-lg font-bold transition-transform ${bumpedS ? "scale-125 text-accent" : ""}`}>
             {steps.toLocaleString("uk-UA")}
