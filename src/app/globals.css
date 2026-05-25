@@ -268,3 +268,10 @@ form .grid > * { min-width: 0; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
+/* Top loading bar — slim gradient strip that travels across the viewport
+   during route transitions (used by loading.tsx fallbacks). */
+@keyframes topLoader {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
