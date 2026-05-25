@@ -119,10 +119,7 @@ export default async function DashboardHome() {
       >
         {/* gradient base */}
         <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--accent2))] via-[rgb(var(--accent))] to-[rgb(var(--accent-soft))]" />
-        {/* decorative light orb only — dark orb caused visible dark corner on light theme */}
-        <div className="absolute -top-16 -right-12 w-56 h-56 rounded-full bg-white/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-        {/* top sheen */}
+        {/* top sheen — kept (no blur, no edge bleeding) */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_15%,rgba(255,255,255,0.22),transparent_55%)] pointer-events-none" />
 
         <div className="relative flex items-center gap-4 p-5 md:p-6 text-white">
