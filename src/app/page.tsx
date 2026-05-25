@@ -115,9 +115,12 @@ export default async function Home() {
             </Reveal>
 
             <Reveal delay={160}>
-              <p className="mt-6 max-w-xl text-base md:text-lg text-muted leading-relaxed">
-                Я — Дмитро Ковальчук, персональний тренер. Персональний раціон, індивідуальний
-                план тренувань, супровід з аналізами та добавками — і мій живий контроль щодня.
+              <p className="mt-6 max-w-xl text-lg md:text-xl font-semibold text-text leading-snug">
+                Персональний супровід для тих, хто цінує якість результату.
+              </p>
+              <p className="mt-3 max-w-xl text-base md:text-lg text-muted leading-relaxed">
+                Індивідуальний план харчування та тренувань, моніторинг аналізів та корекція,
+                контроль прогресу з увагою до деталей, системністю та високим рівнем комунікації!
               </p>
             </Reveal>
 
