@@ -112,12 +112,8 @@ export default async function DashboardHome() {
       {/* ============ HERO BUTTON «В ЗАЛ» (3D) ============ */}
       <Link
         href="/dashboard/workout"
-        className="group relative block rounded-3xl overflow-hidden will-change-transform
+        className="hero-cta-shadow group relative block rounded-3xl overflow-hidden will-change-transform
                    transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[.995]"
-        style={{
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 22px -10px rgba(0,0,0,0.4)",
-        }}
       >
         {/* gradient base */}
         <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--accent2))] via-[rgb(var(--accent))] to-[rgb(var(--accent-soft))]" />

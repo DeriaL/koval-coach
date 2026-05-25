@@ -257,3 +257,14 @@ form .grid > * { min-width: 0; }
   .mesh, .marquee-track, .ring-shine::before { animation: none !important; }
 }
 
+/* Hero CTA shadow — show the depth shadow only on the light theme.
+   On the dark theme an outer drop-shadow under a bright gradient on a
+   dark navy background reads as a visible "ghost square" — the gradient
+   + inset highlight are enough there. */
+.hero-cta-shadow {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 22px -10px rgba(0,0,0,0.4);
+}
+[data-theme="dark"] .hero-cta-shadow {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
