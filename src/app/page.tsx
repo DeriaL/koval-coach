@@ -65,9 +65,9 @@ export default async function Home() {
   ];
 
   const steps = [
-    { i: 1, t: "Знайомство", d: "Розповідаєш про себе, цілі та обмеження. Я підбираю формат саме під тебе.", Icon: MessageCircle },
-    { i: 2, t: "План під ключ", d: "Отримуєш програму, харчування, добавки і доступ до особистого кабінету.", Icon: Layers },
-    { i: 3, t: "Прогрес щодня", d: "Щодня звіт, тренування, динаміка. Я все бачу і вчасно коригую.", Icon: BarChart3 },
+    { i: 1, t: "Знайомство", d: "Обговорюємо твої цілі, досвід та обмеження. Підбираю оптимальний формат роботи саме під тебе!", Icon: MessageCircle },
+    { i: 2, t: "План під ключ", d: "Створюю персональну програму тренувань, раціон харчування та схему добавок. Надаю доступ до особистого кабінету.", Icon: Layers },
+    { i: 3, t: "Прогрес щодня", d: "Аналізую твої звіти, тренування та динаміку. За потреби — вчасно коригую план для максимального результату!", Icon: BarChart3 },
   ];
 
   const onlinePerks = [
@@ -98,12 +98,8 @@ export default async function Home() {
         <div className="relative max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           <div className="lg:col-span-7">
             <Reveal>
-              <span className="chip">
-                <span className="relative flex w-2 h-2">
-                  <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
-                  <span className="relative w-2 h-2 rounded-full bg-success" />
-                </span>
-                {city} · Онлайн усьому світу · Набір відкритий
+              <span className="chip text-[11px] tracking-wide">
+                📍 ЛЬВІВ (ОФЛАЙН) • 🌐 ОНЛАЙН ПО УКРАЇНІ • НАБІР ВІДКРИТИЙ
               </span>
             </Reveal>
 
@@ -173,8 +169,8 @@ export default async function Home() {
                   <div className="absolute left-4 right-4 bottom-4 card p-3 flex items-center gap-3 bg-card/90 backdrop-blur">
                     <div className="h-10 w-10 rounded-xl accent-shine grid place-items-center text-white font-bold shrink-0">Д</div>
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold truncate">Сьогодні: Жим · Сила</div>
-                      <div className="text-xs text-muted truncate">4 вправи · 52 хв · складність 8/10</div>
+                      <div className="text-sm font-semibold truncate">Сьогодні: Тренування ніг</div>
+                      <div className="text-xs text-muted truncate">4 вправи • 75 хв • інтенсивність 8/10</div>
                     </div>
                   </div>
                 </div>
@@ -241,7 +237,7 @@ export default async function Home() {
           <Reveal>
             <span className="chip"><Sparkles className="w-3 h-3 text-accent" /> Можливості</span>
             <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight max-w-3xl">
-              Усе в одному кабінеті —<br className="hidden sm:block" /> тренування як система.
+              Вся індивідуальна система<br className="hidden sm:block" /> роботи в одному кабінеті.
             </h2>
           </Reveal>
 
@@ -253,15 +249,15 @@ export default async function Home() {
                 <div className="relative flex h-full flex-col">
                   <span className="chip self-start"><Dumbbell className="w-3 h-3 text-accent" /> Тренування</span>
                   <h3 className="font-display text-2xl lg:text-3xl font-black tracking-tight mt-4">
-                    Усе тренування — на одному екрані.
+                    Всі тренування — на одному екрані.
                   </h3>
                   <p className="text-muted text-sm mt-2 max-w-md">
-                    План на тиждень, спліт, техніка вправ і миттєвий зворотний звʼязок від мене.
+                    План на тиждень, техніка виконання вправ і миттєвий зворотний зв&apos;язок від мене!
                   </p>
                   <div className="mt-auto grid grid-cols-3 gap-2 pt-6">
                     {[
-                      { d: "Пн", n: "Жим", w: "100%", on: false },
-                      { d: "Ср · сьогодні", n: "Тяга", w: "66%", on: true },
+                      { d: "Пн", n: "Спина", w: "100%", on: false },
+                      { d: "Ср · сьогодні", n: "Грудні", w: "66%", on: true },
                       { d: "Пт", n: "Ноги", w: "0%", on: false },
                     ].map((c) => (
                       <div key={c.d} className={`rounded-xl border p-3 ${c.on ? "border-accent/40 bg-accent/10" : "border-border bg-bg/40"}`}>
@@ -283,8 +279,8 @@ export default async function Home() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <span className="chip"><BarChart3 className="w-3 h-3 text-accent" /> Аналітика</span>
-                    <h3 className="font-display text-2xl font-black tracking-tight mt-4">Прогрес у цифрах,<br />а не у відчуттях.</h3>
-                    <p className="text-muted text-sm mt-2 max-w-sm">Вага, заміри, % жиру й сила. Усе, що змінюється — видно одразу.</p>
+                    <h3 className="font-display text-2xl font-black tracking-tight mt-4">Прогрес у цифрах,<br />а не у відчуттях!</h3>
+                    <p className="text-muted text-sm mt-2 max-w-sm">Вага, заміри, % жиру й динаміка змін. Усе, що змінюється — помітно одразу!</p>
                   </div>
                   <span className="h-10 w-10 rounded-2xl border border-border grid place-items-center text-accent shrink-0">
                     <BarChart3 className="w-5 h-5" />
@@ -325,7 +321,7 @@ export default async function Home() {
           <Reveal className="max-w-2xl">
             <span className="chip"><ShieldCheck className="w-3 h-3 text-accent" /> Тарифи</span>
             <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
-              Один формат — для тих, хто всюди.<br className="hidden sm:block" /> Інший — для тих, хто у залі.
+              Один формат — для тренувань будь-де.<br className="hidden sm:block" /> Інший — для спільної роботи в залі!
             </h2>
             <p className="text-muted mt-4 max-w-xl">Обери формат, що підходить твоєму ритму життя.</p>
           </Reveal>
