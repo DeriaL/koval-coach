@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen">
       <Sidebar role="CLIENT" userName={user.name} hasPendingPayment={pendingCount > 0} />
-      <main className="md:ml-64 pt-16 md:pt-0 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-0 px-4 md:px-8 py-4 md:py-8 max-w-6xl mx-auto">
+      <main className="md:ml-64 pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-0 px-4 md:px-8 py-4 md:py-8 max-w-6xl mx-auto">
         {children}
       </main>
     </div>

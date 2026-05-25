@@ -131,7 +131,10 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
       </aside>
 
       {/* Mobile top bar */}
-      <header className="md:hidden fixed top-0 inset-x-0 bg-surface/80 backdrop-blur-md border-b border-border z-30 flex items-center justify-between px-3 h-14">
+      <header
+        className="md:hidden fixed top-0 inset-x-0 bg-surface/80 backdrop-blur-md border-b border-border z-30 flex items-center justify-between px-3 h-14"
+        style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(3.5rem + env(safe-area-inset-top))" }}
+      >
         {Brand}
         <div className="flex items-center gap-2">
           <ThemeToggle compact />
@@ -152,7 +155,8 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
         <div className="md:hidden fixed inset-0 z-40" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
           <div
-            className="absolute top-0 right-0 bottom-0 w-[85%] max-w-xs bg-surface border-l border-border p-4 flex flex-col animate-slide-in-right shadow-2xl"
+            className="absolute top-0 right-0 bottom-0 w-[85%] max-w-xs bg-surface border-l border-border px-4 pb-4 flex flex-col animate-slide-in-right shadow-2xl"
+            style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
