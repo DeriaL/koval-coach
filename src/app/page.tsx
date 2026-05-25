@@ -104,7 +104,7 @@ export default async function Home() {
             </Reveal>
 
             <Reveal delay={80}>
-              <h1 className="font-display mt-6 font-black tracking-tight leading-[0.98] text-[clamp(2.6rem,7vw,5.4rem)]">
+              <h1 className="font-display mt-6 font-black tracking-tight leading-[1] text-[clamp(1.9rem,7.5vw,5.4rem)] [text-wrap:balance]">
                 <span className="block">Твій шлях.</span>
                 <span className="block text-gradient">Твої результати.</span>
               </h1>
