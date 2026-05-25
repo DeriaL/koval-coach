@@ -74,7 +74,7 @@ export default async function DashboardHome() {
             Привіт, <span className="text-gradient">{firstName}</span> 👋
           </h1>
           <p className="text-sm text-muted mt-1">
-            {trainedToday ? "Тренування сьогодні — зроблено 💪" : "Готовий до нового дня?"}
+            {trainedToday ? "Сьогодні зроблено. Чудова робота 💪" : "Час нового дня!"}
           </p>
         </div>
         {streak > 0 && (
@@ -135,10 +135,10 @@ export default async function DashboardHome() {
               {trainedToday ? <><CheckCircle2 className="w-3 h-3" /> сьогодні · готово</> : <><Sparkles className="w-3 h-3" /> час тренуватись</>}
             </div>
             <div className="font-black text-2xl md:text-3xl leading-tight mt-0.5">
-              {trainedToday ? "Чудова робота!" : "Готовий тренуватись?"}
+              {trainedToday ? "Чудова робота!" : "Час у зал!"}
             </div>
             <div className="text-sm opacity-90 mt-1 truncate">
-              {trainedToday ? "Можеш переглянути результати або додати ще" : "Натисни — і починаємо"}
+              {trainedToday ? "Можна переглянути результати або додати ще" : "Натисни — і починаємо"}
             </div>
           </div>
           <ArrowRight className="w-7 h-7 opacity-90 shrink-0 group-hover:translate-x-1 transition-transform" />

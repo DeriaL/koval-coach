@@ -336,7 +336,7 @@ export default async function Home() {
                   <span className="text-xs uppercase tracking-widest text-muted">дистанційно</span>
                 </div>
                 <h3 className="font-display mt-6 text-3xl font-black tracking-tight">Онлайн-супровід</h3>
-                <p className="text-muted text-sm mt-1">тренуєшся сам, я веду тебе в кабінеті</p>
+                <p className="text-muted text-sm mt-1">тренуєшся самостійно, я веду тебе в кабінеті</p>
                 <div className="mt-6 flex items-baseline gap-2">
                   <span className="font-display text-5xl sm:text-6xl font-black tracking-tight text-gradient">{priceOnline}</span>
                   <span className="text-muted text-sm">грн / міс</span>
