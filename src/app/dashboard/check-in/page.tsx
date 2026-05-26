@@ -32,13 +32,24 @@ export default async function CheckInPage() {
         <CheckInForm defaults={existing ?? null} />
       </div>
 
-      <Link href="/dashboard/analytics" className="card p-4 mt-4 flex items-center gap-3 hover:border-accent/40 transition group">
-        <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center"><Ruler className="w-4 h-4" /></div>
-        <div className="flex-1">
-          <div className="font-medium text-sm">Зважився? Додай замір окремо</div>
-          <div className="text-xs text-muted">Вага, заміри тіла, % жиру — у вкладці «Аналітика»</div>
+      <Link
+        href="/dashboard/analytics"
+        className="block mt-4 relative overflow-hidden rounded-2xl border border-accent/40 bg-accent/[0.07] p-4 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-accent/[0.12] transition-all group shadow-glow"
+      >
+        <div className="flex items-center gap-3">
+          <span
+            className="relative h-11 w-11 rounded-xl accent-shine grid place-items-center text-white shrink-0"
+            style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.32), 0 8px 18px -6px rgb(var(--accent) / 0.55)" }}
+          >
+            <Ruler className="w-5 h-5" />
+            <span aria-hidden className="absolute inset-0 rounded-xl bg-accent/30 animate-ping -z-10" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-sm">Зважився? Додай замір окремо</div>
+            <div className="text-xs text-muted">Вага, заміри тіла, % жиру — у вкладці «Аналітика»</div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-accent shrink-0 group-hover:translate-x-1 transition" />
         </div>
-        <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent group-hover:translate-x-1 transition" />
       </Link>
 
       <div className="card p-6 mt-6">
