@@ -275,23 +275,31 @@ form .grid > * { min-width: 0; }
   100% { transform: translateX(310%); }
 }
 
-/* Eye-catching pulsing halo for primary call-to-action buttons.
-   Inherits border-radius from the host so it works on pill / square buttons. */
-.cta-pulse { position: relative; }
+/* Eye-catching pulsing CTA: the button itself breathes and emits an expanding
+   accent ring. Border-radius is inherited so it works on any button shape. */
+.cta-pulse {
+  position: relative;
+  animation: ctaBreathe 1.6s ease-in-out infinite;
+}
 .cta-pulse::after {
   content: "";
-  position: absolute; inset: 0;
+  position: absolute; inset: -2px;
   border-radius: inherit;
   pointer-events: none;
-  box-shadow: 0 0 0 0 rgb(var(--accent) / 0.55);
-  animation: ctaPulse 2s ease-out infinite;
+  border: 2px solid rgb(var(--accent) / 0.9);
+  opacity: 0;
+  animation: ctaRing 1.6s ease-out infinite;
 }
-@keyframes ctaPulse {
-  0%   { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.55); }
-  70%  { box-shadow: 0 0 0 14px rgb(var(--accent) / 0); }
-  100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); }
+@keyframes ctaBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+@keyframes ctaRing {
+  0%   { transform: scale(1);    opacity: 0.85; }
+  80%  { transform: scale(1.28); opacity: 0; }
+  100% { transform: scale(1.28); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cta-pulse::after { animation: none; }
+  .cta-pulse, .cta-pulse::after { animation: none; }
 }
 
