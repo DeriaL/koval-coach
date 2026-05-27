@@ -277,13 +277,13 @@ function QuickAction({ href, icon: Icon, title, done }: any) {
   return (
     <Link
       href={href}
-      className={`card p-4 flex flex-col items-start gap-2.5 hover:border-accent/40 hover:-translate-y-0.5 transition-all ${
-        done ? "border-success/40 bg-success/5" : ""
+      className={`card cta-pulse p-4 flex flex-col items-start gap-2.5 hover:-translate-y-0.5 transition-transform border-accent/40 bg-accent/[0.06] ${
+        done ? "!border-success/50 !bg-success/10" : ""
       }`}
     >
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-          done ? "bg-success/10 text-success border border-success/30" : "bg-accent/10 text-accent border border-accent/20"
+          done ? "bg-success/15 text-success border border-success/40" : "bg-accent/15 text-accent border border-accent/30"
         }`}
       >
         <Icon className="w-5 h-5" />

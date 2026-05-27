@@ -275,31 +275,16 @@ form .grid > * { min-width: 0; }
   100% { transform: translateX(310%); }
 }
 
-/* Eye-catching pulsing CTA: the button itself breathes and emits an expanding
-   accent ring. Border-radius is inherited so it works on any button shape. */
+/* Persistent highlight for primary CTAs — accent ring + soft glow shadow,
+   no animation. Brightens on hover. Inherits border-radius. */
 .cta-pulse {
-  position: relative;
-  animation: ctaBreathe 1.6s ease-in-out infinite;
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.35),
+    0 10px 28px -8px rgb(var(--accent) / 0.45);
 }
-.cta-pulse::after {
-  content: "";
-  position: absolute; inset: -2px;
-  border-radius: inherit;
-  pointer-events: none;
-  border: 2px solid rgb(var(--accent) / 0.9);
-  opacity: 0;
-  animation: ctaRing 1.6s ease-out infinite;
-}
-@keyframes ctaBreathe {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.04); }
-}
-@keyframes ctaRing {
-  0%   { transform: scale(1);    opacity: 0.85; }
-  80%  { transform: scale(1.28); opacity: 0; }
-  100% { transform: scale(1.28); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cta-pulse, .cta-pulse::after { animation: none; }
+.cta-pulse:hover {
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.55),
+    0 14px 34px -10px rgb(var(--accent) / 0.6);
 }
 
