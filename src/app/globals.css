@@ -290,3 +290,26 @@ form .grid > * { min-width: 0; }
     0 18px 42px -8px rgb(var(--accent) / 0.7);
 }
 
+/* Gentle blinking variant — same highlight, but the intensity smoothly
+   oscillates so the button feels "alive". For very-call-to-action elements. */
+.cta-blink {
+  animation: ctaBlink 2.2s ease-in-out infinite;
+}
+@keyframes ctaBlink {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgb(var(--accent) / 0.45),
+      0 0 18px rgb(var(--accent) / 0.35),
+      0 12px 28px -6px rgb(var(--accent) / 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgb(var(--accent) / 0.85),
+      0 0 32px rgb(var(--accent) / 0.7),
+      0 16px 36px -6px rgb(var(--accent) / 0.7);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-blink { animation: none; }
+}
+

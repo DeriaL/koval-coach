@@ -83,7 +83,7 @@ export function AddMeasurement({ initial, trigger }: Props) {
       {trigger ? (
         <span onClick={() => setOpen(true)} className="contents">{trigger}</span>
       ) : (
-        <button onClick={() => setOpen(true)} className={`btn btn-primary text-sm ${isEdit ? "" : "cta-pulse"}`}>
+        <button onClick={() => setOpen(true)} className={`btn btn-primary text-sm ${isEdit ? "" : "cta-blink"}`}>
           {isEdit ? <><Pencil className="w-4 h-4" /> Редагувати</> : <><Plus className="w-4 h-4" /> Додати замір</>}
         </button>
       )}

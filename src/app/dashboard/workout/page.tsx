@@ -64,7 +64,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
         </div>
         <Link
           href="/dashboard/workout/log"
-          className="btn btn-primary text-sm gap-1.5 shrink-0 cta-pulse"
+          className="btn btn-primary text-sm gap-1.5 shrink-0 cta-blink"
         >
           <Pencil className="w-4 h-4" /> Записати тренування
         </Link>
