@@ -275,3 +275,23 @@ form .grid > * { min-width: 0; }
   100% { transform: translateX(310%); }
 }
 
+/* Eye-catching pulsing halo for primary call-to-action buttons.
+   Inherits border-radius from the host so it works on pill / square buttons. */
+.cta-pulse { position: relative; }
+.cta-pulse::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 rgb(var(--accent) / 0.55);
+  animation: ctaPulse 2s ease-out infinite;
+}
+@keyframes ctaPulse {
+  0%   { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.55); }
+  70%  { box-shadow: 0 0 0 14px rgb(var(--accent) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-pulse::after { animation: none; }
+}
+
