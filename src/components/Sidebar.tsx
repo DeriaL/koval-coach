@@ -48,23 +48,25 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // bottom-nav: 5 основних пунктів (5 columns total) — окремо для клієнта й тренера
+  // bottom-nav: 5 основних пунктів (5 columns total) — окремо для клієнта й тренера.
+  // Use shorter labels here so the text doesn't overflow on narrow phones
+  // ("Мій профіль" → "Профіль", etc.).
   const bottomItems: Item[] = role === "CLIENT"
     ? [
         clientNav.find(i => i.href === "/dashboard")!,
         clientNav.find(i => i.href === "/dashboard/check-in")!,
-        clientNav.find(i => i.href === "/dashboard/workout")!,
+        { ...clientNav.find(i => i.href === "/dashboard/workout")!, label: "В залі" },
         clientNav.find(i => i.href === "/dashboard/analytics")!,
         // Profile isn't in clientNav (it's a separate footer entry on desktop),
         // declare it inline so the 5th column always renders.
         { href: "/dashboard/profile", label: "Профіль", icon: User },
       ].filter(Boolean) as Item[]
     : [
-        adminNav.find(i => i.href === "/admin")!,            // Клієнти
-        adminNav.find(i => i.href === "/admin/activity")!,   // Активність
-        adminNav.find(i => i.href === "/admin/sessions")!,   // Тренування
-        adminNav.find(i => i.href === "/admin/finance")!,    // Фінанси
-        adminNav.find(i => i.href === "/admin/profile")!,    // Мій профіль
+        { ...adminNav.find(i => i.href === "/admin")!, label: "Клієнти" },
+        { ...adminNav.find(i => i.href === "/admin/activity")!, label: "Активність" },
+        { ...adminNav.find(i => i.href === "/admin/sessions")!, label: "Сесії" },
+        { ...adminNav.find(i => i.href === "/admin/finance")!, label: "Фінанси" },
+        { ...adminNav.find(i => i.href === "/admin/profile")!, label: "Профіль" },
       ].filter(Boolean) as Item[];
 
   const NavList = (
@@ -214,8 +216,8 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
               >
                 {/* Icon bubble — 3D when active, flat otherwise */}
                 <span
-                  className={`relative h-10 w-10 grid place-items-center rounded-2xl transition-all duration-300 ${
-                    active ? "text-white -translate-y-1.5" : "text-muted"
+                  className={`relative h-8 w-8 grid place-items-center rounded-xl transition-all duration-300 ${
+                    active ? "text-white -translate-y-1" : "text-muted"
                   }`}
                   style={
                     active
@@ -223,7 +225,7 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
                           background:
                             "linear-gradient(135deg, rgb(var(--accent2)) 0%, rgb(var(--accent)) 55%, rgb(var(--accent-soft)) 100%)",
                           boxShadow:
-                            "inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(0,0,0,0.15), 0 10px 22px -6px rgb(var(--accent) / 0.6), 0 16px 30px -10px rgb(var(--accent2) / 0.45)",
+                            "inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(0,0,0,0.15), 0 8px 18px -5px rgb(var(--accent) / 0.6), 0 12px 24px -8px rgb(var(--accent2) / 0.45)",
                         }
                       : undefined
                   }
@@ -232,11 +234,11 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
                   {active && (
                     <span
                       aria-hidden
-                      className="absolute -inset-2 -z-10 rounded-full opacity-70 blur-xl"
+                      className="absolute -inset-1.5 -z-10 rounded-full opacity-70 blur-xl"
                       style={{ background: "radial-gradient(closest-side, rgb(var(--accent) / 0.55), transparent 70%)" }}
                     />
                   )}
-                  <i.icon className={`shrink-0 ${active ? "w-5 h-5" : "w-[22px] h-[22px]"}`} strokeWidth={active ? 2.4 : 1.8} />
+                  <i.icon className={`shrink-0 ${active ? "w-[18px] h-[18px]" : "w-[19px] h-[19px]"}`} strokeWidth={active ? 2.4 : 1.8} />
                 </span>
 
                 <span
