@@ -94,5 +94,31 @@ export async function POST(req: Request) {
 
   const data = await monoRes.json();
   // data = { invoiceId: "...", pageUrl: "https://pay.mbnk.biz/..." }
+
+  // Attach the Mono invoiceId to the pending Payment row so the webhook (and
+  // the page-load sync) can find it deterministically. If there is no pending
+  // row for this amount yet, leave it — the webhook fallback still works by
+  // amount matching, and a pending row may exist with a slightly different
+  // amount (e.g. a discount).
+  try {
+    const tag = `Mono:${data.invoiceId}`;
+    const pending = await prisma.payment.findFirst({
+      where: {
+        clientId: user.id,
+        amount: amountUAH,
+        status: { in: ["pending", "overdue"] },
+      },
+      orderBy: { date: "asc" },
+    });
+    if (pending && !(pending.notes ?? "").includes(data.invoiceId)) {
+      await prisma.payment.update({
+        where: { id: pending.id },
+        data: { notes: pending.notes ? `${pending.notes} · ${tag}` : tag },
+      });
+    }
+  } catch (e) {
+    console.error("attach invoiceId to pending payment failed:", e);
+  }
+
   return NextResponse.json({ pageUrl: data.pageUrl, invoiceId: data.invoiceId });
 }

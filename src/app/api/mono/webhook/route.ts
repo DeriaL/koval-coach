@@ -31,51 +31,66 @@ export async function POST(req: Request) {
     const notesText = `Plata by Mono · ${invoiceId}`;
     const currency = ccy === 980 ? "UAH" : String(ccy);
 
-    // 1) Idempotency: if a payment with this invoiceId is already recorded,
-    //    do nothing. Mono may call the webhook several times.
-    const already = await prisma.payment.findFirst({
+    // 1) Look up by invoiceId first — checkout attaches "Mono:<invoiceId>" to
+    //    the pending Payment row, so this is the most reliable match.
+    const byInvoice = await prisma.payment.findFirst({
       where: { clientId, notes: { contains: invoiceId } },
-      select: { id: true },
-    });
-    if (already) {
-      return NextResponse.json({ ok: true, dedup: true });
-    }
-
-    // 2) Try to close an existing pending/overdue invoice of the same amount —
-    //    this is what the client actually paid for, so update it in place.
-    const pending = await prisma.payment.findFirst({
-      where: {
-        clientId,
-        amount: amountUAH,
-        status: { in: ["pending", "overdue"] },
-      },
-      orderBy: { date: "asc" },
     });
 
-    if (pending) {
+    if (byInvoice) {
+      // Already marked paid → noop (Mono retries the webhook).
+      if (byInvoice.status === "paid") {
+        return NextResponse.json({ ok: true, dedup: true });
+      }
       await prisma.payment.update({
-        where: { id: pending.id },
+        where: { id: byInvoice.id },
         data: {
           status: "paid",
           date: new Date(),
           method: "monobank",
           currency,
-          notes: pending.notes ? `${pending.notes} · ${notesText}` : notesText,
+          notes: byInvoice.notes && !byInvoice.notes.includes(notesText)
+            ? `${byInvoice.notes} · ${notesText}`
+            : (byInvoice.notes ?? notesText),
         },
       });
     } else {
-      // 3) Fallback: no matching pending invoice — record it as a new paid row.
-      await prisma.payment.create({
-        data: {
+      // 2) Fallback: no row carries this invoiceId yet (e.g. old payment created
+      //    before checkout could attach the tag). Match by amount, oldest first.
+      const pending = await prisma.payment.findFirst({
+        where: {
           clientId,
           amount: amountUAH,
-          currency,
-          date: new Date(),
-          method: "monobank",
-          status: "paid",
-          notes: notesText,
+          status: { in: ["pending", "overdue"] },
         },
+        orderBy: { date: "asc" },
       });
+
+      if (pending) {
+        await prisma.payment.update({
+          where: { id: pending.id },
+          data: {
+            status: "paid",
+            date: new Date(),
+            method: "monobank",
+            currency,
+            notes: pending.notes ? `${pending.notes} · ${notesText}` : notesText,
+          },
+        });
+      } else {
+        // 3) Nothing pending — record ad-hoc paid row.
+        await prisma.payment.create({
+          data: {
+            clientId,
+            amount: amountUAH,
+            currency,
+            date: new Date(),
+            method: "monobank",
+            status: "paid",
+            notes: notesText,
+          },
+        });
+      }
     }
 
     // Refresh client + admin views so the UI no longer shows "pending".

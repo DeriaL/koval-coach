@@ -1,9 +1,15 @@
 import { requireClient } from "@/lib/session";
 import { Sidebar } from "@/components/Sidebar";
 import { prisma } from "@/lib/prisma";
+import { syncClientPendingPayments } from "@/lib/monoSync";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireClient();
+
+  // Reconcile any still-pending payment that Mono has already marked paid.
+  // Cheap (≤ 1-2 invoices per client). Wrapped to never block layout render.
+  await syncClientPendingPayments(user.id).catch(() => 0);
+
   // Show a red dot on the menu button if there's an unpaid invoice.
   const pendingCount = await prisma.payment.count({
     where: { clientId: user.id, status: { in: ["pending", "overdue"] } },

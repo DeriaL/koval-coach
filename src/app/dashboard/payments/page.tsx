@@ -5,11 +5,19 @@ import { Wallet, CheckCircle2, Clock, AlertTriangle, Flag, Check, CreditCard } f
 import { PaymentDetails } from "./PaymentDetails";
 import { MonobankQR } from "./MonobankQR";
 import { PayButton } from "./PayButton";
+import { syncClientPendingPayments } from "@/lib/monoSync";
 
 const TOTAL_STOPS = 10;
 
 export default async function PaymentsPage() {
   const u = await requireClient();
+
+  // Safety net: ping Mono for the status of any pending payment that has an
+  // attached Mono:<invoiceId> tag. If the webhook didn't fire (Mono retry,
+  // network glitch), this guarantees the user always sees the correct state
+  // the moment they open the page after paying.
+  await syncClientPendingPayments(u.id).catch(() => 0);
+
   const [list, user] = await Promise.all([
     prisma.payment.findMany({ where: { clientId: u.id }, orderBy: { date: "asc" } }),
     prisma.user.findUnique({ where: { id: u.id }, select: { pricePer10: true, pricePerSession: true, priceMonthly: true, coachingPlan: true, subscriptionStartDate: true, nextBillingDate: true } as any }) as any,
