@@ -9,7 +9,29 @@ interface Props {
   fileUrl: string;
   fileType: string;
   emoji?: string | null;
+  description?: string | null;
   onClose: () => void;
+}
+
+// Render a string with URLs turned into clickable links.
+function linkify(text: string) {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noreferrer"
+        className="text-accent underline-offset-2 hover:underline break-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {part.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
 }
 
 // Build absolute URL for relative paths — needed by external viewers (Office, Google Docs)
@@ -133,7 +155,7 @@ export function RecipePreviewModal(props: Props) {
   return createPortal(<RecipePreviewModalInner {...props} />, document.body);
 }
 
-function RecipePreviewModalInner({ title, fileUrl, fileType, emoji, onClose }: Props) {
+function RecipePreviewModalInner({ title, fileUrl, fileType, emoji, description, onClose }: Props) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -198,15 +220,22 @@ function RecipePreviewModalInner({ title, fileUrl, fileType, emoji, onClose }: P
       onClick={onClose}>
 
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface/95 border-b border-border shrink-0"
+      <div className="px-4 py-3 bg-surface/95 border-b border-border shrink-0"
         onClick={e => e.stopPropagation()}>
-        <div className="font-semibold truncate pr-4">{title}</div>
-        <div className="flex items-center gap-2 shrink-0">
-          <a href={fileUrl} target="_blank" rel="noreferrer" className="btn text-xs gap-1.5 py-2 px-3">
-            <ExternalLink className="w-3.5 h-3.5" /> Відкрити окремо
-          </a>
-          <button onClick={onClose} className="btn py-2 px-3"><X className="w-4 h-4" /></button>
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-semibold truncate pr-2">{title}</div>
+          <div className="flex items-center gap-2 shrink-0">
+            <a href={fileUrl} target="_blank" rel="noreferrer" className="btn text-xs gap-1.5 py-2 px-3">
+              <ExternalLink className="w-3.5 h-3.5" /> Відкрити окремо
+            </a>
+            <button onClick={onClose} className="btn py-2 px-3"><X className="w-4 h-4" /></button>
+          </div>
         </div>
+        {description && (
+          <div className="text-xs text-muted mt-1.5 leading-relaxed">
+            {linkify(description)}
+          </div>
+        )}
       </div>
 
       {/* Content */}
