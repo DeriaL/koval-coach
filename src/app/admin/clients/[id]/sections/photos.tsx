@@ -6,6 +6,7 @@ import {
   Trash2, Plus, Save, X, Loader2, Upload, Image as ImageIcon,
   Camera, ChevronLeft, ChevronRight, Calendar,
 } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 
 type Photo = {
   id: string;
@@ -27,7 +28,7 @@ export function PhotosTab({ clientId, items }: { clientId: string; items: Photo[
   const [pending, start] = useTransition();
 
   function handleAdd() {
-    setEditing({ date: new Date().toISOString().slice(0, 10) });
+    setEditing({ date: kyivDayKey(new Date()) });
   }
   function save(data: Record<string, any>) {
     start(async () => {
@@ -104,7 +105,7 @@ export function PhotosTab({ clientId, items }: { clientId: string; items: Photo[
                 {/* Date overlay */}
                 <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5 text-white text-[11px] font-medium drop-shadow">
                   <Calendar className="w-3 h-3 shrink-0" />
-                  <span className="truncate">{new Date(p.date).toLocaleDateString("uk-UA")}</span>
+                  <span className="truncate">{new Date(p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</span>
                 </div>
                 {/* Delete button (visible on hover) */}
                 <button
@@ -279,7 +280,7 @@ function PhotoForm({
           <input
             name="date"
             type="date"
-            defaultValue={initial.date ? new Date(initial.date as any).toISOString().slice(0, 10) : ""}
+            defaultValue={initial.date ? kyivDayKey(new Date(initial.date as any)) : ""}
             required
             className="input"
           />
@@ -389,7 +390,7 @@ function Lightbox({
       >
         <Camera className="w-4 h-4 text-white shrink-0" />
         <div className="font-semibold text-white truncate flex-1 text-sm sm:text-base">
-          {new Date(p.date).toLocaleDateString("uk-UA", { day: "2-digit", month: "long", year: "numeric" })}
+          {new Date(p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  day: "2-digit", month: "long", year: "numeric" })}
           {p.angle && <span className="text-white/60 font-normal ml-2">· {ANGLE_LABEL[p.angle] ?? p.angle}</span>}
         </div>
         <button

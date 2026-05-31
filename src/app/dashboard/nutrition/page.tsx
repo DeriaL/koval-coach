@@ -72,7 +72,7 @@ export default async function NutritionPage({ searchParams }: { searchParams: { 
           <div className="grid grid-cols-3 gap-2 md:gap-3 md:shrink-0">
             <HeaderChip k="Ціль" v={data?.goal ?? "—"} />
             <HeaderChip k="Фаза" v={data?.phase ?? "—"} />
-            <HeaderChip k="Оновлено" v={plan.updatedAt.toLocaleDateString("uk-UA")} />
+            <HeaderChip k="Оновлено" v={plan.updatedAt.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })} />
           </div>
         </div>
       </div>

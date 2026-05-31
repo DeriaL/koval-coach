@@ -48,7 +48,7 @@ export async function GET(req: Request) {
 
     // Create the pending payment for this billing period
     const billingDate = new Date(u.nextBillingDate);
-    const monthLabel = billingDate.toLocaleDateString("uk-UA", { month: "long", year: "numeric" });
+    const monthLabel = billingDate.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  month: "long", year: "numeric" });
 
     try {
       // Idempotency: don't double-invoice for the same period (cron runs hourly).

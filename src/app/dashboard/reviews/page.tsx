@@ -46,7 +46,7 @@ export default async function ReviewsPage() {
                   <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">{r.text}</div>
                 )}
                 <div className="text-[10px] text-muted mt-2">
-                  {new Date(r.createdAt).toLocaleDateString("uk-UA", { dateStyle: "long" })}
+                  {new Date(r.createdAt).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  dateStyle: "long" })}
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X, Dumbbell, Ban, Sparkles, AlertCircle, Clock } from "lucide-react";
+import { kyivDayKey, fmtKyivDate, fmtKyivTime } from "@/lib/kyivTime";
 
 type S = {
   id: string;
@@ -45,7 +46,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
     const map = new Map<DayKey, S[]>();
     for (const s of sessions) {
       const dt = new Date(s.scheduledAt ?? s.date);
-      const k = ymd(dt);
+      const k = kyivDayKey(dt); // bucket by the session's Kyiv day
       const arr = map.get(k) ?? [];
       arr.push(s);
       map.set(k, arr);
@@ -70,7 +71,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
   }, [cursor]);
 
   const monthLabel = cursor.toLocaleDateString("uk-UA", { month: "long", year: "numeric" });
-  const todayKey = ymd(new Date());
+  const todayKey = kyivDayKey(new Date());
   const selSessions = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
 
   return (
@@ -161,7 +162,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
               <div>
                 <div className="text-xs text-muted uppercase tracking-wider">День</div>
                 <div className="font-bold text-lg">
-                  {new Date(selectedDay).toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" })}
+                  {fmtKyivDate(new Date(selectedDay + "T12:00"), { weekday: "long", day: "numeric", month: "long" })}
                 </div>
               </div>
               <button onClick={() => setSelectedDay(null)} className="btn px-3 py-2"><X className="w-4 h-4" /></button>

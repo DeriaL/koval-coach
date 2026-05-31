@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireTrainer } from "@/lib/session";
 import { revalidatePath } from "next/cache";
+import { parseKyivDate } from "@/lib/kyivTime";
 
 export async function addLedgerEntry(data: {
   type: "income" | "expense";
@@ -20,7 +21,7 @@ export async function addLedgerEntry(data: {
       type: data.type,
       amount,
       currency: "UAH",
-      date: new Date(data.date),
+      date: parseKyivDate(data.date) ?? new Date(),
       category: data.category || null,
       notes: data.notes || null,
     },

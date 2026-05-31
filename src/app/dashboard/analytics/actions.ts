@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireClient } from "@/lib/session";
 import { revalidatePath } from "next/cache";
+import { parseKyivDate, kyivStartOfToday, kyivAddDays } from "@/lib/kyivTime";
 
 // Parse a measurement value:
 // - empty/null/NaN → null (field not filled)
@@ -16,16 +17,15 @@ function num(v: any): number | null {
 }
 
 function clampDate(input: any): Date {
-  const d = new Date(input);
-  if (Number.isNaN(d.getTime())) throw new Error("Невірна дата");
-  const now = new Date();
-  const year = now.getFullYear();
-  // Reject any date outside current year — clients can only log for THIS year
+  // Date-only input parsed as Kyiv local midnight.
+  const d = parseKyivDate(input);
+  if (!d || Number.isNaN(d.getTime())) throw new Error("Невірна дата");
+  const year = new Date().getFullYear();
   if (d.getFullYear() !== year) {
     throw new Error(`Можна вносити заміри тільки за ${year} рік`);
   }
-  // Reject future dates beyond today
-  if (d.getTime() > now.getTime() + 86400_000) {
+  // Reject future dates beyond the end of today (Kyiv).
+  if (d.getTime() >= kyivAddDays(kyivStartOfToday(), 1).getTime()) {
     throw new Error("Не можна вносити заміри з майбутніх дат");
   }
   return d;

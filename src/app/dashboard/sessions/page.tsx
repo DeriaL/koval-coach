@@ -40,7 +40,7 @@ export default async function ClientSessions() {
   // Group upcoming by day
   const upcomingByDay = new Map<string, typeof upcoming>();
   for (const s of upcoming) {
-    const k = new Date(s.scheduledAt!).toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" });
+    const k = new Date(s.scheduledAt!).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  weekday: "long", day: "numeric", month: "long" });
     const arr = upcomingByDay.get(k) ?? [];
     arr.push(s); upcomingByDay.set(k, arr);
   }

@@ -7,6 +7,7 @@ import { Heatmap } from "@/components/Heatmap";
 import { movingAverage, linearRegression, bmi, bmiCategory, calcStreak, buildHeatmap } from "@/lib/analytics";
 import { LineChart, Scale, TrendingDown, Target, Flame, Heart, Moon, Zap, Trophy, Calendar, Droplet, Activity, Dumbbell, Pencil } from "lucide-react";
 import { AddMeasurement } from "./AddMeasurement";
+import { fmtKyivDate, kyivDayKey, kyivWeekday, kyivStartOfDay, kyivAddDays } from "@/lib/kyivTime";
 
 export default async function AnalyticsPage() {
   const u = await requireClient();
@@ -29,7 +30,7 @@ export default async function AnalyticsPage() {
       </div>
     );
 
-  const fmt = (d: Date) => new Date(d).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" });
+  const fmt = (d: Date) => fmtKyivDate(d, { day: "2-digit", month: "short" });
 
   // ---- Weight (merge check-ins + measurements, sort by date) ----
   const wSeries = [
@@ -84,22 +85,26 @@ export default async function AnalyticsPage() {
   const b = bmi(latestWeight, user.height);
   const bCat = bmiCategory(b);
 
-  // ---- Tonnage / Volume per week ----
-  function startOfWeek(d: Date) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); x.setHours(0,0,0,0); return x; }
+  // ---- Tonnage / Volume per week (Kyiv-aware, Monday-start) ----
+  function startOfWeek(d: Date): Date {
+    const start = kyivStartOfDay(new Date(d));
+    return kyivAddDays(start, -kyivWeekday(start));
+  }
   const weekMap = new Map<string, number>();
   for (const s of sessionSets) {
     const w = s.weight! * s.reps!;
-    const key = startOfWeek(s.session.date).toISOString().slice(0,10);
+    const key = kyivDayKey(startOfWeek(s.session.date));
     weekMap.set(key, (weekMap.get(key) ?? 0) + w);
   }
   const weeks: { date: string; v: number }[] = [];
   if (weekMap.size > 0) {
     const sortedKeys = Array.from(weekMap.keys()).sort();
-    const first = new Date(sortedKeys[0]);
+    let cursor = startOfWeek(new Date(sortedKeys[0] + "T12:00"));
     const last = startOfWeek(new Date());
-    for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 7)) {
-      const k = d.toISOString().slice(0,10);
-      weeks.push({ date: new Date(k).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" }), v: Math.round(weekMap.get(k) ?? 0) });
+    while (cursor <= last) {
+      const k = kyivDayKey(cursor);
+      weeks.push({ date: fmtKyivDate(cursor, { day: "2-digit", month: "short" }), v: Math.round(weekMap.get(k) ?? 0) });
+      cursor = kyivAddDays(cursor, 7);
     }
   }
   const totalTonnage = Array.from(weekMap.values()).reduce((a,b)=>a+b,0);
@@ -188,7 +193,7 @@ export default async function AnalyticsPage() {
             <h3 className="font-semibold">Вага + 7-денне середнє</h3>
             {lowestDate && (
               <span className="chip text-xs text-success">
-                <Trophy className="w-3 h-3" /> мін. {lowestWeight.toFixed(1)} · {lowestDate.toLocaleDateString("uk-UA")}
+                <Trophy className="w-3 h-3" /> мін. {lowestWeight.toFixed(1)} · {fmtKyivDate(lowestDate)}
               </span>
             )}
           </div>
@@ -315,7 +320,7 @@ export default async function AnalyticsPage() {
               <tbody>
                 {measurements.slice().reverse().map((x) => (
                   <tr key={x.id} className="border-t border-border hover:bg-surface/40 transition">
-                    <td className="py-2 whitespace-nowrap">{x.date.toLocaleDateString("uk-UA")}</td>
+                    <td className="py-2 whitespace-nowrap">{fmtKyivDate(x.date)}</td>
                     <td className="text-right">{x.weight?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.bodyFat?.toFixed(1) ?? "—"}</td>
                     <td className="text-right">{x.shoulders?.toFixed(1) ?? "—"}</td>

@@ -4,11 +4,11 @@ import { PageHeader } from "@/components/ui";
 import { CheckInForm } from "./form";
 import { Flame, Moon, Smile, Zap, Droplet, Footprints, Ruler, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { kyivStartOfToday, fmtKyivDate } from "@/lib/kyivTime";
 
 export default async function CheckInPage() {
   const u = await requireClient();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = kyivStartOfToday();
   const existing = await prisma.checkIn.findFirst({
     where: { clientId: u.id, date: { gte: today } },
     orderBy: { date: "desc" },
@@ -58,7 +58,7 @@ export default async function CheckInPage() {
           {recent.slice().reverse().map((c) => (
             <div key={c.id} className="p-3 rounded-xl bg-surface border border-border text-center">
               <div className="text-xs text-muted">
-                {c.date.toLocaleDateString("uk-UA", { day: "2-digit", month: "short" })}
+                {fmtKyivDate(c.date, { day: "2-digit", month: "short" })}
               </div>
               <div className="mt-1 text-2xl">{c.mood === 5 ? "😄" : c.mood === 4 ? "🙂" : c.mood === 3 ? "😐" : c.mood === 2 ? "🙁" : "😞"}</div>
               <div className="text-[11px] text-muted mt-1">

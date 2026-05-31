@@ -50,7 +50,7 @@ export function RemindersTab({ clientId, items }: { clientId: string; items: any
               <Bell className="w-4 h-4 text-accent shrink-0" />
               <div className="min-w-0">
                 <div className="font-medium break-words">{r.title}</div>
-                <div className="text-xs text-muted">{new Date(r.datetime).toLocaleString("uk-UA")}</div>
+                <div className="text-xs text-muted">{new Date(r.datetime).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv", dateStyle: "short", timeStyle: "short" })}</div>
               </div>
             </div>
             <div className="flex gap-2 items-center shrink-0 flex-wrap">

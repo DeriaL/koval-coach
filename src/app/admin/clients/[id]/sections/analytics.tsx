@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react";
 import { saveMeasurement, deleteMeasurement } from "../../actions";
 import { Pencil, Trash2, Plus, Save, X, Loader2 } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 import { WeightChart, MultiLineChart } from "@/components/Charts";
 
 export function AnalyticsTab({ clientId, items }: { clientId: string; items: any[] }) {
@@ -14,7 +15,7 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
   }
   function del(id: string) { if (!confirm("Видалити замір?")) return; start(async () => { await deleteMeasurement(id, clientId); }); }
 
-  const fmt = (d: Date) => new Date(d).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" });
+  const fmt = (d: Date) => new Date(d).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  day: "2-digit", month: "short" });
   const wData = items.filter(x => x.weight).map(x => ({ date: fmt(x.date), weight: Number(x.weight.toFixed(1)) }));
   const gData = items.map(x => ({
     date: fmt(x.date),
@@ -28,7 +29,7 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-semibold">Заміри</h3>
-        {!editing && <button onClick={() => setEditing({ date: new Date().toISOString().slice(0,10) })} className="btn btn-primary"><Plus className="w-4 h-4" /> Додати замір</button>}
+        {!editing && <button onClick={() => setEditing({ date: kyivDayKey(new Date()) })} className="btn btn-primary"><Plus className="w-4 h-4" /> Додати замір</button>}
       </div>
 
       {editing && (
@@ -38,7 +39,7 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button>
           </div>
           <div className="grid md:grid-cols-4 gap-3">
-            <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? new Date(editing.date).toISOString().slice(0,10) : ""} required className="input" /></div>
+            <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? kyivDayKey(new Date(editing.date)) : ""} required className="input" /></div>
             <NumField name="weight" label="Вага (кг)" defaultValue={editing.weight} />
             <NumField name="bodyFat" label="% жиру" defaultValue={editing.bodyFat} />
             <NumField name="shoulders" label="Плечовий пояс" defaultValue={editing.shoulders} />
@@ -116,7 +117,7 @@ export function AnalyticsTab({ clientId, items }: { clientId: string; items: any
           <tbody>
             {items.slice().reverse().map(m => (
               <tr key={m.id} className="border-t border-border text-xs">
-                <td className="p-3 whitespace-nowrap">{new Date(m.date).toLocaleDateString("uk-UA")}</td>
+                <td className="p-3 whitespace-nowrap">{new Date(m.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</td>
                 <td className="text-right">{m.weight?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.bodyFat?.toFixed(1) ?? "—"}</td>
                 <td className="text-right">{m.shoulders?.toFixed(1) ?? "—"}</td>

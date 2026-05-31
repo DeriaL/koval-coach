@@ -224,7 +224,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
                 <div key={s.id} className="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-accent/15">
                   <div className="min-w-0">
                     <div className="font-medium text-xs truncate">{s.exerciseName}</div>
-                    <div className="text-[10px] text-muted">{s.createdAt.toLocaleDateString("uk-UA")}</div>
+                    <div className="text-[10px] text-muted">{s.createdAt.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</div>
                   </div>
                   <div className="font-bold text-sm text-accent shrink-0 ml-2">
                     {s.weight?.toFixed(1)} <span className="text-xs font-normal text-muted">кг×{s.reps}</span>
@@ -253,7 +253,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-xs truncate">{s.title}</div>
                     <div className="text-[10px] text-muted mt-0.5">
-                      {s.date.toLocaleDateString("uk-UA")} · {Math.round((s.durationSec ?? 0) / 60)} хв · {s.sets.length} підходів
+                      {s.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })} · {Math.round((s.durationSec ?? 0) / 60)} хв · {s.sets.length} підходів
                     </div>
                   </div>
                 </div>

@@ -75,7 +75,7 @@ export default async function PaymentsPage() {
     const thisMonthPayment = list.find(p =>
       (p.status === "paid" || p.status === "pending") && new Date(p.date) >= monthStart
     );
-    const monthLabel = now.toLocaleDateString("uk-UA", { month: "long", year: "numeric" });
+    const monthLabel = now.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  month: "long", year: "numeric" });
 
     return (
       <div>
@@ -122,7 +122,7 @@ export default async function PaymentsPage() {
           {(user as any)?.nextBillingDate && (
             <div className="mt-3 text-xs text-muted flex items-center gap-1.5">
               <span>📅</span>
-              <span>Наступний рахунок: <b className="text-text">{new Date((user as any).nextBillingDate).toLocaleDateString("uk-UA", { dateStyle: "long" })}</b></span>
+              <span>Наступний рахунок: <b className="text-text">{new Date((user as any).nextBillingDate).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  dateStyle: "long" })}</b></span>
             </div>
           )}
         </div>
@@ -143,7 +143,7 @@ export default async function PaymentsPage() {
                     <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
                     <div className="min-w-0">
                       <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
-                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA", { month: "long", year: "numeric" })}{p.notes ? ` · ${p.notes}` : ""}</div>
+                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  month: "long", year: "numeric" })}{p.notes ? ` · ${p.notes}` : ""}</div>
                     </div>
                   </div>
                   <span className={`chip ${s.color} shrink-0`}>{s.label}</span>
@@ -216,7 +216,7 @@ export default async function PaymentsPage() {
                     <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
                     <div className="min-w-0">
                       <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
-                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA")} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
+                      <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
                     </div>
                   </div>
                   <span className={`chip ${s.color} shrink-0`}>{s.label}</span>
@@ -341,7 +341,7 @@ export default async function PaymentsPage() {
                   <Icon className={`w-5 h-5 ${s.color} shrink-0`} />
                   <div className="min-w-0">
                     <div className="font-medium">{p.amount.toLocaleString("uk-UA")} {p.currency}</div>
-                    <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA")} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
+                    <div className="text-xs text-muted break-words">{p.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })} · {p.method ?? "—"}{p.notes ? ` · ${p.notes}` : ""}</div>
                   </div>
                 </div>
                 <span className={`chip ${s.color} shrink-0`}>{s.label}</span>

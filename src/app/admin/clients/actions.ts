@@ -5,9 +5,11 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { notifyUser } from "@/lib/telegram";
-import { parseKyivLocal } from "@/lib/kyivTime";
+import { parseKyivLocal, parseKyivDate } from "@/lib/kyivTime";
 
-function toDate(v: any) { return v ? new Date(v) : null; }
+// Date-only inputs are interpreted as Kyiv local midnight, so they never drift
+// to the previous day on a UTC server.
+function toDate(v: any) { return v ? parseKyivDate(v) : null; }
 function toNum(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
 
 // Stricter version for measurements: rejects values < 0.1, rounds to 1 decimal.
@@ -184,7 +186,7 @@ export async function savePayment(id: string, data: Record<string, any>) {
   const payload = {
     amount: Number(data.amount),
     currency: data.currency || "UAH",
-    date: new Date(data.date),
+    date: parseKyivDate(data.date) ?? new Date(),
     method: data.method || null,
     status: data.status || "paid",
     notes: data.notes || null,
@@ -211,7 +213,7 @@ export async function deletePayment(id: string, clientId: string) {
 export async function saveMeasurement(id: string, data: Record<string, any>) {
   await requireTrainer();
   const payload = {
-    date: new Date(data.date),
+    date: parseKyivDate(data.date) ?? new Date(),
     weight: toMeasurement(data.weight),
     chest: toMeasurement(data.chest),
     waist: toMeasurement(data.waist),
@@ -244,7 +246,7 @@ export async function savePhoto(id: string, data: Record<string, any>) {
   await requireTrainer();
   const payload = {
     url: data.url,
-    date: new Date(data.date),
+    date: parseKyivDate(data.date) ?? new Date(),
     angle: data.angle || null,
     notes: data.notes || null,
   };

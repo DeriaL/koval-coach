@@ -10,11 +10,12 @@ import { ScheduleButton } from "./schedule-button";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { CalendarPlus, Download } from "lucide-react";
 import { SessionsCalendar } from "./calendar";
+import { kyivStartOfToday, kyivAddDays, fmtKyivDate } from "@/lib/kyivTime";
 
 export default async function AdminSessions({ searchParams }: { searchParams: { format?: string; client?: string } }) {
   await requireTrainer();
   const now = new Date();
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayStart = kyivStartOfToday();
   const weekAhead = new Date(now.getTime() + 14 * 86400000);
   const monthAgo = new Date(now.getTime() - 30 * 86400000);
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
@@ -69,7 +70,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     prisma.user.findMany({ where: { role: "CLIENT" }, select: { id: true, firstName: true, lastName: true, coachingPlan: true }, orderBy: { firstName: "asc" } }),
     prisma.workoutSession.count({
       where: {
-        scheduledAt: { gte: todayStart, lt: new Date(todayStart.getTime() + 86400000) },
+        scheduledAt: { gte: todayStart, lt: kyivAddDays(todayStart, 1) },
         client: { role: "CLIENT" },
       },
     }),
@@ -89,7 +90,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   // Group upcoming by day
   const upcomingByDay = new Map<string, typeof upcoming>();
   for (const s of upcoming) {
-    const k = new Date(s.scheduledAt!).toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" });
+    const k = fmtKyivDate(s.scheduledAt!, { weekday: "long", day: "numeric", month: "long" });
     const arr = upcomingByDay.get(k) ?? [];
     arr.push(s); upcomingByDay.set(k, arr);
   }
@@ -293,7 +294,7 @@ function SessionCard({ session, mode }: { session: any; mode: "awaiting" | "upco
           </div>
           <div className="text-[11px] text-muted">
             {mode === "done"
-              ? new Date(dt).toLocaleDateString("uk-UA", { day: "2-digit", month: "short" })
+              ? fmtKyivDate(dt, { day: "2-digit", month: "short" })
               : formatDistanceToNow(new Date(dt), { addSuffix: true, locale: uk })}
           </div>
         </div>

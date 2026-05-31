@@ -3,6 +3,7 @@ import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { saveOwnMeasurement, updateOwnMeasurement, deleteOwnMeasurement } from "./actions";
 import { Plus, X, Save, Loader2, Ruler, Pencil, Trash2, HelpCircle, ChevronDown } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 
 type MeasurementInitial = {
   id: string;
@@ -44,8 +45,8 @@ export function AddMeasurement({ initial, trigger }: Props) {
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [open]);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const dateValue = initial ? initial.date.toISOString().slice(0, 10) : today;
+  const today = kyivDayKey(new Date());
+  const dateValue = initial ? kyivDayKey(initial.date) : today;
   // Restrict client date picker to current year
   const currentYear = new Date().getFullYear();
   const minDate = `${currentYear}-01-01`;

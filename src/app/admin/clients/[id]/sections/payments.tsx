@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react";
 import { savePayment, deletePayment } from "../../actions";
 import { Pencil, Trash2, Plus, Save, X, Loader2 } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 
 export function PaymentsTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
@@ -22,7 +23,7 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
           <div className="text-xs uppercase text-muted">Всього сплачено</div>
           <div className="text-xl font-bold">{total.toLocaleString("uk-UA")} ₴</div>
         </div>
-        {!editing && <button onClick={() => setEditing({ date: new Date().toISOString().slice(0,10), status: "paid" })} className="btn btn-primary"><Plus className="w-4 h-4" /> Новий платіж</button>}
+        {!editing && <button onClick={() => setEditing({ date: kyivDayKey(new Date()), status: "paid" })} className="btn btn-primary"><Plus className="w-4 h-4" /> Новий платіж</button>}
       </div>
 
       {editing && (
@@ -32,7 +33,7 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
           <div className="grid md:grid-cols-4 gap-3">
             <div><label className="label">Сума</label><input name="amount" type="number" step="0.01" defaultValue={editing.amount ?? ""} required className="input" /></div>
             <div><label className="label">Валюта</label><input name="currency" defaultValue={editing.currency ?? "UAH"} className="input" /></div>
-            <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? new Date(editing.date).toISOString().slice(0,10) : ""} required className="input" /></div>
+            <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? kyivDayKey(new Date(editing.date)) : ""} required className="input" /></div>
             <div><label className="label">Статус</label>
               <select name="status" defaultValue={editing.status ?? "paid"} className="select">
                 <option value="paid">Оплачено</option>
@@ -55,7 +56,7 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
           <div key={p.id} className="p-4 flex items-center justify-between gap-3 flex-wrap">
             <div className="min-w-0">
               <div className="font-medium">{p.amount} {p.currency}</div>
-              <div className="text-xs text-muted break-words">{new Date(p.date).toLocaleDateString("uk-UA")} · {p.method ?? "—"}</div>
+              <div className="text-xs text-muted break-words">{new Date(p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })} · {p.method ?? "—"}</div>
             </div>
             <span className={`chip text-xs shrink-0 ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-accent" : "text-danger"}`}>{p.status}</span>
             <div className="flex gap-1 shrink-0">

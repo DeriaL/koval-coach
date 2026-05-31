@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui";
 import Link from "next/link";
 import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket } from "lucide-react";
 import { ClientSearch } from "./ClientSearch";
+import { kyivDayKey } from "@/lib/kyivTime";
 
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
@@ -107,7 +108,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         {clients.map((c, i) => {
           const latest = c.measurements[0];
           const delta = latest && c.startWeight ? latest.weight! - c.startWeight : 0;
-          const streakDays = new Set(c.checkIns.map((x) => x.date.toISOString().slice(0, 10))).size;
+          const streakDays = new Set(c.checkIns.map((x) => kyivDayKey(x.date))).size;
           const pendingPay = c.payments.find(p => p.status === "pending" || p.status === "overdue");
           const sessions = c._count.sessions;
           const nextMilestone = Math.ceil((sessions + 1) / 10) * 10;

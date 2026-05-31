@@ -10,7 +10,7 @@ export function CheckInsTab({ items }: { items: any[] }) {
         {items.map(c => (
           <div key={c.id} className="p-4 flex flex-wrap items-center gap-4 text-sm">
             <div className="min-w-[120px]">
-              <div className="font-medium">{new Date(c.date).toLocaleDateString("uk-UA")}</div>
+              <div className="font-medium">{new Date(c.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</div>
               <div className="text-2xl">{c.mood === 5 ? "😄" : c.mood === 4 ? "🙂" : c.mood === 3 ? "😐" : c.mood === 2 ? "🙁" : "😞"}</div>
             </div>
             <div className="flex items-center gap-1 text-muted"><Moon className="w-3.5 h-3.5" /> {c.sleep?.toFixed(1) ?? "—"}г</div>

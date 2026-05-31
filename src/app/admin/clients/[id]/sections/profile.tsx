@@ -2,6 +2,7 @@
 import { useTransition, useState } from "react";
 import { updateClient, resetPassword, deleteClient } from "../../actions";
 import { Loader2, Save, KeyRound, Trash2, Wifi, Crown, Star, Ticket } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 
 type Plan = "ONLINE" | "FULL" | "DROP_IN";
 
@@ -44,7 +45,7 @@ export function ProfileTab({ client }: { client: any }) {
           <Field label="Прізвище" name="lastName" defaultValue={client.lastName} required />
           <Field label="Email" name="email" type="email" defaultValue={client.email} required />
           <Field label="Телефон" name="phone" defaultValue={client.phone ?? ""} />
-          <Field label="День народження" name="birthday" type="date" defaultValue={client.birthday?.toISOString().slice(0,10) ?? ""} />
+          <Field label="День народження" name="birthday" type="date" defaultValue={client.birthday ? kyivDayKey(client.birthday) : ""} />
           <Field label="Зріст (см)" name="height" type="number" step="0.1" defaultValue={client.height ?? ""} />
           <Field label="Стартова вага (кг)" name="startWeight" type="number" step="0.1" defaultValue={client.startWeight ?? ""} />
         </div>
@@ -86,7 +87,7 @@ export function ProfileTab({ client }: { client: any }) {
                 label="Старт підписки (дата)"
                 name="subscriptionStartDate"
                 type="date"
-                defaultValue={client.subscriptionStartDate ? new Date(client.subscriptionStartDate).toISOString().slice(0, 10) : ""}
+                defaultValue={client.subscriptionStartDate ? kyivDayKey(new Date(client.subscriptionStartDate)) : ""}
               />
             </div>
             <div className="text-[11px] text-muted -mt-2">
@@ -94,7 +95,7 @@ export function ProfileTab({ client }: { client: any }) {
               рахунок «pending» на суму підписки і надішле клієнту сповіщення. Далі — нові рахунки кожні 30 днів.
               {client.nextBillingDate && (
                 <div className="mt-1.5">
-                  📅 <span className="text-text">Наступний рахунок: <b>{new Date(client.nextBillingDate).toLocaleDateString("uk-UA", { dateStyle: "long" })}</b></span>
+                  📅 <span className="text-text">Наступний рахунок: <b>{new Date(client.nextBillingDate).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  dateStyle: "long" })}</b></span>
                 </div>
               )}
             </div>

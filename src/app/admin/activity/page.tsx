@@ -7,6 +7,8 @@ import {
   Activity, Trophy, Dumbbell, CheckCircle2, Flame, Crown, Medal, Award,
   TrendingDown, AlertCircle, Sparkles, Clock, Target,
 } from "lucide-react";
+import { calcStreak } from "@/lib/analytics";
+import { kyivWeekday } from "@/lib/kyivTime";
 
 export const dynamic = "force-dynamic";
 
@@ -84,28 +86,13 @@ export default async function ActivityPage({ searchParams }: { searchParams: { r
   const topPRs = aggregate(recentPRs.map(p => ({ client: p.session.client }))).slice(0, 5);
 
   // ── Streak (consecutive check-in days for each client) ────────────────────
-  function calcStreak(checkIns: { date: Date }[]): number {
-    if (!checkIns.length) return 0;
-    const days = new Set(checkIns.map(c => c.date.toISOString().slice(0, 10)));
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    let streak = 0;
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(today);
-      d.setUTCDate(today.getUTCDate() - i);
-      const k = d.toISOString().slice(0, 10);
-      if (days.has(k)) streak++;
-      else if (i > 0) break; // allow today missing
-    }
-    return streak;
-  }
-
+  // Uses the shared Kyiv-aware calcStreak from @/lib/analytics.
   const topStreaks = allClients
     .map(c => ({
       id: c.id,
       name: `${c.firstName} ${c.lastName}`,
       avatarUrl: c.avatarUrl,
-      count: calcStreak(c.checkIns),
+      count: calcStreak(c.checkIns.map((x: { date: Date }) => x.date)),
     }))
     .filter(x => x.count > 0)
     .sort((a, b) => b.count - a.count)
@@ -135,8 +122,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: { r
   // ── Activity by day of week ───────────────────────────────────────────────
   const byDow = [0, 0, 0, 0, 0, 0, 0]; // Mon..Sun
   for (const s of recentSessions) {
-    const dow = (s.date.getDay() + 6) % 7;
-    byDow[dow]++;
+    byDow[kyivWeekday(s.date)]++;
   }
   const maxDow = Math.max(1, ...byDow);
   const dowLabels = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];

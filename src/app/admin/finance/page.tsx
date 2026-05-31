@@ -40,7 +40,7 @@ export default async function FinancePage({ searchParams }: { searchParams: { pe
     const inc = sumBy(monthEntries, "income");
     const exp = sumBy(monthEntries, "expense");
     monthly.push({
-      label: d.toLocaleDateString("uk-UA", { month: "short" }),
+      label: d.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  month: "short" }),
       income: inc,
       expense: exp,
       profit: inc - exp,

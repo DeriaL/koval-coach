@@ -39,7 +39,7 @@ export default async function RecordsPage() {
             </div>
             <div className="font-semibold">{name}</div>
             <div className="mt-2 text-2xl font-black text-accent">{b.weight.toFixed(1)} кг <span className="text-base text-muted font-normal">× {b.reps}</span></div>
-            <div className="text-xs text-muted mt-1">{b.date.toLocaleDateString("uk-UA")}</div>
+            <div className="text-xs text-muted mt-1">{b.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</div>
           </div>
         ))}
       </div>

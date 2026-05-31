@@ -4,9 +4,11 @@ export function Heatmap({ data, color = "#6366f1" }: { data: { date: string; cou
   // group into 7-row columns (weekday rows, columns = weeks)
   const cols: { date: string; count: number }[][] = [];
   let cur: any[] = [];
-  // start: first day of data — align by weekday (Mon=0)
-  const firstDate = new Date(data[0].date);
-  const firstDow = (firstDate.getDay() + 6) % 7; // Mon=0..Sun=6
+  // start: first day of data — align by weekday (Mon=0).
+  // data[i].date is a "YYYY-MM-DD" calendar key; compute its weekday in UTC so
+  // it's stable regardless of the viewer's browser timezone.
+  const firstDate = new Date(data[0].date + "T00:00:00Z");
+  const firstDow = (firstDate.getUTCDay() + 6) % 7; // Mon=0..Sun=6
   for (let i = 0; i < firstDow; i++) cur.push(null);
   data.forEach((d) => {
     cur.push(d);

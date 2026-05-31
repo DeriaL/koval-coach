@@ -103,7 +103,7 @@ export function ReviewsAdmin({ initial }: { initial: Review[] }) {
                       <Star key={n} className={`w-3.5 h-3.5 ${n <= r.rating ? "fill-current" : "text-muted"}`} />
                     ))}
                     <span className="text-xs text-muted ml-1.5">
-                      {new Date(r.createdAt).toLocaleDateString("uk-UA")}
+                      {new Date(r.createdAt).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}
                     </span>
                   </div>
                 </div>

@@ -225,7 +225,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: { p
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-xs truncate">{w.title}</div>
                   <div className="text-[10px] text-muted mt-0.5">
-                    {w.date.toLocaleDateString("uk-UA")}
+                    {w.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}
                   </div>
                 </div>
                 <span className={`chip text-[9px] py-0 px-1.5 ${w.completed ? "text-success border-success/30 bg-success/5" : "text-muted"}`}>

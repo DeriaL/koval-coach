@@ -113,7 +113,7 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
                       d.setDate(d.getDate() + p.days);
                       d.setHours(p.h, 0, 0, 0);
                       const inp = (e.currentTarget.closest("form")!.elements.namedItem("scheduledAt") as HTMLInputElement);
-                      inp.value = d.toISOString().slice(0, 16);
+                      inp.value = formatKyivLocal(d);
                     }}
                     className="chip text-[11px] hover:border-accent/50 active:scale-95">{p.label}</button>
                 ))}

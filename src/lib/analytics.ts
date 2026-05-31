@@ -1,4 +1,5 @@
 // Pure computation helpers for analytics
+import { kyivDayKey, kyivStartOfToday, kyivAddDays } from "@/lib/kyivTime";
 
 export function movingAverage<T>(arr: T[], key: (t: T) => number | null | undefined, window = 7): number[] {
   const vals = arr.map(key);
@@ -40,29 +41,26 @@ export function daysAgo(d: Date, today = new Date()) {
 }
 
 export function calcStreak(dates: Date[]): number {
-  const set = new Set(dates.map((d) => new Date(d).toISOString().slice(0, 10)));
+  // Day keys in Kyiv time so a check-in at 01:00 Kyiv counts for the right day.
+  const set = new Set(dates.map((d) => kyivDayKey(new Date(d))));
   let s = 0;
-  const d = new Date();
-  while (set.has(d.toISOString().slice(0, 10))) { s++; d.setDate(d.getDate() - 1); }
+  let cursor = kyivStartOfToday();
+  while (set.has(kyivDayKey(cursor))) { s++; cursor = kyivAddDays(cursor, -1); }
   return s;
 }
 
 export function buildHeatmap(dates: Date[], weeks = 13) {
-  // returns a 2D grid weeks × 7 of counts
+  // returns a flat grid (weeks × 7) of counts, keyed by Kyiv day.
   const set = new Map<string, number>();
   dates.forEach((d) => {
-    const k = new Date(d).toISOString().slice(0, 10);
+    const k = kyivDayKey(new Date(d));
     set.set(k, (set.get(k) ?? 0) + 1);
   });
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = kyivStartOfToday();
   const days = weeks * 7;
-  // align end of grid to today (grid ends on today's column)
   const grid: { date: string; count: number }[] = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const k = d.toISOString().slice(0, 10);
+    const k = kyivDayKey(kyivAddDays(today, -i));
     grid.push({ date: k, count: set.get(k) ?? 0 });
   }
   return grid;

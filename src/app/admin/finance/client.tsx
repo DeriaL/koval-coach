@@ -7,6 +7,7 @@ import {
   TrendingUp, TrendingDown, Plus, Save, Loader2, Trash2, X, ArrowUpCircle, ArrowDownCircle,
   Wallet, BarChart3, PieChart, Calendar, Download
 } from "lucide-react";
+import { kyivDayKey } from "@/lib/kyivTime";
 import { PageHeader } from "@/components/ui";
 
 type Entry = {
@@ -32,7 +33,7 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
   const [adding, setAdding] = useState<null | "income" | "expense">(null);
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = kyivDayKey(new Date());
 
   // Used categories from existing entries (latest first)
   const usedIncomeCats = Array.from(new Set(entries.filter(e => e.type === "income" && e.category).map(e => e.category!)));
@@ -62,7 +63,7 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
   function exportCSV() {
     const header = "Дата,Тип,Сума,Категорія,Нотатка";
     const rows = entries.map(e =>
-      `${new Date(e.date).toISOString().slice(0,10)},${e.type === "income" ? "дохід" : "витрата"},${e.amount},${e.category ?? ""},"${(e.notes ?? "").replace(/"/g, '""')}"`
+      `${kyivDayKey(new Date(e.date))},${e.type === "income" ? "дохід" : "витрата"},${e.amount},${e.category ?? ""},"${(e.notes ?? "").replace(/"/g, '""')}"`
     );
     const csv = [header, ...rows].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -75,7 +76,7 @@ export function FinanceClient({ period, kpi, year, monthly, incomeCats, expenseC
   // Group entries by date for cleaner timeline
   const grouped = new Map<string, Entry[]>();
   for (const e of entries) {
-    const k = new Date(e.date).toLocaleDateString("uk-UA", { day: "2-digit", month: "long", year: "numeric" });
+    const k = new Date(e.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  day: "2-digit", month: "long", year: "numeric" });
     const arr = grouped.get(k) ?? [];
     arr.push(e); grouped.set(k, arr);
   }

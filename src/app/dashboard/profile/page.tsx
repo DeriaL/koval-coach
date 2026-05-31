@@ -38,7 +38,7 @@ export default async function ProfilePage() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-xl md:text-2xl font-bold truncate">{user.firstName} {user.lastName}</div>
-          <div className="text-muted text-sm md:text-base truncate">Клієнт з {user.createdAt.toLocaleDateString("uk-UA")}</div>
+          <div className="text-muted text-sm md:text-base truncate">Клієнт з {user.createdAt.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</div>
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export default async function ProfilePage() {
       <div className="grid md:grid-cols-2 gap-3 mt-4">
         {row(Mail, "Email", user.email)}
         {row(Phone, "Телефон", user.phone)}
-        {row(Calendar, "День народження", user.birthday?.toLocaleDateString("uk-UA"))}
+        {row(Calendar, "День народження", user.birthday?.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" }))}
         {row(Target, "Ціль", user.goal)}
         {row(Ruler, "Зріст", user.height ? `${user.height} см` : null)}
         {row(Scale, "Стартова вага", user.startWeight ? `${user.startWeight} кг` : null)}

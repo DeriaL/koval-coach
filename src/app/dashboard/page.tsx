@@ -11,11 +11,11 @@ import { uk } from "date-fns/locale";
 import { calcStreak } from "@/lib/analytics";
 import { QuickTaps } from "./QuickTaps";
 import { parsePlanContent } from "@/lib/nutritionPlan";
+import { kyivStartOfToday, fmtKyivDate } from "@/lib/kyivTime";
 
 export default async function DashboardHome() {
   const user = await requireClient();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = kyivStartOfToday();
 
   const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions, latestNutritionPlan, pendingPayment] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
@@ -64,7 +64,7 @@ export default async function DashboardHome() {
 
   const workoutsLast30 = workoutSessions.filter(s => (Date.now() - s.date.getTime()) < 30 * 86400000).length;
   const firstName = user.name.split(" ")[0];
-  const dateLabel = today.toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" });
+  const dateLabel = fmtKyivDate(today, { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <div className="space-y-5">
@@ -249,7 +249,7 @@ export default async function DashboardHome() {
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{s.title}</div>
                   <div className="text-xs text-muted">
-                    {s.date.toLocaleDateString("uk-UA")}
+                    {fmtKyivDate(s.date)}
                     {s.durationSec ? ` · ${Math.round(s.durationSec / 60)} хв` : ""}
                   </div>
                 </div>

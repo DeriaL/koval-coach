@@ -15,7 +15,7 @@ function fmtDateTime(d: Date) {
   });
 }
 function fmtDate(d: Date) {
-  return new Date(d).toLocaleDateString("uk-UA", { day: "2-digit", month: "long" });
+  return new Date(d).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  day: "2-digit", month: "long" });
 }
 
 export async function POST(req: Request) {
