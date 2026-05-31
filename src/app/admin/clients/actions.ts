@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { notifyUser } from "@/lib/telegram";
+import { parseKyivLocal } from "@/lib/kyivTime";
 
 function toDate(v: any) { return v ? new Date(v) : null; }
 function toNum(v: any) { if (v === "" || v == null) return null; const n = Number(v); return Number.isNaN(n) ? null : n; }
@@ -337,8 +338,8 @@ export async function deleteHabit(id: string, clientId: string) {
 // ========= Scheduled sessions =========
 export async function scheduleSession(clientId: string, data: { title: string; scheduledAt: string; notes?: string; alreadyDone?: boolean | string }) {
   await requireTrainer();
-  // datetime-local value has no timezone — treat as Kyiv time (UTC+3)
-  const dt = new Date(data.scheduledAt.length === 16 ? data.scheduledAt + ":00+03:00" : data.scheduledAt);
+  // datetime-local value has no timezone — treat as Kyiv local time (DST-aware).
+  const dt = parseKyivLocal(data.scheduledAt);
   const alreadyDone = data.alreadyDone === true || data.alreadyDone === "on" || data.alreadyDone === "true";
   await prisma.workoutSession.create({
     data: {
@@ -475,7 +476,7 @@ export async function saveReminder(id: string, data: Record<string, any>) {
   const payload = {
     title: data.title,
     type: data.type || "other",
-    datetime: new Date(data.datetime),
+    datetime: parseKyivLocal(data.datetime),
     done: false,
   };
   if (data.id) {

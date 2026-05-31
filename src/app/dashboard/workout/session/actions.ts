@@ -60,14 +60,16 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
     data: { clientId: u.id, date: new Date(), title: data.title, completed: true },
   });
 
-  // Milestone: every 10 completed sessions -> auto payment + reminder
+  // Milestone: every 10 completed sessions -> auto payment + reminder.
+  // Only for FULL (offline-package) clients. ONLINE pay monthly via cron,
+  // DROP_IN per-session via trainer confirm — so 10-pack doesn't apply.
+  const user = await prisma.user.findUnique({ where: { id: u.id } });
   const totalCompleted = await prisma.workoutSession.count({
     where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] },
   });
 
   let milestone: FinishResult["milestone"] = null;
-  if (totalCompleted > 0 && totalCompleted % 10 === 0) {
-    const user = await prisma.user.findUnique({ where: { id: u.id } });
+  if (user?.coachingPlan === "FULL" && totalCompleted > 0 && totalCompleted % 10 === 0) {
     const amount = user?.pricePer10 ?? null;
     const pkg = Math.floor(totalCompleted / 10);
 

@@ -3,6 +3,7 @@ import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { scheduleSession } from "../clients/actions";
 import { Plus, X, Save, Loader2, Calendar, User } from "lucide-react";
+import { formatKyivLocal } from "@/lib/kyivTime";
 
 type Client = { id: string; firstName: string; lastName: string; coachingPlan: string };
 
@@ -26,9 +27,10 @@ export function ScheduleButton({ clients, defaultClientId }: { clients: Client[]
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [open]);
 
-  // sensible default datetime (next hour, rounded)
+  // sensible default datetime (next hour, rounded) — formatted in Kyiv local
+  // so the picker shows the time the trainer intended, not UTC.
   const def = new Date(Math.ceil(Date.now() / 3600000) * 3600000);
-  const defStr = def.toISOString().slice(0, 16);
+  const defStr = formatKyivLocal(def);
 
   function submit(fd: FormData) {
     setErr(null);

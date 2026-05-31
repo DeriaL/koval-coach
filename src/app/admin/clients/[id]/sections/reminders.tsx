@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react";
 import { saveReminder, deleteReminder } from "../../actions";
 import { Trash2, Plus, Save, X, Loader2, Bell } from "lucide-react";
+import { formatKyivLocal } from "@/lib/kyivTime";
 
 export function RemindersTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
@@ -34,7 +35,7 @@ export function RemindersTab({ clientId, items }: { clientId: string; items: any
               </select>
             </div>
             <div className="md:col-span-3"><label className="label">Коли</label>
-              <input name="datetime" type="datetime-local" defaultValue={editing.datetime ? new Date(editing.datetime).toISOString().slice(0,16) : ""} required className="input" /></div>
+              <input name="datetime" type="datetime-local" defaultValue={editing.datetime ? formatKyivLocal(new Date(editing.datetime)) : ""} required className="input" /></div>
           </div>
           <button className="btn btn-primary" disabled={pending}>
             {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Зберегти</>}
