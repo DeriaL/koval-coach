@@ -139,13 +139,24 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
       durationSec: elapsed,
       sets: Object.entries(sets).flatMap(([exId, arr]) => {
         const ex = exercises.find(e => e.id === exId)!;
-        return arr.map((s, i) => ({
-          exerciseName: ex.name,
-          setIndex: i,
-          weight: s.weight === "" ? null : Number(s.weight),
-          reps: s.reps === "" ? null : Number(s.reps),
-          completed: s.completed,
-        }));
+        const ls = lastSession[ex.name] ?? [];
+        const best = prevBest[ex.name];
+        const targetReps = parseInt(String(ex.targetReps ?? ""), 10);
+        return arr
+          .map((s, i) => {
+            let weight = s.weight === "" ? null : Number(s.weight);
+            let reps = s.reps === "" ? null : Number(s.reps);
+            // If the client ticked the set as done but left a field blank, record
+            // the value shown in the placeholder (last session, then personal
+            // best / target) instead of saving an empty "—".
+            if (s.completed) {
+              if (weight == null) weight = ls[i]?.weight ?? best?.weight ?? null;
+              if (reps == null) reps = ls[i]?.reps ?? (Number.isFinite(targetReps) ? targetReps : null);
+            }
+            return { exerciseName: ex.name, setIndex: i, weight, reps, completed: s.completed };
+          })
+          // Drop blank sets the client never touched — no point storing "— × —".
+          .filter(s => s.completed || s.weight != null || s.reps != null);
       }),
     };
     start(async () => {
