@@ -24,12 +24,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Назва і файл обовʼязкові" }, { status: 400 });
     }
 
-    // Upload to Vercel Blob
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+    // SECURITY: whitelist document types only. Public-blob files reachable by
+    // URL, so an HTML/SVG/exe disguised as a recipe would be a stored-XSS /
+    // malware vector. Validate BOTH extension and the browser MIME type.
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+    const ALLOWED_EXT = ["pdf", "pptx", "ppt"];
+    const ALLOWED_MIME = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.ms-powerpoint",
+    ];
+    if (!ALLOWED_EXT.includes(ext) || (file.type && !ALLOWED_MIME.includes(file.type))) {
+      return NextResponse.json({ error: "Дозволені лише файли PDF або PPTX" }, { status: 400 });
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      return NextResponse.json({ error: "Максимум 25 МБ" }, { status: 400 });
+    }
     const fileType = ext === "pptx" || ext === "ppt" ? "pptx" : "pdf";
-    const blob = await put(`recipes/${Date.now()}-${file.name}`, file, {
+    // Sanitise the stored filename — never reflect raw user input into the path.
+    const safeName = file.name.replace(/[^\w.-]+/g, "_");
+    const blob = await put(`recipes/${Date.now()}-${safeName}`, file, {
       access: "public",
-      contentType: file.type,
+      contentType: fileType === "pdf" ? "application/pdf" : file.type,
     });
 
     const recipe = await prisma.recipeBook.create({

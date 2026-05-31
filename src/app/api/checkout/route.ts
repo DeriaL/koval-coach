@@ -9,9 +9,9 @@ export async function POST(req: Request) {
   const user = await requireClient();
 
   const body = await req.json().catch(() => ({}));
-  const amountUAH: number = body.amount; // e.g. 5000
+  const amountUAH: number = Math.round(Number(body.amount));
 
-  if (!amountUAH || amountUAH <= 0) {
+  if (!Number.isFinite(amountUAH) || amountUAH <= 0) {
     return NextResponse.json({ error: "invalid amount" }, { status: 400 });
   }
 
@@ -27,16 +27,33 @@ export async function POST(req: Request) {
     process.env.NEXTAUTH_URL?.trim().replace(/\/$/, "") ??
     `https://${host}`
   );
-  const amountKopecks = Math.round(amountUAH * 100);
 
-  // Fetch client full name + admin-configured invoice template
-  const [dbUser, cfg] = await Promise.all([
+  // Fetch client full name + their configured prices + invoice template.
+  const [dbUser, cfg, pendingPayments] = await Promise.all([
     prisma.user.findUnique({
       where: { id: user.id },
-      select: { firstName: true, lastName: true },
+      select: { firstName: true, lastName: true, pricePer10: true, priceMonthly: true, pricePerSession: true },
     }),
     (prisma as any).siteConfig.findUnique({ where: { id: "main" } }).catch(() => null),
+    prisma.payment.findMany({
+      where: { clientId: user.id, status: { in: ["pending", "overdue"] } },
+      select: { amount: true },
+    }),
   ]);
+
+  // SECURITY: never trust a client-supplied amount. It must match one of the
+  // prices the trainer configured for THIS client, or the exact amount of a
+  // pending invoice. Otherwise a client could pay 1₴ for a 5000₴ package.
+  const allowedAmounts = new Set<number>();
+  if (dbUser?.pricePer10) allowedAmounts.add(Math.round(dbUser.pricePer10));
+  if (dbUser?.priceMonthly) allowedAmounts.add(Math.round(dbUser.priceMonthly));
+  if (dbUser?.pricePerSession) allowedAmounts.add(Math.round(dbUser.pricePerSession));
+  for (const p of pendingPayments) allowedAmounts.add(Math.round(p.amount));
+  if (!allowedAmounts.has(amountUAH)) {
+    return NextResponse.json({ error: "Сума не відповідає вашому тарифу" }, { status: 403 });
+  }
+
+  const amountKopecks = Math.round(amountUAH * 100);
   const clientName = dbUser ? `${dbUser.firstName} ${dbUser.lastName}` : user.name;
 
   // Apply template substitutions: {client} {amount}
@@ -69,7 +86,6 @@ export async function POST(req: Request) {
     paymentType: "debit",
   };
 
-  console.log("Mono payload:", JSON.stringify({ redirectUrl: payload.redirectUrl, webHookUrl: payload.webHookUrl, amount: payload.amount }));
 
   const monoRes = await fetch(
     "https://api.monobank.ua/api/merchant/invoice/create",

@@ -88,8 +88,8 @@ export function ChangePasswordForm() {
               {showNext ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          {next && next.length < 6 && (
-            <div className="text-xs text-muted mt-1">Мінімум 6 символів</div>
+          {next && next.length < 8 && (
+            <div className="text-xs text-muted mt-1">Мінімум 8 символів</div>
           )}
         </div>
 

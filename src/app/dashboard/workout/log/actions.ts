@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { notifyAllTrainers } from "@/lib/telegram";
+import { notifyAllTrainers, tgEscape } from "@/lib/telegram";
 
 type SetInput = { weight: string | number | null; reps: string | number | null };
 type ExerciseInput = { name: string; sets: SetInput[] };
@@ -69,8 +69,8 @@ export async function logManualWorkout(data: {
     if (u.role === "CLIENT") {
       const total = setsCreate.length;
       notifyAllTrainers(
-        `💪 <b>${session.client.firstName} ${session.client.lastName}</b> записав(ла) самостійне тренування\n` +
-        `«${title}»${durationSec ? ` · ${Math.round(durationSec/60)} хв` : ""}${total ? ` · ${total} підходів` : ""}`
+        `💪 <b>${tgEscape(session.client.firstName)} ${tgEscape(session.client.lastName)}</b> записав(ла) самостійне тренування\n` +
+        `«${tgEscape(title)}»${durationSec ? ` · ${Math.round(durationSec/60)} хв` : ""}${total ? ` · ${total} підходів` : ""}`
       ).catch(() => {});
     }
 

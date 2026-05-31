@@ -16,3 +16,7 @@ cookies.txt
 *.log
 tsconfig.tsbuildinfo
 .claude/launch.json
+
+# secret backups
+.env.bak
+.env.*.bak

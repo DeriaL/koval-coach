@@ -1,6 +1,20 @@
 import { prisma } from "./prisma";
+import { randomBytes } from "crypto";
 
 const TG_API = "https://api.telegram.org/bot";
+
+/**
+ * Escape HTML special chars before inserting USER-CONTROLLED text into a
+ * parse_mode:"HTML" Telegram message. Without this, a client whose name or
+ * review contains "<" / ">" / "&" could break formatting or inject markup.
+ * Apply ONLY to dynamic/user data — never to the literal <b> tags we add.
+ */
+export function tgEscape(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 function token() {
   const t = process.env.TELEGRAM_BOT_TOKEN;
@@ -90,7 +104,8 @@ export async function getOrCreateLinkCode(userId: string): Promise<string> {
   if (!u) throw new Error("User not found");
   if (u.telegramChatId) return ""; // already linked
   if (u.telegramLinkCode) return u.telegramLinkCode;
-  const code = `kc_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36).slice(-4)}`;
+  // Cryptographically-secure, 128-bit link code (not guessable/enumerable).
+  const code = `kc_${randomBytes(16).toString("hex")}`;
   await prisma.user.update({ where: { id: userId }, data: { telegramLinkCode: code } });
   return code;
 }

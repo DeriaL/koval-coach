@@ -1,35 +1,45 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { fetchMonoInvoiceStatus } from "@/lib/monoSync";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Mono calls this when invoice status changes
+// Mono calls this when an invoice status changes.
+//
+// SECURITY: a webhook body is UNAUTHENTICATED and trivially forgeable — anyone
+// who knows this URL could POST {status:"success", reference:"kovalfit-<id>-…"}
+// and mark an invoice paid without paying. So we NEVER trust the body's status
+// or amount. We take only the invoiceId from it (a notification "ping") and
+// re-fetch the authoritative status from Mono's API using our merchant token.
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ ok: true });
 
-  const { invoiceId, status, reference, amount, ccy } = body;
+  const invoiceId = typeof body.invoiceId === "string" ? body.invoiceId : "";
+  if (!invoiceId || !/^[\w-]+$/.test(invoiceId)) return NextResponse.json({ ok: true });
 
-  // Only handle successful payments
-  if (status !== "success") {
+  // ── Authoritative verification ──
+  const verified = await fetchMonoInvoiceStatus(invoiceId);
+  if (!verified.ok || verified.status !== "success") {
+    // Forged ping, or invoice not actually paid → ignore silently.
     return NextResponse.json({ ok: true });
   }
 
-  // reference format: "kovalfit-{userId}-{timestamp}"
-  const match = (reference as string)?.match(/^kovalfit-(.+?)-\d+$/);
+  // Use the VERIFIED reference/amount from Mono, not the request body.
+  const reference = verified.reference ?? "";
+  const match = reference.match(/^kovalfit-(.+?)-\d+$/);
   if (!match) return NextResponse.json({ ok: true });
-
   const clientId = match[1];
 
   try {
     const user = await prisma.user.findUnique({ where: { id: clientId } });
     if (!user) return NextResponse.json({ ok: true });
 
-    const amountUAH = Math.round(amount / 100);
+    const amountUAH = Math.round((verified.amount ?? 0) / 100);
     const notesText = `Plata by Mono · ${invoiceId}`;
-    const currency = ccy === 980 ? "UAH" : String(ccy);
+    const currency = verified.ccy === 980 ? "UAH" : String(verified.ccy ?? "UAH");
 
     // 1) Look up by invoiceId first — checkout attaches "Mono:<invoiceId>" to
     //    the pending Payment row, so this is the most reliable match.
@@ -38,7 +48,6 @@ export async function POST(req: Request) {
     });
 
     if (byInvoice) {
-      // Already marked paid → noop (Mono retries the webhook).
       if (byInvoice.status === "paid") {
         return NextResponse.json({ ok: true, dedup: true });
       }
@@ -55,14 +64,9 @@ export async function POST(req: Request) {
         },
       });
     } else {
-      // 2) Fallback: no row carries this invoiceId yet (e.g. old payment created
-      //    before checkout could attach the tag). Match by amount, oldest first.
+      // 2) Fallback: match an existing pending invoice by amount, oldest first.
       const pending = await prisma.payment.findFirst({
-        where: {
-          clientId,
-          amount: amountUAH,
-          status: { in: ["pending", "overdue"] },
-        },
+        where: { clientId, amount: amountUAH, status: { in: ["pending", "overdue"] } },
         orderBy: { date: "asc" },
       });
 
@@ -78,7 +82,7 @@ export async function POST(req: Request) {
           },
         });
       } else {
-        // 3) Nothing pending — record ad-hoc paid row.
+        // 3) Nothing pending — record ad-hoc paid row (verified amount).
         await prisma.payment.create({
           data: {
             clientId,
@@ -93,7 +97,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Refresh client + admin views so the UI no longer shows "pending".
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/payments");
     revalidatePath(`/admin/clients/${clientId}`);

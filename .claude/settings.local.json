@@ -144,7 +144,20 @@
       "Bash(curl -sS -i \"https://koval-coach.vercel.app/api/og/demo?screen=recipes\")",
       "Bash(mkdir -p src/app/admin/clients/[id]/log-workout)",
       "Bash(git revert *)",
-      "Bash(awk '{print $5, $9}')"
+      "Bash(awk '{print $5, $9}')",
+      "Bash(VERCEL=1 node -e ' *)",
+      "Bash(node -e ' *)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\gusar\\\\Desktop\\\\koval\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(ls -la \"C:\\\\Users\\\\gusar\\\\Desktop\\\\koval\\\\\" | head -20)",
+      "Bash(grep -E \"\\\\.ts$\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\gusar\\\\Desktop\\\\koval\" -Recurse -Depth 2)",
+      "Bash(Select-Object FullName)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\gusar\\\\Desktop\\\\koval\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20 FullName)",
+      "Bash(xargs grep -l \"sendMessage\\\\|createMessage\")",
+      "Bash(xargs grep -l \"check-in\\\\|login\\\\|signin\")"
     ]
   }
 }

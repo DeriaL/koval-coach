@@ -36,8 +36,8 @@ export async function updateTrainerPassword(data: { currentPassword: string; new
   const ok = await bcrypt.compare(data.currentPassword, user.password);
   if (!ok) return { error: "Поточний пароль невірний" };
 
-  if (!data.newPassword || data.newPassword.length < 6) {
-    return { error: "Новий пароль має бути ≥ 6 символів" };
+  if (!data.newPassword || data.newPassword.length < 8) {
+    return { error: "Новий пароль має бути ≥ 8 символів" };
   }
   const hash = await bcrypt.hash(data.newPassword, 10);
   await prisma.user.update({ where: { id: u.id }, data: { password: hash } });

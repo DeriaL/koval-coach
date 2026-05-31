@@ -25,6 +25,32 @@ async function markPaid(paymentId: string, prevNotes: string | null, invoiceId: 
   });
 }
 
+// Fetch the AUTHORITATIVE invoice status from Mono's API (authenticated with
+// our merchant token). This is the source of truth — never trust a webhook
+// body, which is unauthenticated and forgeable.
+export type MonoInvoiceStatus = {
+  ok: boolean;
+  status?: string;       // "success" | "processing" | "failure" | ...
+  amount?: number;       // kopecks
+  ccy?: number;
+  reference?: string;
+};
+export async function fetchMonoInvoiceStatus(invoiceId: string): Promise<MonoInvoiceStatus> {
+  const token = process.env.MONO_TOKEN;
+  if (!token || !invoiceId || !/^[\w-]+$/.test(invoiceId)) return { ok: false };
+  try {
+    const r = await fetch(
+      `https://api.monobank.ua/api/merchant/invoice/status?invoiceId=${encodeURIComponent(invoiceId)}`,
+      { headers: { "X-Token": token }, cache: "no-store" }
+    );
+    if (!r.ok) return { ok: false };
+    const d = await r.json();
+    return { ok: true, status: d.status, amount: d.amount, ccy: d.ccy, reference: d.reference };
+  } catch {
+    return { ok: false };
+  }
+}
+
 // Ask Mono whether the invoice is paid; if yes, reconcile the matching row.
 export async function syncMonoInvoice(invoiceId: string): Promise<"paid" | "still-pending" | "skipped" | "error"> {
   const token = process.env.MONO_TOKEN;
@@ -40,6 +66,7 @@ export async function syncMonoInvoice(invoiceId: string): Promise<"paid" | "stil
 
     const row = await prisma.payment.findFirst({
       where: { notes: { contains: invoiceId } },
+      orderBy: { date: "desc" },
     });
     if (!row) return "skipped";
     if (row.status === "paid") return "paid";

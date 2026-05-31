@@ -23,6 +23,9 @@ function toInt(v: any) { if (v === "" || v == null) return null; const n = parse
 
 export async function createClient(data: Record<string, any>): Promise<{ id: string } | { error: string }> {
   await requireTrainer();
+  if (!data.password || String(data.password).length < 8) {
+    return { error: "Пароль має бути не менше 8 символів" };
+  }
   try {
     const hash = await bcrypt.hash(data.password, 10);
     const u = await (prisma as any).user.create({
@@ -386,6 +389,10 @@ export async function scheduleSession(clientId: string, data: { title: string; s
 
 export async function confirmSession(sessionId: string, clientId: string, happened: boolean) {
   await requireTrainer();
+  // Integrity: the session must actually belong to the given client, otherwise
+  // a mismatched (sessionId, clientId) pair would bill/notify the wrong person.
+  const owner = await prisma.workoutSession.findUnique({ where: { id: sessionId }, select: { clientId: true } });
+  if (!owner || owner.clientId !== clientId) throw new Error("Сесію не знайдено для цього клієнта");
   if (happened) {
     const s = await prisma.workoutSession.update({
       where: { id: sessionId },
@@ -443,12 +450,16 @@ export async function confirmSession(sessionId: string, clientId: string, happen
 
 export async function deleteSession(sessionId: string, clientId: string) {
   await requireTrainer();
+  const owner = await prisma.workoutSession.findUnique({ where: { id: sessionId }, select: { clientId: true } });
+  if (!owner || owner.clientId !== clientId) throw new Error("Сесію не знайдено для цього клієнта");
   await prisma.workoutSession.delete({ where: { id: sessionId } });
   revalidatePath(`/admin/clients/${clientId}`);
 }
 
 export async function cancelSessionByTrainer(sessionId: string, clientId: string, reason: string) {
   await requireTrainer();
+  const owner = await prisma.workoutSession.findUnique({ where: { id: sessionId }, select: { clientId: true } });
+  if (!owner || owner.clientId !== clientId) throw new Error("Сесію не знайдено для цього клієнта");
   const s = await prisma.workoutSession.update({
     where: { id: sessionId },
     data: { cancelledAt: new Date(), cancelledBy: "TRAINER", cancelReason: reason || "Без причини" },

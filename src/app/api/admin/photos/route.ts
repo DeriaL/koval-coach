@@ -20,8 +20,11 @@ export async function POST(req: Request) {
   const clientId = String(form.get("clientId") ?? "").trim();
 
   if (!file) return NextResponse.json({ error: "Файл обовʼязковий" }, { status: 400 });
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Тільки зображення" }, { status: 400 });
+  // SECURITY: whitelist raster image types only. SVG is excluded — it can carry
+  // executable <script> and would run when opened from the public blob URL.
+  const ALLOWED_IMG = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+  if (!ALLOWED_IMG.includes(file.type)) {
+    return NextResponse.json({ error: "Тільки JPEG, PNG або WebP" }, { status: 400 });
   }
   if (file.size > 15 * 1024 * 1024) {
     return NextResponse.json({ error: "Максимум 15 МБ" }, { status: 400 });

@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireClient } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { notifyAllTrainers, notifyUser } from "@/lib/telegram";
+import { notifyAllTrainers, notifyUser, tgEscape } from "@/lib/telegram";
 
 type Payload = {
   title: string;
@@ -96,11 +96,11 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
     });
     milestone = { count: totalCompleted, amount };
     notifyUser(u.id, "payments", `🎉 <b>${totalCompleted} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
-    notifyAllTrainers(`🎯 <b>${u.name}</b> досяг ${totalCompleted} тренувань${amount ? ` (рахунок ${amount} ₴ створено)` : ""}.`).catch(()=>{});
+    notifyAllTrainers(`🎯 <b>${tgEscape(u.name)}</b> досяг ${totalCompleted} тренувань${amount ? ` (рахунок ${amount} ₴ створено)` : ""}.`).catch(()=>{});
   }
 
   // Always notify trainer when client finishes a workout
-  notifyAllTrainers(`💪 <b>${u.name}</b> завершив(ла) тренування «${data.title}»${data.durationSec ? ` · ${Math.round(data.durationSec/60)} хв` : ""}${prs.length ? `\n🏆 PR: ${prs.join(", ")}` : ""}`).catch(()=>{});
+  notifyAllTrainers(`💪 <b>${tgEscape(u.name)}</b> завершив(ла) тренування «${tgEscape(data.title)}»${data.durationSec ? ` · ${Math.round(data.durationSec/60)} хв` : ""}${prs.length ? `\n🏆 PR: ${tgEscape(prs.join(", "))}` : ""}`).catch(()=>{});
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/workout");

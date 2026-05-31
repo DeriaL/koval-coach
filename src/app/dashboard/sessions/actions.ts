@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireClient } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { notifyAllTrainers } from "@/lib/telegram";
+import { notifyAllTrainers, tgEscape } from "@/lib/telegram";
 
 export async function cancelSessionByClient(sessionId: string, reason: string) {
   const u = await requireClient();
@@ -58,7 +58,7 @@ export async function cancelSessionByClient(sessionId: string, reason: string) {
     },
   });
   const lateNote = isLate ? "\n⚠️ Пізнє скасування — тренування списано в облік." : "";
-  notifyAllTrainers(`❌ <b>Клієнт ${u.name} скасував тренування</b>\n\n«${s.title}»\n🕐 ${when}\n💬 ${reason || "Без причини"}${lateNote}`).catch(()=>{});
+  notifyAllTrainers(`❌ <b>Клієнт ${tgEscape(u.name)} скасував тренування</b>\n\n«${tgEscape(s.title)}»\n🕐 ${when}\n💬 ${tgEscape(reason || "Без причини")}${lateNote}`).catch(()=>{});
   revalidatePath("/dashboard/sessions");
   revalidatePath("/dashboard/workout");
   revalidatePath("/dashboard");

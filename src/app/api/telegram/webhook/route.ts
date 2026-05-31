@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendTelegram, SECTIONS } from "@/lib/telegram";
+import { sendTelegram, SECTIONS, tgEscape } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     const role = user.role === "TRAINER" ? "тренер" : "клієнт";
     await sendTelegram(chatId,
       `✅ <b>Привʼязано!</b>\n\n` +
-      `Акаунт: <b>${user.firstName} ${user.lastName}</b> (${role})\n\n` +
+      `Акаунт: <b>${tgEscape(user.firstName)} ${tgEscape(user.lastName)}</b> (${role})\n\n` +
       `Тепер сюди приходитимуть сповіщення. Кнопки знизу — для швидкого доступу до розділів.\n\n` +
       `/help — список команд`
     );
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
   // ── /me ──────────────────────────────────────────────────────────────────
   if (text.startsWith("/me")) {
     await sendTelegram(chatId,
-      `<b>${user.firstName} ${user.lastName}</b>\n${user.email}\nРоль: <b>${user.role === "TRAINER" ? "Тренер" : "Клієнт"}</b>${user.coachingPlan === "ONLINE" ? " · Онлайн" : user.role === "CLIENT" ? " · Офлайн" : ""}`
+      `<b>${tgEscape(user.firstName)} ${tgEscape(user.lastName)}</b>\n${user.email}\nРоль: <b>${user.role === "TRAINER" ? "Тренер" : "Клієнт"}</b>${user.coachingPlan === "ONLINE" ? " · Онлайн" : user.role === "CLIENT" ? " · Офлайн" : ""}`
     );
     return NextResponse.json({ ok: true });
   }
@@ -131,15 +131,15 @@ export async function POST(req: Request) {
     const head = `<b>${SECTIONS.training.emoji} ${SECTIONS.training.title}</b>\n`;
     const upcomingLines = upcoming.length
       ? upcoming.map(s => {
-          const who = user.role === "TRAINER" ? ` · ${s.client.firstName} ${s.client.lastName}` : "";
-          return `• <b>${fmtDateTime(s.scheduledAt!)}</b> — ${s.title}${who}`;
+          const who = user.role === "TRAINER" ? ` · ${tgEscape(s.client.firstName)} ${tgEscape(s.client.lastName)}` : "";
+          return `• <b>${fmtDateTime(s.scheduledAt!)}</b> — ${tgEscape(s.title)}${who}`;
         }).join("\n")
       : "— немає запланованих";
 
     const recentLines = recent.length
       ? recent.map(s => {
-          const who = user.role === "TRAINER" ? ` · ${s.client.firstName} ${s.client.lastName}` : "";
-          return `• ${fmtDate(s.date)} — ${s.title}${who}`;
+          const who = user.role === "TRAINER" ? ` · ${tgEscape(s.client.firstName)} ${tgEscape(s.client.lastName)}` : "";
+          return `• ${fmtDate(s.date)} — ${tgEscape(s.title)}${who}`;
         }).join("\n")
       : "— ще не було тренувань";
 
@@ -165,7 +165,7 @@ export async function POST(req: Request) {
       } else {
         const lines = pendings.map(p => {
           const status = p.status === "overdue" ? "⚠️ прострочено" : "очікує";
-          return `• <b>${p.client.firstName} ${p.client.lastName}</b> · ${p.amount.toLocaleString("uk-UA")} ${p.currency} · ${status}`;
+          return `• <b>${tgEscape(p.client.firstName)} ${tgEscape(p.client.lastName)}</b> · ${p.amount.toLocaleString("uk-UA")} ${p.currency} · ${status}`;
         }).join("\n");
         await sendTelegram(chatId, `${head}\n<b>🔻 До оплати:</b>\n${lines}`);
       }
@@ -232,13 +232,13 @@ export async function POST(req: Request) {
       ]);
 
       const sLines = sessions.length
-        ? sessions.map(s => `• ${fmtDate(s.date)} — <b>${s.client.firstName} ${s.client.lastName}</b> · ${s.title}`).join("\n")
+        ? sessions.map(s => `• ${fmtDate(s.date)} — <b>${tgEscape(s.client.firstName)} ${tgEscape(s.client.lastName)}</b> · ${tgEscape(s.title)}`).join("\n")
         : "— немає";
       const cLines = checkIns.length
-        ? checkIns.map(c => `• ${fmtDate(c.date)} — <b>${c.client.firstName} ${c.client.lastName}</b>${c.weight ? ` · ${c.weight.toFixed(1)} кг` : ""}`).join("\n")
+        ? checkIns.map(c => `• ${fmtDate(c.date)} — <b>${tgEscape(c.client.firstName)} ${tgEscape(c.client.lastName)}</b>${c.weight ? ` · ${c.weight.toFixed(1)} кг` : ""}`).join("\n")
         : "— немає";
       const pLines = prs.length
-        ? prs.map(p => `• ${fmtDate(p.session.date)} — <b>${p.session.client.firstName} ${p.session.client.lastName}</b> · ${p.exerciseName} ${p.weight?.toFixed(1) ?? "?"}×${p.reps}`).join("\n")
+        ? prs.map(p => `• ${fmtDate(p.session.date)} — <b>${tgEscape(p.session.client.firstName)} ${tgEscape(p.session.client.lastName)}</b> · ${tgEscape(p.exerciseName)} ${p.weight?.toFixed(1) ?? "?"}×${p.reps}`).join("\n")
         : "— немає";
 
       await sendTelegram(chatId,
@@ -259,13 +259,13 @@ export async function POST(req: Request) {
 
     const lines: string[] = [];
     if (trainingPlans.length) {
-      lines.push(`<b>💪 Програми тренувань:</b>\n` + trainingPlans.map(p => `• ${fmtDate(p.updatedAt)} — «${p.title}»`).join("\n"));
+      lines.push(`<b>💪 Програми тренувань:</b>\n` + trainingPlans.map(p => `• ${fmtDate(p.updatedAt)} — «${tgEscape(p.title)}»`).join("\n"));
     }
     if (nutritionPlans.length) {
-      lines.push(`<b>🍎 Плани харчування:</b>\n` + nutritionPlans.map(p => `• ${fmtDate(p.updatedAt)} — «${p.title}»`).join("\n"));
+      lines.push(`<b>🍎 Плани харчування:</b>\n` + nutritionPlans.map(p => `• ${fmtDate(p.updatedAt)} — «${tgEscape(p.title)}»`).join("\n"));
     }
     if (supplements.length) {
-      lines.push(`<b>💊 Добавки:</b>\n` + supplements.map(s => `• ${fmtDate(s.createdAt)} — «${s.name}»`).join("\n"));
+      lines.push(`<b>💊 Добавки:</b>\n` + supplements.map(s => `• ${fmtDate(s.createdAt)} — «${tgEscape(s.name)}»`).join("\n"));
     }
     if (measurements.length) {
       lines.push(`<b>📏 Заміри:</b>\n` + measurements.map(m => `• ${fmtDate(m.date)}${m.weight ? ` · ${m.weight.toFixed(1)} кг` : ""}`).join("\n"));
@@ -274,7 +274,7 @@ export async function POST(req: Request) {
       lines.push(`<b>📸 Фото:</b>\n` + photos.map(p => `• ${fmtDate(p.date)}${p.angle ? ` · ${p.angle}` : ""}`).join("\n"));
     }
     if (achievements.length) {
-      lines.push(`<b>🏆 Ачівки:</b>\n` + achievements.map(a => `• ${fmtDate(a.earnedAt)} — «${a.title}»`).join("\n"));
+      lines.push(`<b>🏆 Ачівки:</b>\n` + achievements.map(a => `• ${fmtDate(a.earnedAt)} — «${tgEscape(a.title)}»`).join("\n"));
     }
 
     const body = lines.length ? lines.join("\n\n") : "Без змін за цей період.";

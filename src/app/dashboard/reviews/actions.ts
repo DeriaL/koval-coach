@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireClient } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { notifyAllTrainers } from "@/lib/telegram";
+import { notifyAllTrainers, tgEscape } from "@/lib/telegram";
 
 export async function submitReview(data: { rating: number; text: string }) {
   const u = await requireClient();
@@ -26,7 +26,7 @@ export async function submitReview(data: { rating: number; text: string }) {
     },
   });
 
-  notifyAllTrainers(`⭐ <b>Новий відгук від ${authorName}</b>\nОцінка: ${"⭐".repeat(rating)}${data.text ? `\n«${data.text}»` : ""}`).catch(() => {});
+  notifyAllTrainers(`⭐ <b>Новий відгук від ${tgEscape(authorName)}</b>\nОцінка: ${"⭐".repeat(rating)}${data.text ? `\n«${tgEscape(data.text)}»` : ""}`).catch(() => {});
 
   revalidatePath("/dashboard/reviews");
   revalidatePath("/admin/reviews");

@@ -115,7 +115,7 @@ function PasswordForm() {
           <input className="input" type="password" autoComplete="new-password" minLength={6} value={confirm} onChange={e => setConfirm(e.target.value)} required />
         </div>
       </div>
-      <div className="text-[10px] text-muted">Мінімум 6 символів</div>
+      <div className="text-[10px] text-muted">Мінімум 8 символів</div>
 
       {err && <div className="text-danger text-xs">{err}</div>}
 
