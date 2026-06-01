@@ -13,6 +13,10 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  // Required for env(safe-area-inset-*) to return real values on iOS — without
+  // it the notch/status-bar insets are 0 and fixed headers render under the
+  // status bar (clipped logo, content bleeding into the notch area).
+  viewportFit: "cover" as const,
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#090b1a" },
     { media: "(prefers-color-scheme: light)", color: "#f4f6ff" },
