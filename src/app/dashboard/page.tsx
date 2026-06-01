@@ -25,7 +25,7 @@ export default async function DashboardHome() {
     prisma.user.findUnique({ where: { id: user.id } }),
     prisma.workoutSession.findMany({ where: { clientId: user.id, date: { gte: today } } }),
     prisma.workoutSession.findMany({
-      where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
+      where: { clientId: user.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false, cancelledAt: null },
       orderBy: { scheduledAt: "asc" }, take: 3,
     }),
     prisma.nutritionPlan.findFirst({ where: { clientId: user.id }, orderBy: { updatedAt: "desc" }, select: { content: true } }),

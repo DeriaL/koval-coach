@@ -54,6 +54,14 @@ export default async function CheckInPage() {
 
       <div className="card p-6 mt-6">
         <h3 className="font-semibold mb-4">Останні 7 днів</h3>
+        {recent.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 py-6 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center">
+              <Flame className="w-6 h-6" />
+            </div>
+            <div className="text-sm text-muted">Тут зʼявиться історія твоїх check-in&apos;ів за тиждень.<br />Зроби перший — і почнеться серія 🔥</div>
+          </div>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {recent.slice().reverse().map((c) => (
             <div key={c.id} className="p-3 rounded-xl bg-surface border border-border text-center">

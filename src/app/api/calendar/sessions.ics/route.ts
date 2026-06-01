@@ -16,6 +16,7 @@ export async function GET(req: Request) {
 
   const where: any = {
     scheduledAt: { gte: new Date(Date.now() - 30 * 86400000) }, // last 30 days + future
+    cancelledAt: null, // never export cancelled sessions to the calendar
   };
   if (role === "CLIENT" || scope === "mine") {
     where.clientId = userId;

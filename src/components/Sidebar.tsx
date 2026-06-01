@@ -132,9 +132,10 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
         </div>
       </aside>
 
-      {/* Mobile top bar */}
+      {/* Mobile top bar — opaque so scrolled content never bleeds through into
+          the status-bar / notch safe-area zone. */}
       <header
-        className="md:hidden fixed top-0 inset-x-0 bg-surface/80 backdrop-blur-md border-b border-border z-30 flex items-center justify-between px-3 h-14"
+        className="md:hidden fixed top-0 inset-x-0 bg-surface border-b border-border z-30 flex items-center justify-between px-3 h-14"
         style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(3.5rem + env(safe-area-inset-top))" }}
       >
         {Brand}
@@ -154,8 +155,8 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
 
       {/* Mobile drawer */}
       {open && (
-        <div className="md:hidden fixed inset-0 z-40" onClick={() => setOpen(false)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
+        <div className="md:hidden fixed inset-0 z-[60]" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fade-in" />
           <div
             className="absolute top-0 right-0 bottom-0 w-[85%] max-w-xs bg-surface border-l border-border px-4 pb-4 flex flex-col animate-slide-in-right shadow-2xl"
             style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
@@ -194,10 +195,11 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
         </div>
       )}
 
-      {/* Mobile bottom nav (клієнт і тренер) */}
+      {/* Mobile bottom nav (клієнт і тренер) — opaque so content doesn't bleed
+          through into the home-indicator safe-area on overscroll. */}
       {bottomItems.length > 0 && (
         <nav
-          className="md:hidden fixed bottom-0 inset-x-0 bg-bg/75 backdrop-blur-xl border-t border-border z-30 grid grid-cols-5"
+          className="md:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-border z-30 grid grid-cols-5"
           style={{
             paddingBottom: "max(env(safe-area-inset-bottom), 10px)",
             paddingTop: "8px",

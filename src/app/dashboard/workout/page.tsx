@@ -39,7 +39,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
       take: 3,
     }),
     prisma.workoutSession.findMany({
-      where: { clientId: u.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false },
+      where: { clientId: u.id, scheduledAt: { gte: new Date() }, completed: false, confirmedByTrainer: false, cancelledAt: null },
       orderBy: { scheduledAt: "asc" },
       take: 3,
     }),
