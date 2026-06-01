@@ -71,6 +71,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
     prisma.workoutSession.count({
       where: {
         scheduledAt: { gte: todayStart, lt: kyivAddDays(todayStart, 1) },
+        cancelledAt: null,
         client: { role: "CLIENT" },
       },
     }),

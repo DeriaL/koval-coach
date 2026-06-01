@@ -65,7 +65,7 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
   // DROP_IN per-session via trainer confirm — so 10-pack doesn't apply.
   const user = await prisma.user.findUnique({ where: { id: u.id } });
   const totalCompleted = await prisma.workoutSession.count({
-    where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }] },
+    where: { clientId: u.id, cancelledAt: null, OR: [{ completed: true }, { confirmedByTrainer: true }] },
   });
 
   let milestone: FinishResult["milestone"] = null;
