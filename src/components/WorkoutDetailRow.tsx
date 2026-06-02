@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
-import { ChevronDown, Dumbbell, Trash2, Trophy, Clock, StickyNote, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Dumbbell, Trash2, Trophy, Clock, StickyNote, Loader2, Pencil } from "lucide-react";
 
 type Set = {
   id: string;
@@ -39,9 +40,11 @@ function groupByExercise(sets: Set[]) {
 export function WorkoutDetailRow({
   session,
   onDelete,
+  editHref,
 }: {
   session: Session;
   onDelete?: (id: string) => Promise<void> | void;
+  editHref?: string;          // when set, shows an "edit" button linking there
 }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -81,6 +84,17 @@ export function WorkoutDetailRow({
           </div>
           <div className="text-[11px] text-muted truncate">{subtitle}</div>
         </div>
+        {editHref && (
+          <Link
+            href={editHref}
+            onClick={(e) => e.stopPropagation()}
+            className="w-8 h-8 rounded-lg border border-border text-muted hover:text-accent hover:border-accent/40 flex items-center justify-center shrink-0 transition"
+            aria-label="Редагувати"
+            title="Редагувати тренування"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </Link>
+        )}
         {onDelete && (
           <button
             type="button"

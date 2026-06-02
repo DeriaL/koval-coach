@@ -87,3 +87,57 @@ export async function logManualWorkout(data: {
     return { ok: false, error: e?.message ?? "Помилка збереження в БД" };
   }
 }
+
+// Edit an existing saved workout — update title/notes and REPLACE its sets
+// (so the trainer can add/change exercises into the same session instead of
+// creating a separate one each time).
+export async function updateWorkoutSession(sessionId: string, data: {
+  title: string;
+  notes?: string;
+  exercises: ExerciseInput[];
+}) {
+  const u = await requireUser();
+  const session = await prisma.workoutSession.findUnique({
+    where: { id: sessionId },
+    select: { clientId: true },
+  });
+  if (!session) return { ok: false, error: "Тренування не знайдено" };
+  // Clients may only edit their own sessions; trainers may edit any.
+  if (u.role !== "TRAINER" && session.clientId !== u.id) {
+    return { ok: false, error: "Немає доступу" };
+  }
+  const clientId = session.clientId;
+
+  const title = (data.title || "").trim() || "Тренування";
+  const notes = (data.notes || "").trim() || null;
+
+  const setsCreate: any[] = [];
+  for (const ex of data.exercises ?? []) {
+    const exName = (ex.name || "").trim();
+    if (!exName) continue;
+    ex.sets.forEach((s, i) => {
+      const w = parseFloat(String(s.weight ?? "")) || null;
+      const r = parseInt(String(s.reps ?? ""), 10) || null;
+      if (!w && !r) return;
+      setsCreate.push({ sessionId, exerciseName: exName, setIndex: i, weight: w, reps: r, completed: true });
+    });
+  }
+
+  try {
+    await prisma.$transaction([
+      prisma.sessionSet.deleteMany({ where: { sessionId } }),
+      prisma.workoutSession.update({ where: { id: sessionId }, data: { title, notes } }),
+      ...(setsCreate.length > 0 ? [prisma.sessionSet.createMany({ data: setsCreate })] : []),
+    ]);
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/workout");
+    revalidatePath("/dashboard/sessions");
+    revalidatePath(`/admin/clients/${clientId}`);
+    revalidatePath("/admin/sessions");
+    revalidatePath("/admin/activity");
+    return { ok: true, id: sessionId };
+  } catch (e: any) {
+    console.error("updateWorkoutSession error:", e);
+    return { ok: false, error: e?.message ?? "Помилка збереження в БД" };
+  }
+}

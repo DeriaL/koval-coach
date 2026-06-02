@@ -217,6 +217,7 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
                   confirmedByTrainer: s.confirmedByTrainer,
                   sets: s.sets ?? [],
                 }}
+                editHref={`/admin/clients/${clientId}/log-workout?edit=${s.id}`}
                 onDelete={async (id) => { await deleteSession(id, clientId); }}
               />
             ))}

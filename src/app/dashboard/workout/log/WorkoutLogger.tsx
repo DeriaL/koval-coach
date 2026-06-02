@@ -1,7 +1,7 @@
 "use client";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { logManualWorkout } from "./actions";
+import { logManualWorkout, updateWorkoutSession } from "./actions";
 import {
   Plus, Trash2, Save, Loader2, Play, Pause, Dumbbell,
   Check, X, ChevronDown, ChevronUp, Sparkles,
@@ -18,22 +18,38 @@ function emptyEx(): Ex {
   return { id: uid(), name: "", sets: [{ weight: "", reps: "" }], expanded: true };
 }
 
+type EditSession = {
+  id: string;
+  title: string;
+  notes: string | null;
+  durationSec: number | null;
+  exercises: { name: string; sets: { weight: string; reps: string }[] }[];
+};
+
 export function WorkoutLogger({
   clientId,
   isTrainer,
   recentExercises,
+  editSession,
 }: {
   clientId?: string;            // when trainer creates for a client
   isTrainer: boolean;
   recentExercises: string[];    // for suggestions
+  editSession?: EditSession;    // when editing an existing saved workout
 }) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [exercises, setExercises] = useState<Ex[]>([emptyEx()]);
-  const [notes, setNotes] = useState("");
+  const isEdit = !!editSession;
+  const [title, setTitle] = useState(editSession?.title ?? "");
+  const [exercises, setExercises] = useState<Ex[]>(
+    editSession && editSession.exercises.length
+      ? editSession.exercises.map(e => ({ id: uid(), name: e.name, expanded: true, sets: e.sets.length ? e.sets : [{ weight: "", reps: "" }] }))
+      : [emptyEx()]
+  );
+  const [notes, setNotes] = useState(editSession?.notes ?? "");
 
-  // Workout timer (anchor-based, survives screen lock)
-  const [running, setRunning] = useState(true);
+  // Workout timer (anchor-based, survives screen lock). Not used when editing —
+  // the duration is already recorded.
+  const [running, setRunning] = useState(!isEdit);
   const [elapsed, setElapsed] = useState(0);
   const startTsRef = useRef<number>(Date.now());
   const accumPausedRef = useRef<number>(0);
@@ -117,13 +133,19 @@ export function WorkoutLogger({
     }
     start(async () => {
       try {
-        const res = await logManualWorkout({
-          clientId,
-          title: title.trim(),
-          durationSec: elapsed,
-          notes: notes.trim(),
-          exercises: cleanEx,
-        });
+        const res = isEdit
+          ? await updateWorkoutSession(editSession!.id, {
+              title: title.trim(),
+              notes: notes.trim(),
+              exercises: cleanEx,
+            })
+          : await logManualWorkout({
+              clientId,
+              title: title.trim(),
+              durationSec: elapsed,
+              notes: notes.trim(),
+              exercises: cleanEx,
+            });
         if (res?.ok) {
           // Show success state so user gets clear feedback, then navigate.
           setSuccess(true);
@@ -166,20 +188,22 @@ export function WorkoutLogger({
             />
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface border border-border">
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Час тренування</div>
-            <div className="text-2xl font-black font-mono mt-0.5">{fmt(elapsed)}</div>
+        {!isEdit && (
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface border border-border">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-muted">Час тренування</div>
+              <div className="text-2xl font-black font-mono mt-0.5">{fmt(elapsed)}</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRunning(v => !v)}
+              className="w-12 h-12 rounded-2xl accent-shine flex items-center justify-center text-white active:scale-90 transition"
+              aria-label={running ? "Пауза" : "Старт"}
+            >
+              {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setRunning(v => !v)}
-            className="w-12 h-12 rounded-2xl accent-shine flex items-center justify-center text-white active:scale-90 transition"
-            aria-label={running ? "Пауза" : "Старт"}
-          >
-            {running ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Exercises */}
@@ -230,7 +254,7 @@ export function WorkoutLogger({
       {success && (
         <div className="card p-3 border-success/40 bg-success/10 text-success text-sm flex items-center gap-2">
           <Check className="w-4 h-4 shrink-0" />
-          <span>✓ Тренування збережено! Перенаправляю…</span>
+          <span>✓ {isEdit ? "Зміни збережено" : "Тренування збережено"}! Перенаправляю…</span>
         </div>
       )}
 
@@ -246,6 +270,7 @@ export function WorkoutLogger({
            <Save className="w-4 h-4" />}
           {pending ? "Зберігаю…" :
            success ? "Збережено!" :
+           isEdit ? <>Оновити тренування{totalSets ? ` (${totalSets} підходів)` : ""}</> :
            <>Зберегти тренування{totalSets ? ` (${totalSets} підходів)` : ""}</>}
         </button>
         <button

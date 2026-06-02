@@ -7,11 +7,12 @@ import { ChevronLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function TrainerLogWorkoutPage({ params }: { params: { id: string } }) {
+export default async function TrainerLogWorkoutPage({ params, searchParams }: { params: { id: string }; searchParams: { edit?: string } }) {
   await requireTrainer();
   const clientId = params.id;
+  const editId = searchParams?.edit;
 
-  const [client, recent] = await Promise.all([
+  const [client, recent, editing] = await Promise.all([
     prisma.user.findUnique({
       where: { id: clientId },
       select: { firstName: true, lastName: true, role: true },
@@ -22,10 +23,35 @@ export default async function TrainerLogWorkoutPage({ params }: { params: { id: 
       orderBy: { createdAt: "desc" },
       take: 200,
     }),
+    editId
+      ? prisma.workoutSession.findUnique({
+          where: { id: editId },
+          include: { sets: { orderBy: { setIndex: "asc" } } },
+        })
+      : Promise.resolve(null),
   ]);
 
   if (!client || client.role !== "CLIENT") {
     return <div className="card p-6 text-muted">Клієнта не знайдено</div>;
+  }
+
+  // Build the edit payload (grouped by exercise) if we're editing and it belongs
+  // to this client.
+  let editSession: any = undefined;
+  if (editing && editing.clientId === clientId) {
+    const byEx = new Map<string, { weight: string; reps: string }[]>();
+    for (const s of editing.sets) {
+      const arr = byEx.get(s.exerciseName) ?? [];
+      arr.push({ weight: s.weight != null ? String(s.weight) : "", reps: s.reps != null ? String(s.reps) : "" });
+      byEx.set(s.exerciseName, arr);
+    }
+    editSession = {
+      id: editing.id,
+      title: editing.title,
+      notes: editing.notes,
+      durationSec: editing.durationSec,
+      exercises: Array.from(byEx.entries()).map(([name, sets]) => ({ name, sets })),
+    };
   }
 
   const seen = new Set<string>();
@@ -48,11 +74,11 @@ export default async function TrainerLogWorkoutPage({ params }: { params: { id: 
       </Link>
 
       <PageHeader
-        title="Записати тренування"
+        title={editSession ? "Редагувати тренування" : "Записати тренування"}
         subtitle={`Для клієнта: ${client.firstName} ${client.lastName}`}
       />
 
-      <WorkoutLogger clientId={clientId} isTrainer={true} recentExercises={recentExercises} />
+      <WorkoutLogger clientId={clientId} isTrainer={true} recentExercises={recentExercises} editSession={editSession} />
     </div>
   );
 }
