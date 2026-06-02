@@ -29,6 +29,7 @@ model User {
   priceMonthly Float?                     // ціна за місяць — для ONLINE підписки
   subscriptionStartDate DateTime?         // дата старту місячного відліку (ONLINE)
   nextBillingDate DateTime?               // коли створиться наступний автоматичний рахунок
+  sessionsResetAt DateTime?               // ручний скид лічильника тренувань (рахуємо з пізнішої з дат: 1 число місяця / ця)
   telegramChatId   String?  @unique       // Telegram chat ID (после прив'язки)
   telegramUsername String?
   telegramLinkCode String?  @unique       // тимчасовий код для прив'язки бота

@@ -19,3 +19,18 @@ export async function saveSiteConfig(data: {
   revalidatePath("/");
   revalidatePath("/admin/settings");
 }
+
+// Manually reset the training counter for all ONLINE clients. Sets a reset
+// point = now, so each online client's "Тренувань" count starts from 0 until
+// they do new sessions. (Online counts auto-reset on the 1st anyway — this is
+// a manual override the trainer can use any time.)
+export async function resetOnlineSessions(): Promise<{ count: number }> {
+  await requireTrainer();
+  const res = await prisma.user.updateMany({
+    where: { role: "CLIENT", coachingPlan: "ONLINE" },
+    data: { sessionsResetAt: new Date() },
+  });
+  revalidatePath("/admin");
+  revalidatePath("/admin/sessions");
+  return { count: res.count };
+}

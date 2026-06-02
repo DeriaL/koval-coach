@@ -23,16 +23,29 @@ export type SessionPeriod = {
   periodStart: Date | null; // null = "all time" (package client who never paid)
 };
 
-/** The period start for one client, given their plan and last paid date. */
-export function periodStartFor(plan: string | null | undefined, lastPaidDate: Date | null): { start: Date | null; mode: PeriodMode } {
-  if (plan === "ONLINE") return { start: kyivStartOfMonth(), mode: "month" };
+/** The period start for one client, given their plan, last paid date and an
+ *  optional manual reset point (ONLINE counts from the later of month-start
+ *  and the reset). */
+export function periodStartFor(
+  plan: string | null | undefined,
+  lastPaidDate: Date | null,
+  monthResetAt: Date | null = null,
+): { start: Date | null; mode: PeriodMode } {
+  if (plan === "ONLINE") {
+    const ms = kyivStartOfMonth();
+    return { start: monthResetAt && monthResetAt > ms ? monthResetAt : ms, mode: "month" };
+  }
   return { start: lastPaidDate, mode: "package" };
 }
 
 /** Count current-period sessions for a single client (1-2 queries). */
 export async function getSessionPeriod(client: { id: string; coachingPlan: string | null }): Promise<SessionPeriod> {
   if (client.coachingPlan === "ONLINE") {
-    const start = kyivStartOfMonth();
+    // Count from the LATER of the 1st-of-month and a manual reset point.
+    const u = await prisma.user.findUnique({ where: { id: client.id }, select: { sessionsResetAt: true } });
+    const monthStart = kyivStartOfMonth();
+    const resetAt = u?.sessionsResetAt ?? null;
+    const start = resetAt && resetAt > monthStart ? resetAt : monthStart;
     const count = await prisma.workoutSession.count({
       where: { clientId: client.id, ...VALID_SESSION, date: { gte: start } },
     });
@@ -72,6 +85,14 @@ export async function getSessionPeriodCounts(
   const lastPaidMap = new Map<string, Date | null>();
   for (const r of lastPaid) lastPaidMap.set(r.clientId, r._max.date ?? null);
 
+  // Manual reset points (ONLINE clients).
+  const resetRows = await prisma.user.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, sessionsResetAt: true },
+  });
+  const resetMap = new Map<string, Date | null>();
+  for (const r of resetRows) resetMap.set(r.id, r.sessionsResetAt ?? null);
+
   // One query: all valid sessions (clientId + date) for these clients since the
   // earliest period boundary we could need (month start or any last-paid date).
   const earliest = [monthStart, ...Array.from(lastPaidMap.values()).filter(Boolean) as Date[]]
@@ -84,7 +105,7 @@ export async function getSessionPeriodCounts(
 
   // Tally in JS using each client's own period rule.
   for (const c of clients) {
-    const { start, mode } = periodStartFor(c.coachingPlan, lastPaidMap.get(c.id) ?? null);
+    const { start, mode } = periodStartFor(c.coachingPlan, lastPaidMap.get(c.id) ?? null, resetMap.get(c.id) ?? null);
     const n = sessions.filter(s => {
       if (s.clientId !== c.id) return false;
       if (!start) return true;                       // package client, never paid → all
