@@ -141,7 +141,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "analytics" && <AnalyticsTab clientId={client.id} items={client.measurements} />}
         {tab === "photos" && <PhotosTab clientId={client.id} items={client.photos} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
-        {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} payments={client.payments} />}
+        {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} payments={client.payments} plan={client.coachingPlan} />}
         {tab === "reminders" && <RemindersTab clientId={client.id} items={client.reminders} />}
       </div>
     </div>

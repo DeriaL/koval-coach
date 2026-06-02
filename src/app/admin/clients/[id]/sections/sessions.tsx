@@ -30,7 +30,7 @@ type S = {
 
 type Pay = { id: string; amount: number; currency: string; status: string; date: Date | string };
 
-export function SessionsTab({ clientId, items, payments = [] }: { clientId: string; items: S[]; payments?: Pay[] }) {
+export function SessionsTab({ clientId, items, payments = [], plan }: { clientId: string; items: S[]; payments?: Pay[]; plan?: string | null }) {
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const [cancelTarget, setCancelTarget] = useState<S | null>(null);
@@ -203,7 +203,15 @@ export function SessionsTab({ clientId, items, payments = [] }: { clientId: stri
           "closed" by the payment that follows it. */}
       {done.length > 0 && (() => {
         // Merge done sessions + paid payments into one timeline (newest first).
+        // Number FULL-client packages from the oldest paid payment (Пакет №1).
         const paid = payments.filter(p => p.status === "paid");
+        const isPackage = plan === "FULL";
+        const packageNoById = new Map<string, number>();
+        if (isPackage) {
+          [...paid]
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .forEach((p, i) => packageNoById.set(p.id, i + 1));
+        }
         type Row =
           | { kind: "session"; date: number; s: S }
           | { kind: "payment"; date: number; p: Pay };
@@ -222,7 +230,9 @@ export function SessionsTab({ clientId, items, payments = [] }: { clientId: stri
                 <div key={`pay-${r.p.id}`} className="flex items-center gap-2 py-0.5">
                   <div className="flex-1 h-px bg-success/30" />
                   <span className="chip text-[10px] py-0.5 px-2 border-success/40 text-success gap-1 shrink-0">
-                    <Wallet className="w-3 h-3" /> Оплачено {r.p.amount.toLocaleString("uk-UA")} {r.p.currency} ·{" "}
+                    <Wallet className="w-3 h-3" />
+                    {packageNoById.has(r.p.id) ? `Пакет №${packageNoById.get(r.p.id)} закрито · ` : "Оплачено "}
+                    {r.p.amount.toLocaleString("uk-UA")} {r.p.currency} ·{" "}
                     {new Date(r.p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short" })}
                   </span>
                   <div className="flex-1 h-px bg-success/30" />
