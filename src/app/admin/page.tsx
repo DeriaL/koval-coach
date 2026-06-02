@@ -3,12 +3,21 @@ import { PageHeader } from "@/components/ui";
 import Link from "next/link";
 import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket } from "lucide-react";
 import { ClientSearch } from "./ClientSearch";
+import { PayReminderButton } from "./PayReminderButton";
 import { kyivDayKey } from "@/lib/kyivTime";
 import { getSessionPeriodCounts } from "@/lib/sessionPeriod";
 
+const DUE_PAYMENT = { some: { status: { in: ["pending", "overdue"] } } };
+
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
-  const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
-  const planFilter = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
+  const format = searchParams?.format === "online" ? "online"
+    : searchParams?.format === "offline" ? "offline"
+    : searchParams?.format === "due" ? "due"
+    : "all";
+  const planFilter = format === "online" ? { coachingPlan: "ONLINE" }
+    : format === "offline" ? { coachingPlan: "FULL" }
+    : format === "due" ? { payments: DUE_PAYMENT }
+    : {};
 
   const q = (searchParams?.q ?? "").trim();
   const searchFilter = q
@@ -46,9 +55,13 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
     prisma.user.groupBy({ by: ["coachingPlan"], where: { role: "CLIENT" }, _count: { _all: true } }),
   ]);
 
+  // Global count of clients with an outstanding invoice (independent of the
+  // current filter) — drives the "До оплати" chip.
+  const dueCount = await prisma.user.count({ where: { role: "CLIENT", payments: DUE_PAYMENT } });
+
   const onlineCount = planCounts.find(p => p.coachingPlan === "ONLINE")?._count._all ?? 0;
   const offlineCount = planCounts.find(p => p.coachingPlan === "FULL")?._count._all ?? 0;
-  const totalAll = onlineCount + offlineCount;
+  const totalAll = planCounts.reduce((a, p) => a + p._count._all, 0);
 
   // Current-period session counts per client (ONLINE = this month, others =
   // since last payment). Resets are what the trainer wants to see.
@@ -78,6 +91,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         <FilterChip href={`/admin${q ? `?q=${encodeURIComponent(q)}` : ""}`} label="Усі" count={totalAll} active={format === "all"} />
         <FilterChip href={`/admin?format=online${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
         <FilterChip href={`/admin?format=offline${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
+        <FilterChip href={`/admin?format=due${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="До оплати" count={dueCount} active={format === "due"} icon="wallet" />
       </div>
 
       {/* Empty search result */}
@@ -209,8 +223,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
 
               {pendingPay ? (
                 <div className="mt-3 text-xs flex items-center justify-between gap-2 p-2 rounded-lg bg-accent2/10 border border-accent2/30 text-accent2">
-                  <span className="flex items-center gap-1 min-w-0 truncate"><Wallet className="w-3 h-3 shrink-0" /> Очікує оплати</span>
-                  <span className="font-bold shrink-0">{pendingPay.amount} ₴</span>
+                  <span className="flex items-center gap-1 min-w-0 truncate"><Wallet className="w-3 h-3 shrink-0" /> {pendingPay.amount} ₴</span>
+                  <PayReminderButton clientId={c.id} />
                 </div>
               ) : isOnline && (c as any).priceMonthly ? (
                 <div className="mt-3 text-[11px] text-muted flex items-center justify-between gap-2">
@@ -245,8 +259,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   );
 }
 
-function FilterChip({ href, label, count, active, icon }: { href: string; label: string; count: number; active: boolean; icon?: "wifi" | "crown" }) {
-  const Icon = icon === "wifi" ? Wifi : icon === "crown" ? Crown : null;
+function FilterChip({ href, label, count, active, icon }: { href: string; label: string; count: number; active: boolean; icon?: "wifi" | "crown" | "wallet" }) {
+  const Icon = icon === "wifi" ? Wifi : icon === "crown" ? Crown : icon === "wallet" ? Wallet : null;
   return (
     <Link
       href={href}

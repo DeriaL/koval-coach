@@ -478,3 +478,35 @@ export async function deleteReminder(id: string, clientId: string) {
   await prisma.reminder.delete({ where: { id } });
   revalidatePath(`/admin/clients/${clientId}`);
 }
+
+// Send a payment reminder to a client (Telegram + in-app reminder bell).
+export async function sendPaymentReminder(clientId: string) {
+  await requireTrainer();
+  const [pending, user] = await Promise.all([
+    prisma.payment.findFirst({
+      where: { clientId, status: { in: ["pending", "overdue"] } },
+      orderBy: { date: "asc" },
+    }),
+    prisma.user.findUnique({ where: { id: clientId }, select: { telegramChatId: true } }),
+  ]);
+  if (!pending) return { ok: false as const, telegram: false };
+
+  await prisma.reminder.create({
+    data: {
+      clientId,
+      title: `💳 Нагадування про оплату — ${pending.amount} ₴`,
+      type: "payment",
+      datetime: new Date(),
+      done: false,
+    },
+  }).catch(() => {});
+
+  await notifyUser(
+    clientId,
+    "payments",
+    `💳 <b>Нагадування про оплату</b>\nОчікує: <b>${pending.amount} ₴</b>\nДеталі у вкладці «Оплати».`
+  ).catch(() => {});
+
+  revalidatePath(`/admin/clients/${clientId}`);
+  return { ok: true as const, telegram: !!user?.telegramChatId };
+}
