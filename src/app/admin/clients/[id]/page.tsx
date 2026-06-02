@@ -60,7 +60,10 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         const sessions = period.count;
         const pendingPay = client.payments.find((p: any) => p.status === "pending" || p.status === "overdue");
         const isOnline = client.coachingPlan === "ONLINE";
+        const isDropIn = client.coachingPlan === "DROP_IN";
         const toNext = Math.max(0, 10 - sessions);
+        // Offline client who finished a 10-pack but has no open invoice → owes.
+        const owesPackage = !isOnline && !isDropIn && !pendingPay && sessions >= 10;
         return (
           <div className="card p-4 md:p-6 relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-br from-accent/20 via-transparent to-accent2/20" />
@@ -102,10 +105,12 @@ export default async function ClientDetail({ params, searchParams }: Props) {
 
             {/* Stats — full width row on mobile, side-by-side on desktop */}
             <div className="relative grid grid-cols-2 gap-2 md:gap-3 mt-4 md:mt-3 md:absolute md:top-6 md:right-6 md:w-auto md:flex">
-              <div className="p-2.5 md:p-3 rounded-xl bg-surface border border-border md:min-w-[90px]">
+              <div className={`p-2.5 md:p-3 rounded-xl border md:min-w-[90px] ${owesPackage ? "bg-danger/10 border-danger/40" : "bg-surface border-border"}`}>
                 <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Dumbbell className="w-3 h-3" /> Тренувань</div>
                 <div className="text-lg md:text-xl font-black">{sessions}</div>
-                <div className="text-[10px] text-muted">{isOnline ? "цього місяця" : `до оплати: ${toNext}`}</div>
+                <div className={`text-[10px] ${owesPackage ? "text-danger font-semibold" : "text-muted"}`}>
+                  {isOnline ? "цього місяця" : isDropIn ? "разові" : owesPackage ? "час оплатити!" : `до оплати: ${toNext}`}
+                </div>
               </div>
               {pendingPay ? (
                 <div className="p-2.5 md:p-3 rounded-xl bg-accent2/10 border border-accent2/40 md:min-w-[90px] animate-pulse-ring">

@@ -131,6 +131,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
           const toNextMilestone = Math.max(0, 10 - sessions);
           const isOnline = c.coachingPlan === "ONLINE";
           const isDropIn = c.coachingPlan === "DROP_IN";
+          const owesPackage = !isOnline && !isDropIn && !pendingPay && sessions >= 10;
 
           return (
             <Link
@@ -193,6 +194,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                     <span className="text-muted shrink-0">підписка: місяць</span>
                   ) : isDropIn ? (
                     <span className="text-muted shrink-0">оплата: за сесію</span>
+                  ) : owesPackage ? (
+                    <span className="text-danger font-semibold shrink-0">час оплатити!</span>
                   ) : (
                     <span className="text-muted shrink-0">до оплати: {toNextMilestone}</span>
                   )}
