@@ -9,11 +9,7 @@
 // invoice here. DROP_IN clients are billed per session on trainer confirm.
 
 import { prisma } from "@/lib/prisma";
-
-const VALID_SESSION = {
-  cancelledAt: null,
-  OR: [{ completed: true }, { confirmedByTrainer: true }],
-};
+import { VALID_SESSION } from "@/lib/sessionPeriod";
 
 export type PackageBillResult = {
   billed: boolean;
@@ -35,15 +31,15 @@ export async function maybeBillPackage(clientId: string): Promise<PackageBillRes
     return { billed: false, amount: null, sinceLastPaid: 0 };
   }
 
-  const lastPaid = await prisma.payment.findFirst({
-    where: { clientId, status: "paid" },
-    orderBy: { date: "desc" },
-    select: { date: true },
-  });
-
-  const sinceLastPaid = await prisma.workoutSession.count({
-    where: { clientId, ...VALID_SESSION, ...(lastPaid?.date ? { date: { gt: lastPaid.date } } : {}) },
-  });
+  // Package progress by PAID-PACKAGE count (timing-independent — sessions done
+  // while an invoice is still pending are not lost). A paid package only counts
+  // once 10 sessions exist for it.
+  const [totalValid, paidCount] = await Promise.all([
+    prisma.workoutSession.count({ where: { clientId, ...VALID_SESSION } }),
+    prisma.payment.count({ where: { clientId, status: "paid" } }),
+  ]);
+  const completedPaid = Math.min(paidCount, Math.floor(totalValid / 10));
+  const sinceLastPaid = totalValid - completedPaid * 10; // sessions in the current package
 
   if (sinceLastPaid < 10) {
     return { billed: false, amount: user.pricePer10 ?? null, sinceLastPaid };

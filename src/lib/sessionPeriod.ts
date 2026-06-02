@@ -1,9 +1,17 @@
 // Compute the "current period" session count for a client.
 //
-//  • ONLINE clients  → counter resets on the 1st of every month, so we count
-//    valid sessions from the start of the current month.
-//  • FULL / DROP_IN  → counter resets when the client pays, so we count valid
-//    sessions AFTER their last paid payment (the package in progress).
+//  • ONLINE  → counter resets on the 1st of every month (or a manual reset).
+//              We count valid sessions from the start of the current month.
+//
+//  • FULL    → a 10-session package. The counter shows how many sessions are
+//              in the CURRENT (not-yet-paid) package = total valid sessions
+//              minus the sessions already covered by paid packages. We count by
+//              PAID PACKAGES, not by payment date, so sessions done while an
+//              invoice is still "Очікує" are NEVER lost: e.g. client does 12,
+//              pays for one 10-pack, counter shows 2 (the carry-over), not 0.
+//
+//  • DROP_IN → same idea but each session is its own "package" (per-session
+//              payment): counter = total valid sessions − paid sessions.
 //
 // "Valid" = completed or trainer-confirmed, and not cancelled.
 
@@ -12,8 +20,7 @@ import { kyivStartOfMonth } from "@/lib/kyivTime";
 
 // THE canonical definition of a "valid training session" — a session that
 // counts toward a client's training total. Reused everywhere so no counter
-// can drift from another. A session counts if it is completed (self-logged or
-// trainer-logged) OR trainer-confirmed, and was not cancelled.
+// can drift from another.
 export const VALID_SESSION = {
   cancelledAt: null,
   OR: [{ completed: true }, { confirmedByTrainer: true }],
@@ -22,27 +29,29 @@ export const VALID_SESSION = {
 export type PeriodMode = "month" | "package";
 
 export type SessionPeriod = {
-  count: number;
+  count: number;       // sessions in the current period / unpaid package
   mode: PeriodMode;
-  periodStart: Date | null; // null = "all time" (package client who never paid)
+  periodStart: Date | null;
 };
 
-/** The period start for one client, given their plan, last paid date and an
- *  optional manual reset point (ONLINE counts from the later of month-start
- *  and the reset). */
-export function periodStartFor(
-  plan: string | null | undefined,
-  lastPaidDate: Date | null,
-  monthResetAt: Date | null = null,
-): { start: Date | null; mode: PeriodMode } {
-  if (plan === "ONLINE") {
-    const ms = kyivStartOfMonth();
-    return { start: monthResetAt && monthResetAt > ms ? monthResetAt : ms, mode: "month" };
-  }
-  return { start: lastPaidDate, mode: "package" };
+// Sessions per "package": FULL = 10-pack, DROP_IN = pay per single session.
+function perPackageFor(plan: string | null | undefined): number {
+  return plan === "DROP_IN" ? 1 : 10;
 }
 
-/** Count current-period sessions for a single client (1-2 queries). */
+/**
+ * Package progress, timing-independent. `completedPaid` only counts a paid
+ * package if the client has actually done enough sessions for it — so a
+ * pre-paid client who hasn't trained yet still shows real progress, and a
+ * client who trained past 10 while waiting to pay keeps the carry-over.
+ */
+function packageProgress(totalValid: number, paidCount: number, perPackage: number): number {
+  const packagesBySessions = Math.floor(totalValid / perPackage);
+  const completedPaid = Math.min(paidCount, packagesBySessions);
+  return totalValid - completedPaid * perPackage;
+}
+
+/** Count current-period sessions for a single client. */
 export async function getSessionPeriod(client: { id: string; coachingPlan: string | null }): Promise<SessionPeriod> {
   if (client.coachingPlan === "ONLINE") {
     // Count from the LATER of the 1st-of-month and a manual reset point.
@@ -55,16 +64,14 @@ export async function getSessionPeriod(client: { id: string; coachingPlan: strin
     });
     return { count, mode: "month", periodStart: start };
   }
-  const lastPaid = await prisma.payment.findFirst({
-    where: { clientId: client.id, status: "paid" },
-    orderBy: { date: "desc" },
-    select: { date: true },
-  });
-  const start = lastPaid?.date ?? null;
-  const count = await prisma.workoutSession.count({
-    where: { clientId: client.id, ...VALID_SESSION, ...(start ? { date: { gt: start } } : {}) },
-  });
-  return { count, mode: "package", periodStart: start };
+
+  // FULL / DROP_IN: package-count based (resets on payment, no lost sessions).
+  const [totalValid, paidCount] = await Promise.all([
+    prisma.workoutSession.count({ where: { clientId: client.id, ...VALID_SESSION } }),
+    prisma.payment.count({ where: { clientId: client.id, status: "paid" } }),
+  ]);
+  const count = packageProgress(totalValid, paidCount, perPackageFor(client.coachingPlan));
+  return { count, mode: "package", periodStart: null };
 }
 
 /**
@@ -78,14 +85,16 @@ export async function getSessionPeriodCounts(
   const result = new Map<string, number>();
   if (ids.length === 0) return result;
 
-  // One query: last paid payment date per client.
-  const lastPaid = await prisma.payment.groupBy({
+  const monthStart = kyivStartOfMonth();
+
+  // Paid-payment COUNT per client (each = one package for FULL / one session for DROP_IN).
+  const paidGroups = await prisma.payment.groupBy({
     by: ["clientId"],
     where: { clientId: { in: ids }, status: "paid" },
-    _max: { date: true },
+    _count: { _all: true },
   });
-  const lastPaidMap = new Map<string, Date | null>();
-  for (const r of lastPaid) lastPaidMap.set(r.clientId, r._max.date ?? null);
+  const paidCountMap = new Map<string, number>();
+  for (const r of paidGroups) paidCountMap.set(r.clientId, r._count._all);
 
   // Manual reset points (ONLINE clients).
   const resetRows = await prisma.user.findMany({
@@ -95,25 +104,31 @@ export async function getSessionPeriodCounts(
   const resetMap = new Map<string, Date | null>();
   for (const r of resetRows) resetMap.set(r.id, r.sessionsResetAt ?? null);
 
-  // One query: ALL valid sessions (clientId + date) for these clients. We must
-  // NOT bound this by date — package clients who never paid count their whole
-  // history, and any earlier-than-period sessions would otherwise be dropped
-  // (that was the bug: counts came out lower than reality). We then filter
-  // per-client in JS. Only clientId + date are selected, so this stays light.
+  // ALL valid sessions (clientId + date) for these clients — no date bound, so
+  // package totals are complete. Light (clientId + date only).
   const sessions = await prisma.workoutSession.findMany({
     where: { clientId: { in: ids }, ...VALID_SESSION },
     select: { clientId: true, date: true },
   });
+  // Group by client.
+  const byClient = new Map<string, Date[]>();
+  for (const s of sessions) {
+    const arr = byClient.get(s.clientId) ?? [];
+    arr.push(s.date);
+    byClient.set(s.clientId, arr);
+  }
 
-  // Tally in JS using each client's own period rule.
   for (const c of clients) {
-    const { start, mode } = periodStartFor(c.coachingPlan, lastPaidMap.get(c.id) ?? null, resetMap.get(c.id) ?? null);
-    const n = sessions.filter(s => {
-      if (s.clientId !== c.id) return false;
-      if (!start) return true;                       // package client, never paid → all
-      return mode === "month" ? s.date >= start : s.date > start;
-    }).length;
-    result.set(c.id, n);
+    const dates = byClient.get(c.id) ?? [];
+    if (c.coachingPlan === "ONLINE") {
+      const resetAt = resetMap.get(c.id) ?? null;
+      const start = resetAt && resetAt > monthStart ? resetAt : monthStart;
+      result.set(c.id, dates.filter(d => d >= start).length);
+    } else {
+      const totalValid = dates.length;
+      const paidCount = paidCountMap.get(c.id) ?? 0;
+      result.set(c.id, packageProgress(totalValid, paidCount, perPackageFor(c.coachingPlan)));
+    }
   }
   return result;
 }
