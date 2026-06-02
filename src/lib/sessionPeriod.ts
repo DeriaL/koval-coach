@@ -74,8 +74,6 @@ export async function getSessionPeriodCounts(
   const result = new Map<string, number>();
   if (ids.length === 0) return result;
 
-  const monthStart = kyivStartOfMonth();
-
   // One query: last paid payment date per client.
   const lastPaid = await prisma.payment.groupBy({
     by: ["clientId"],
@@ -93,13 +91,13 @@ export async function getSessionPeriodCounts(
   const resetMap = new Map<string, Date | null>();
   for (const r of resetRows) resetMap.set(r.id, r.sessionsResetAt ?? null);
 
-  // One query: all valid sessions (clientId + date) for these clients since the
-  // earliest period boundary we could need (month start or any last-paid date).
-  const earliest = [monthStart, ...Array.from(lastPaidMap.values()).filter(Boolean) as Date[]]
-    .reduce((min, d) => (d < min ? d : min), monthStart);
-
+  // One query: ALL valid sessions (clientId + date) for these clients. We must
+  // NOT bound this by date — package clients who never paid count their whole
+  // history, and any earlier-than-period sessions would otherwise be dropped
+  // (that was the bug: counts came out lower than reality). We then filter
+  // per-client in JS. Only clientId + date are selected, so this stays light.
   const sessions = await prisma.workoutSession.findMany({
-    where: { clientId: { in: ids }, ...VALID_SESSION, date: { gte: earliest } },
+    where: { clientId: { in: ids }, ...VALID_SESSION },
     select: { clientId: true, date: true },
   });
 
