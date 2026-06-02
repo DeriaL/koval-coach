@@ -28,7 +28,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
       orderBy: { updatedAt: "desc" },
     }),
     prisma.workoutSession.findMany({
-      where: { clientId: u.id, completed: true },
+      where: { clientId: u.id, completed: true, cancelledAt: null },
       orderBy: { date: "desc" },
       take: 4,
       include: { sets: true },

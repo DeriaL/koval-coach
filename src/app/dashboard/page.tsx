@@ -19,7 +19,7 @@ export default async function DashboardHome() {
 
   const [checkIns, workoutSessions, reminders, measurements, client, todayWorkouts, upcomingSessions, latestNutritionPlan, pendingPayment] = await Promise.all([
     prisma.checkIn.findMany({ where: { clientId: user.id }, orderBy: { date: "desc" }, take: 60 }),
-    prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true }, orderBy: { date: "desc" }, take: 30 }),
+    prisma.workoutSession.findMany({ where: { clientId: user.id, completed: true, cancelledAt: null }, orderBy: { date: "desc" }, take: 30 }),
     prisma.reminder.findMany({ where: { clientId: user.id, done: false, datetime: { gte: new Date(Date.now() - 86400000) } }, orderBy: { datetime: "asc" }, take: 5 }),
     prisma.measurement.findMany({ where: { clientId: user.id }, orderBy: { date: "asc" } }),
     prisma.user.findUnique({ where: { id: user.id } }),

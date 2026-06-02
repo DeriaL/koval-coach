@@ -6,6 +6,7 @@ import { PaymentDetails } from "./PaymentDetails";
 import { MonobankQR } from "./MonobankQR";
 import { PayButton } from "./PayButton";
 import { syncClientPendingPayments } from "@/lib/monoSync";
+import { getSessionPeriod } from "@/lib/sessionPeriod";
 
 const TOTAL_STOPS = 10;
 
@@ -32,16 +33,10 @@ export default async function PaymentsPage() {
   const pricePer10 = user?.pricePer10 ?? 0;
   const totalPaid = paidPayments.reduce((s, p) => s + p.amount, 0);
 
-  // Count sessions since last paid payment (resets after each payment)
-  const lastPaidDate = paidPayments.at(-1)?.date ?? null;
-  const sessionsSinceLastPayment = await prisma.workoutSession.count({
-    where: {
-      clientId: u.id,
-      completed: true,
-      cancelledAt: null,
-      ...(lastPaidDate ? { date: { gt: lastPaidDate } } : {}),
-    },
-  });
+  // Current-period training count — SAME source the trainer's admin badge uses,
+  // so the client and the trainer always see identical numbers.
+  const period = await getSessionPeriod({ id: u.id, coachingPlan: user?.coachingPlan ?? "FULL" });
+  const sessionsSinceLastPayment = period.count;
 
   // Show auto-pay nudge when 10+ sessions done since last payment and no pending
   const sessionsOverdue = pendingCount === 0 && sessionsSinceLastPayment >= 10;

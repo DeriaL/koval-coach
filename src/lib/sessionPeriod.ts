@@ -10,7 +10,11 @@
 import { prisma } from "@/lib/prisma";
 import { kyivStartOfMonth } from "@/lib/kyivTime";
 
-const VALID_SESSION = {
+// THE canonical definition of a "valid training session" — a session that
+// counts toward a client's training total. Reused everywhere so no counter
+// can drift from another. A session counts if it is completed (self-logged or
+// trainer-logged) OR trainer-confirmed, and was not cancelled.
+export const VALID_SESSION = {
   cancelledAt: null,
   OR: [{ completed: true }, { confirmedByTrainer: true }],
 };
