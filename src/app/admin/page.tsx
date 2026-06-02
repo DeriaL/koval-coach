@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket } from "lucide-react";
 import { ClientSearch } from "./ClientSearch";
 import { kyivDayKey } from "@/lib/kyivTime";
+import { getSessionPeriodCounts } from "@/lib/sessionPeriod";
 
 export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
@@ -28,7 +29,6 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         measurements: { orderBy: { date: "desc" }, take: 1 },
         checkIns: { orderBy: { date: "desc" }, take: 7 },
         payments: { orderBy: { date: "desc" }, take: 3 },
-        _count: { select: { sessions: { where: { AND: [{ OR: [{ completed: true }, { confirmedByTrainer: true }] }, { cancelledAt: null }] } } } },
       },
       orderBy: [{ isVip: "desc" }, { firstName: "asc" }, { lastName: "asc" }],
     }),
@@ -50,7 +50,10 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   const offlineCount = planCounts.find(p => p.coachingPlan === "FULL")?._count._all ?? 0;
   const totalAll = onlineCount + offlineCount;
 
-  const totalSessions = clients.reduce((a, c) => a + c._count.sessions, 0);
+  // Current-period session counts per client (ONLINE = this month, others =
+  // since last payment). Resets are what the trainer wants to see.
+  const periodCounts = await getSessionPeriodCounts(clients);
+  const totalSessions = clients.reduce((a, c) => a + (periodCounts.get(c.id) ?? 0), 0);
   const duePayments = clients.filter(c => c.payments.some(p => p.status === "pending" || p.status === "overdue")).length;
 
   return (
@@ -110,9 +113,8 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
           const delta = latest && c.startWeight ? latest.weight! - c.startWeight : 0;
           const streakDays = new Set(c.checkIns.map((x) => kyivDayKey(x.date))).size;
           const pendingPay = c.payments.find(p => p.status === "pending" || p.status === "overdue");
-          const sessions = c._count.sessions;
-          const nextMilestone = Math.ceil((sessions + 1) / 10) * 10;
-          const toNextMilestone = nextMilestone - sessions;
+          const sessions = periodCounts.get(c.id) ?? 0;
+          const toNextMilestone = Math.max(0, 10 - sessions);
           const isOnline = c.coachingPlan === "ONLINE";
           const isDropIn = c.coachingPlan === "DROP_IN";
 
@@ -183,7 +185,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
                 </div>
                 {!isOnline && !isDropIn && (
                   <div className="h-1.5 rounded-full bg-surface overflow-hidden">
-                    <div className="h-full accent-shine transition-all" style={{ width: `${((sessions % 10) / 10) * 100}%` }} />
+                    <div className="h-full accent-shine transition-all" style={{ width: `${(Math.min(sessions, 10) / 10) * 100}%` }} />
                   </div>
                 )}
               </div>

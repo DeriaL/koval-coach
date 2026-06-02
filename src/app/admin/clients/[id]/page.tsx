@@ -15,6 +15,7 @@ import { RemindersTab } from "./sections/reminders";
 import { SessionsTab } from "./sections/sessions";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet, Star } from "lucide-react";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { getSessionPeriod } from "@/lib/sessionPeriod";
 
 type Props = { params: { id: string }; searchParams: { tab?: string } };
 
@@ -40,6 +41,9 @@ export default async function ClientDetail({ params, searchParams }: Props) {
 
   if (!client || client.role !== "CLIENT") notFound();
 
+  // Current-period session count: ONLINE resets monthly, others reset on payment.
+  const period = await getSessionPeriod(client);
+
   return (
     <div className="max-w-6xl">
       <Link href="/admin" className="text-muted text-sm hover:text-accent flex items-center gap-1 mb-4">
@@ -47,10 +51,10 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       </Link>
 
       {(() => {
-        const sessions = client._count.sessions;
+        const sessions = period.count;
         const pendingPay = client.payments.find((p: any) => p.status === "pending" || p.status === "overdue");
         const isOnline = client.coachingPlan === "ONLINE";
-        const toNext = 10 - (sessions % 10);
+        const toNext = Math.max(0, 10 - sessions);
         return (
           <div className="card p-4 md:p-6 relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-br from-accent/20 via-transparent to-accent2/20" />
@@ -95,7 +99,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
               <div className="p-2.5 md:p-3 rounded-xl bg-surface border border-border md:min-w-[90px]">
                 <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Dumbbell className="w-3 h-3" /> Тренувань</div>
                 <div className="text-lg md:text-xl font-black">{sessions}</div>
-                <div className="text-[10px] text-muted">до оплати: {toNext}</div>
+                <div className="text-[10px] text-muted">{isOnline ? "цього місяця" : `до оплати: ${toNext}`}</div>
               </div>
               {pendingPay ? (
                 <div className="p-2.5 md:p-3 rounded-xl bg-accent2/10 border border-accent2/40 md:min-w-[90px] animate-pulse-ring">

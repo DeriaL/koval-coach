@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireClient } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { notifyAllTrainers, notifyUser, tgEscape } from "@/lib/telegram";
+import { maybeBillPackage } from "@/lib/billing";
 
 type Payload = {
   title: string;
@@ -60,43 +61,17 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
     data: { clientId: u.id, date: new Date(), title: data.title, completed: true },
   });
 
-  // Milestone: every 10 completed sessions -> auto payment + reminder.
-  // Only for FULL (offline-package) clients. ONLINE pay monthly via cron,
-  // DROP_IN per-session via trainer confirm — so 10-pack doesn't apply.
-  const user = await prisma.user.findUnique({ where: { id: u.id } });
-  const totalCompleted = await prisma.workoutSession.count({
-    where: { clientId: u.id, cancelledAt: null, OR: [{ completed: true }, { confirmedByTrainer: true }] },
-  });
+  // Package billing: FULL clients get a pending invoice when they reach 10
+  // sessions SINCE their last payment (counter resets on payment). ONLINE pay
+  // monthly via cron; DROP_IN per session on trainer confirm.
+  const bill = await maybeBillPackage(u.id);
 
   let milestone: FinishResult["milestone"] = null;
-  if (user?.coachingPlan === "FULL" && totalCompleted > 0 && totalCompleted % 10 === 0) {
-    const amount = user?.pricePer10 ?? null;
-    const pkg = Math.floor(totalCompleted / 10);
-
-    if (amount && amount > 0) {
-      await prisma.payment.create({
-        data: {
-          clientId: u.id,
-          amount,
-          currency: "UAH",
-          date: new Date(),
-          status: "pending",
-          notes: `Пакет №${pkg} · 10 тренувань (авто)`,
-        },
-      });
-    }
-    await prisma.reminder.create({
-      data: {
-        clientId: u.id,
-        title: `🎉 Ти пройшов 10 тренувань! Час оплатити наступний пакет${amount ? ` (${amount} ₴)` : ""}.`,
-        type: "payment",
-        datetime: new Date(),
-        done: false,
-      },
-    });
-    milestone = { count: totalCompleted, amount };
-    notifyUser(u.id, "payments", `🎉 <b>${totalCompleted} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
-    notifyAllTrainers(`🎯 <b>${tgEscape(u.name)}</b> досяг ${totalCompleted} тренувань${amount ? ` (рахунок ${amount} ₴ створено)` : ""}.`).catch(()=>{});
+  if (bill.billed) {
+    const amount = bill.amount;
+    milestone = { count: bill.sinceLastPaid, amount };
+    notifyUser(u.id, "payments", `🎉 <b>10 тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+    notifyAllTrainers(`🎯 <b>${tgEscape(u.name)}</b> завершив пакет (10 тренувань)${amount ? ` — рахунок ${amount} ₴ створено` : ""}.`).catch(()=>{});
   }
 
   // Always notify trainer when client finishes a workout

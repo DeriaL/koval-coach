@@ -100,6 +100,13 @@ export function kyivStartOfToday(): Date {
   return kyivStartOfDay(new Date());
 }
 
+/** UTC instant of Kyiv midnight on the 1st of the current month. */
+export function kyivStartOfMonth(ref: Date = new Date()): Date {
+  const p = kyivParts(ref);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return parseKyivLocal(`${p.year}-${pad(p.month)}-01T00:00`);
+}
+
 /** Add N whole days to a Kyiv-midnight instant (DST-safe — re-snaps to midnight). */
 export function kyivAddDays(start: Date, days: number): Date {
   // Shift by ~days then re-snap to Kyiv midnight to survive DST transitions.

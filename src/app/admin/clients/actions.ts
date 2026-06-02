@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { notifyUser } from "@/lib/telegram";
 import { parseKyivLocal, parseKyivDate } from "@/lib/kyivTime";
+import { maybeBillPackage } from "@/lib/billing";
 
 // Date-only inputs are interpreted as Kyiv local midnight, so they never drift
 // to the previous day on a UTC server.
@@ -361,24 +362,9 @@ export async function scheduleSession(clientId: string, data: { title: string; s
     const when = dt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Kyiv" });
     notifyUser(clientId, "training", `📅 <b>Я запланував для тебе тренування</b>\n\n«${data.title}»\n🕐 ${when}${data.notes ? `\n📝 ${data.notes}` : ""}`).catch(()=>{});
   }
-  // If backfilled as done, check milestone
+  // If backfilled as done, check package billing (FULL clients, since last paid).
   if (alreadyDone) {
-    const total = await prisma.workoutSession.count({
-      where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
-    });
-    if (total > 0 && total % 10 === 0) {
-      const u = await prisma.user.findUnique({ where: { id: clientId } });
-      const amount = u?.pricePer10 ?? null;
-      const pkg = Math.floor(total / 10);
-      if (amount && amount > 0) {
-        await prisma.payment.create({
-          data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
-        });
-      }
-      await prisma.reminder.create({
-        data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
-      });
-    }
+    await maybeBillPackage(clientId);
   }
   revalidatePath(`/admin/clients/${clientId}`);
   revalidatePath(`/admin`);
@@ -421,23 +407,10 @@ export async function confirmSession(sessionId: string, clientId: string, happen
         ).catch(() => {});
       }
     } else if (u?.coachingPlan === "FULL") {
-      // ── PACKAGE clients only: milestone every 10 sessions ──
-      // ONLINE clients pay monthly, not per package — skip the 10-pack trigger.
-      const total = await prisma.workoutSession.count({
-        where: { clientId, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null },
-      });
-      if (total > 0 && total % 10 === 0) {
-        const amount = u?.pricePer10 ?? null;
-        const pkg = Math.floor(total / 10);
-        if (amount && amount > 0) {
-          await prisma.payment.create({
-            data: { clientId, amount, currency: "UAH", date: new Date(), status: "pending", notes: `Пакет №${pkg} · 10 тренувань (авто)` },
-          });
-        }
-        await prisma.reminder.create({
-          data: { clientId, title: `🎉 10 тренувань! Час оплати${amount ? ` (${amount} ₴)` : ""}.`, type: "payment", datetime: new Date(), done: false },
-        });
-        notifyUser(clientId, "payments", `🎉 <b>${total} тренувань!</b>\nЧас оплатити наступний пакет${amount ? ` — <b>${amount} ₴</b>` : ""}.`).catch(()=>{});
+      // PACKAGE clients: invoice when 10 sessions reached SINCE last payment.
+      const bill = await maybeBillPackage(clientId);
+      if (bill.billed) {
+        notifyUser(clientId, "payments", `🎉 <b>10 тренувань!</b>\nЧас оплатити наступний пакет${bill.amount ? ` — <b>${bill.amount} ₴</b>` : ""}.`).catch(()=>{});
       }
     }
   } else {
