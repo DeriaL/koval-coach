@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { scheduleSession, confirmSession, deleteSession, cancelSessionByTrainer } from "../../actions";
-import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban } from "lucide-react";
+import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban, Wallet } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { CancelModal } from "@/components/CancelModal";
@@ -28,7 +28,9 @@ type S = {
   sets?: SetRow[];
 };
 
-export function SessionsTab({ clientId, items }: { clientId: string; items: S[] }) {
+type Pay = { id: string; amount: number; currency: string; status: string; date: Date | string };
+
+export function SessionsTab({ clientId, items, payments = [] }: { clientId: string; items: S[]; payments?: Pay[] }) {
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const [cancelTarget, setCancelTarget] = useState<S | null>(null);
@@ -197,33 +199,55 @@ export function SessionsTab({ clientId, items }: { clientId: string; items: S[] 
         </div>
       )}
 
-      {/* Done */}
-      {done.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-success mb-2">
-            <Sparkles className="w-3.5 h-3.5" /> Виконані ({done.length})
+      {/* Done — interleaved with payment markers so each 10-pack is visibly
+          "closed" by the payment that follows it. */}
+      {done.length > 0 && (() => {
+        // Merge done sessions + paid payments into one timeline (newest first).
+        const paid = payments.filter(p => p.status === "paid");
+        type Row =
+          | { kind: "session"; date: number; s: S }
+          | { kind: "payment"; date: number; p: Pay };
+        const rows: Row[] = [
+          ...done.map(s => ({ kind: "session" as const, date: new Date(s.date).getTime(), s })),
+          ...paid.map(p => ({ kind: "payment" as const, date: new Date(p.date).getTime(), p })),
+        ].sort((a, b) => b.date - a.date);
+        // Drop a leading/trailing payment with no sessions around it for a clean look — keep all, simplest.
+        return (
+          <div>
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-success mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> Виконані ({done.length})
+            </div>
+            <div className="space-y-2">
+              {rows.map((r) => r.kind === "payment" ? (
+                <div key={`pay-${r.p.id}`} className="flex items-center gap-2 py-0.5">
+                  <div className="flex-1 h-px bg-success/30" />
+                  <span className="chip text-[10px] py-0.5 px-2 border-success/40 text-success gap-1 shrink-0">
+                    <Wallet className="w-3 h-3" /> Оплачено {r.p.amount.toLocaleString("uk-UA")} {r.p.currency} ·{" "}
+                    {new Date(r.p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short" })}
+                  </span>
+                  <div className="flex-1 h-px bg-success/30" />
+                </div>
+              ) : (
+                <WorkoutDetailRow
+                  key={r.s.id}
+                  session={{
+                    id: r.s.id,
+                    title: r.s.title,
+                    date: r.s.date,
+                    durationSec: r.s.durationSec,
+                    notes: r.s.notes,
+                    completed: r.s.completed,
+                    confirmedByTrainer: r.s.confirmedByTrainer,
+                    sets: r.s.sets ?? [],
+                  }}
+                  editHref={`/admin/clients/${clientId}/log-workout?edit=${r.s.id}`}
+                  onDelete={async (id) => { await deleteSession(id, clientId); }}
+                />
+              ))}
+            </div>
           </div>
-          <div className="space-y-2">
-            {done.map(s => (
-              <WorkoutDetailRow
-                key={s.id}
-                session={{
-                  id: s.id,
-                  title: s.title,
-                  date: s.date,
-                  durationSec: s.durationSec,
-                  notes: s.notes,
-                  completed: s.completed,
-                  confirmedByTrainer: s.confirmedByTrainer,
-                  sets: s.sets ?? [],
-                }}
-                editHref={`/admin/clients/${clientId}/log-workout?edit=${s.id}`}
-                onDelete={async (id) => { await deleteSession(id, clientId); }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {items.length === 0 && !editing && (
         <div className="card p-8 text-center text-muted text-sm">Тренувань ще немає. Запланувати перше?</div>
