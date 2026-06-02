@@ -4,7 +4,13 @@ import { savePayment, deletePayment } from "../../actions";
 import { Pencil, Trash2, Plus, Save, X, Loader2 } from "lucide-react";
 import { kyivDayKey } from "@/lib/kyivTime";
 
-export function PaymentsTab({ clientId, items }: { clientId: string; items: any[] }) {
+export function PaymentsTab({ clientId, items, suggestedAmount, periodCount, periodLabel }: {
+  clientId: string;
+  items: any[];
+  suggestedAmount?: number | null;
+  periodCount?: number;
+  periodLabel?: string;
+}) {
   const [editing, setEditing] = useState<any | null>(null);
   const [pending, start] = useTransition();
 
@@ -23,7 +29,7 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
           <div className="text-xs uppercase text-muted">Всього сплачено</div>
           <div className="text-xl font-bold">{total.toLocaleString("uk-UA")} ₴</div>
         </div>
-        {!editing && <button onClick={() => setEditing({ date: kyivDayKey(new Date()), status: "paid" })} className="btn btn-primary"><Plus className="w-4 h-4" /> Новий платіж</button>}
+        {!editing && <button onClick={() => setEditing({ date: kyivDayKey(new Date()), status: "pending", amount: suggestedAmount ?? "" })} className="btn btn-primary"><Plus className="w-4 h-4" /> Новий платіж</button>}
       </div>
 
       {editing && (
@@ -31,13 +37,22 @@ export function PaymentsTab({ clientId, items }: { clientId: string; items: any[
           <div className="flex justify-between items-center"><h3 className="font-semibold">{editing.id ? "Редагувати" : "Новий платіж"}</h3>
             <button type="button" onClick={() => setEditing(null)} className="btn"><X className="w-4 h-4" /></button></div>
           <div className="grid md:grid-cols-4 gap-3">
-            <div><label className="label">Сума</label><input name="amount" type="number" step="0.01" defaultValue={editing.amount ?? ""} required className="input" /></div>
+            <div>
+              <label className="label">Сума</label>
+              <input name="amount" type="number" step="0.01" defaultValue={editing.amount ?? ""} required className="input" />
+              {!editing.id && suggestedAmount ? (
+                <div className="text-[10px] text-muted mt-1">
+                  Пропоновано: <b className="text-text">{suggestedAmount.toLocaleString("uk-UA")} ₴</b>
+                  {typeof periodCount === "number" ? ` · ${periodCount} трен.${periodLabel ? ` ${periodLabel}` : ""}` : ""}
+                </div>
+              ) : null}
+            </div>
             <div><label className="label">Валюта</label><input name="currency" defaultValue={editing.currency ?? "UAH"} className="input" /></div>
             <div><label className="label">Дата</label><input name="date" type="date" defaultValue={editing.date ? kyivDayKey(new Date(editing.date)) : ""} required className="input" /></div>
             <div><label className="label">Статус</label>
-              <select name="status" defaultValue={editing.status ?? "paid"} className="select">
-                <option value="paid">Оплачено</option>
+              <select name="status" defaultValue={editing.status ?? "pending"} className="select">
                 <option value="pending">Очікує</option>
+                <option value="paid">Оплачено</option>
                 <option value="overdue">Прострочено</option>
               </select>
             </div>

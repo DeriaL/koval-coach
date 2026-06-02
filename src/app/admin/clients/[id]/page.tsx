@@ -44,6 +44,13 @@ export default async function ClientDetail({ params, searchParams }: Props) {
   // Current-period session count: ONLINE resets monthly, others reset on payment.
   const period = await getSessionPeriod(client);
 
+  // Suggested amount for a new manual payment, based on the client's plan.
+  const suggestedAmount =
+    client.coachingPlan === "ONLINE" ? (client as any).priceMonthly
+    : client.coachingPlan === "DROP_IN" ? (client as any).pricePerSession
+    : client.pricePer10;
+  const periodLabel = period.mode === "month" ? "цього місяця" : "після оплати";
+
   return (
     <div className="max-w-6xl">
       <Link href="/admin" className="text-muted text-sm hover:text-accent flex items-center gap-1 mb-4">
@@ -126,7 +133,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "nutrition" && <NutritionTab clientId={client.id} items={client.nutritionPlans} />}
         {tab === "training" && <TrainingTab clientId={client.id} items={client.trainingPlans} />}
         {tab === "supplements" && <SupplementsTab clientId={client.id} items={client.supplements} />}
-        {tab === "payments" && <PaymentsTab clientId={client.id} items={client.payments} />}
+        {tab === "payments" && <PaymentsTab clientId={client.id} items={client.payments} suggestedAmount={suggestedAmount} periodCount={period.count} periodLabel={periodLabel} />}
         {tab === "analytics" && <AnalyticsTab clientId={client.id} items={client.measurements} />}
         {tab === "photos" && <PhotosTab clientId={client.id} items={client.photos} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
