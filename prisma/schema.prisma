@@ -48,6 +48,26 @@ model User {
   reminders      Reminder[]
   messages       Message[]
   habits         Habit[]
+  labResults     LabResult[]
+}
+
+// Lab/medical analyses uploaded by the client or trainer, with a two-sided
+// comment (trainer note + client note) so both can discuss the result.
+model LabResult {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  date        DateTime @default(now())
+  fileUrl     String
+  fileType    String   @default("pdf")   // pdf | image
+  clientNote  String?
+  trainerNote String?
+  uploadedBy  String   @default("CLIENT") // CLIENT | TRAINER
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([clientId, date])
 }
 
 model NutritionPlan {

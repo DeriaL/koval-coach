@@ -13,6 +13,7 @@ import { PhotosTab } from "./sections/photos";
 import { CheckInsTab } from "./sections/checkins";
 import { RemindersTab } from "./sections/reminders";
 import { SessionsTab } from "./sections/sessions";
+import { AnalysesTab } from "./sections/analyses";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet, Star } from "lucide-react";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { getSessionPeriod } from "@/lib/sessionPeriod";
@@ -33,6 +34,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
       measurements: { orderBy: { date: "asc" } },
       photos: { orderBy: { date: "asc" }, take: 100 },
       checkIns: { orderBy: { date: "desc" }, take: 60 },
+      labResults: { orderBy: { date: "desc" } },
       reminders: { orderBy: { datetime: "asc" }, take: 50 },
       sessions: { orderBy: [{ scheduledAt: "desc" }, { date: "desc" }], take: 60, include: { sets: { orderBy: { setIndex: "asc" } } } },
     },
@@ -145,6 +147,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "supplements" && <SupplementsTab clientId={client.id} items={client.supplements} />}
         {tab === "payments" && <PaymentsTab clientId={client.id} items={client.payments} suggestedAmount={suggestedAmount} periodCount={period.count} periodLabel={periodLabel} />}
         {tab === "analytics" && <AnalyticsTab clientId={client.id} items={client.measurements} />}
+        {tab === "analyses" && <AnalysesTab clientId={client.id} items={(client as any).labResults.map((l: any) => ({ ...l, date: l.date.toISOString() }))} />}
         {tab === "photos" && <PhotosTab clientId={client.id} items={client.photos} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
         {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} payments={client.payments} plan={client.coachingPlan} />}

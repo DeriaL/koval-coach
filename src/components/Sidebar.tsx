@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Apple, Dumbbell, Pill, Wallet, LineChart,
-  Camera, Flame, MessageCircle, User, Trophy, LogOut, Users, Settings, Menu, X, Target, Play, Calendar, BookOpen, ChefHat, Activity, Star
+  Camera, Flame, MessageCircle, User, Trophy, LogOut, Users, Settings, Menu, X, Target, Play, Calendar, BookOpen, ChefHat, Activity, Star, FlaskConical
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -21,6 +21,7 @@ const clientNav: Item[] = [
   { href: "/dashboard/recipes", label: "Рецепти", icon: ChefHat },
   { href: "/dashboard/supplements", label: "Добавки", icon: Pill },
   { href: "/dashboard/analytics", label: "Аналітика", icon: LineChart },
+  { href: "/dashboard/analyses", label: "Аналізи", icon: FlaskConical },
   { href: "/dashboard/photos", label: "Фото", icon: Camera },
   { href: "/dashboard/payments", label: "Оплати", icon: Wallet },
   { href: "/dashboard/reviews", label: "Відгук", icon: Star },
