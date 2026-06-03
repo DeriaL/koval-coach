@@ -64,6 +64,12 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         const toNext = Math.max(0, 10 - sessions);
         // Offline client who finished a 10-pack but has no open invoice → owes.
         const owesPackage = !isOnline && !isDropIn && !pendingPay && sessions >= 10;
+        // Plan-aware price card (online = monthly, drop-in = per session, else 10-pack).
+        const priceInfo = isOnline
+          ? { amount: (client as any).priceMonthly, label: "Підписка", sub: "за місяць" }
+          : isDropIn
+          ? { amount: (client as any).pricePerSession, label: "За сесію", sub: "одне трен." }
+          : { amount: client.pricePer10, label: "Пакет", sub: "за 10 трен." };
         return (
           <div className="card p-4 md:p-6 relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-br from-accent/20 via-transparent to-accent2/20" />
@@ -118,11 +124,11 @@ export default async function ClientDetail({ params, searchParams }: Props) {
                   <div className="text-lg md:text-xl font-black text-accent2">{pendingPay.amount} ₴</div>
                   <div className="text-[10px] text-muted">очікує</div>
                 </div>
-              ) : client.pricePer10 ? (
+              ) : priceInfo.amount ? (
                 <div className="p-2.5 md:p-3 rounded-xl bg-surface border border-border md:min-w-[90px]">
-                  <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Wallet className="w-3 h-3" /> Пакет</div>
-                  <div className="text-lg md:text-xl font-black">{client.pricePer10} ₴</div>
-                  <div className="text-[10px] text-muted">за 10 трен.</div>
+                  <div className="text-[10px] uppercase text-muted flex items-center gap-1"><Wallet className="w-3 h-3" /> {priceInfo.label}</div>
+                  <div className="text-lg md:text-xl font-black">{priceInfo.amount} ₴</div>
+                  <div className="text-[10px] text-muted">{priceInfo.sub}</div>
                 </div>
               ) : null}
             </div>
