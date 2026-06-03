@@ -33,6 +33,7 @@ const adminNav: Item[] = [
   { href: "/admin/sessions", label: "Тренування", icon: Dumbbell },
   { href: "/admin/recipes", label: "Рецепти", icon: ChefHat },
   { href: "/admin/reviews", label: "Відгуки", icon: Star },
+  { href: "/admin/cases", label: "Кейси", icon: Trophy },
   { href: "/admin/finance", label: "Фінанси", icon: Wallet },
   { href: "/admin/settings", label: "Налаштування", icon: Settings },
   { href: "/admin/profile", label: "Мій профіль", icon: User },

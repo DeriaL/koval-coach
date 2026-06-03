@@ -31,6 +31,11 @@ export default async function Home() {
     orderBy: { createdAt: "desc" },
     take: 10,
   }).catch(() => []);
+
+  const dbCases: any[] = await (prisma as any).caseStudy.findMany({
+    where: { published: true },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+  }).catch(() => []);
   // =======================
 
   const city = cfg?.city || "Львів";
@@ -51,7 +56,7 @@ export default async function Home() {
     cfg?.aboutMe?.trim() ? { href: "#about", label: "Про мене" } : null,
     { href: "#how", label: "Як це працює" },
     { href: "#features", label: "Можливості" },
-    { href: "#cases", label: "Результати" },
+    dbCases.length > 0 ? { href: "#cases", label: "Результати" } : null,
     { href: "#pricing", label: "Тарифи" },
     { href: "#reviews", label: "Відгуки" },
     (cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) ? { href: "#contacts", label: "Контакти" } : null,
@@ -66,16 +71,7 @@ export default async function Home() {
     { t: "Оплати", d: "Історія платежів і статус підписки.", Icon: Wallet, span: "col-span-2 lg:col-span-2" },
   ];
 
-  const cases: CaseItem[] = [
-    { src: "/Keysi/IMG_5671.PNG", caption: "Процес підготовки до змагань. Чотири роки якісного набору!", tag: "4 роки" },
-    { src: "/Keysi/IMG_5673.PNG", caption: "Якісний набір м'язової маси. Результат за 3 місяці роботи!", tag: "3 місяці" },
-    { src: "/Keysi/IMG_5680.PNG", caption: "Результат рекомпозиції тіла тривалістю 1.5 місяці!", tag: "1.5 місяці" },
-    { src: "/Keysi/IMG_5681.PNG", caption: "Підготовка до змагань. Результат роботи за один рік співпраці.", tag: "1 рік" },
-    { src: "/Keysi/IMG_5678.PNG", caption: "Схуднення, вихід із фази інсулінорезистентності та покращення показників аналізів і здоров'я!", tag: "Здоров'я" },
-    { src: "/Keysi/IMG_5676.PNG", caption: "Підготовка до змагань. Момент виступу!", tag: "Сцена" },
-    { src: "/Keysi/IMG_5679.PNG", caption: "Після нагородження з тренером. Підготовка до змагань!", tag: "Нагорода" },
-    { src: "/Keysi/IMG_5672.PNG", caption: "Момент з виступу на змаганнях!", tag: "Сцена" },
-  ];
+  const cases: CaseItem[] = dbCases.map((c) => ({ src: c.imageUrl, caption: c.caption, tag: c.tag || undefined }));
 
   const steps = [
     { i: 1, t: "Знайомство", d: "Обговорюємо твої цілі, досвід та обмеження. Підбираю оптимальний формат роботи саме під тебе!", Icon: MessageCircle },
@@ -329,6 +325,7 @@ export default async function Home() {
       </section>
 
       {/* ============ КЕЙСИ / РЕЗУЛЬТАТИ ============ */}
+      {cases.length > 0 && (
       <section id="cases" className="relative py-20 lg:py-28 overflow-hidden">
         <div className="mesh opacity-60" aria-hidden />
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
@@ -361,6 +358,7 @@ export default async function Home() {
           </Reveal>
         </div>
       </section>
+      )}
 
       {/* ============ ТАРИФИ ============ */}
       <section id="pricing" className="relative py-20 lg:py-28">

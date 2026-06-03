@@ -40,7 +40,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const folder = clientId ? `progress/${clientId}` : "progress";
+  // Optional folder override (whitelisted to a safe slug), else group by client.
+  const folderRaw = String(form.get("folder") ?? "").replace(/[^a-z0-9_-]/gi, "");
+  const folder = folderRaw || (clientId ? `progress/${clientId}` : "progress");
   const safeName = file.name.replace(/[^\w.-]+/g, "_") || "photo";
   try {
     const blob = await put(`${folder}/${Date.now()}-${safeName}`, file, {
