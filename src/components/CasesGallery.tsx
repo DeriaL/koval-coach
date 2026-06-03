@@ -39,20 +39,19 @@ export function CasesGallery({ items }: { items: CaseItem[] }) {
                     sizes="270px"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Top tag */}
-                  {it.tag && (
-                    <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                      <Trophy className="w-3 h-3 text-accent" /> {it.tag}
-                    </span>
-                  )}
                   {/* Zoom hint */}
                   <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center w-8 h-8 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     <ZoomIn className="w-4 h-4" />
                   </span>
-                  {/* Bottom gradient + caption */}
-                  <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                  {/* Bottom gradient + tag + caption */}
+                  <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                    <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow line-clamp-4">
+                    {it.tag && (
+                      <span className="inline-flex items-center gap-1 mb-1.5 rounded-full bg-accent/25 backdrop-blur-md border border-accent/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                        <Trophy className="w-3 h-3 text-accent" /> {it.tag}
+                      </span>
+                    )}
+                    <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow">
                       {it.caption}
                     </p>
                   </div>
