@@ -329,8 +329,8 @@ export default async function Home() {
       <section id="cases" className="relative py-20 lg:py-28 overflow-hidden">
         <div className="mesh opacity-60" aria-hidden />
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <div className="mb-10 lg:mb-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-            <Reveal className="max-w-2xl">
+          <div className="mb-10 lg:mb-12 max-w-2xl">
+            <Reveal>
               <span className="chip"><Trophy className="w-3 h-3 text-accent" /> Результати</span>
               <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight [text-wrap:balance]">
                 Реальні результати<br className="hidden sm:block" /> моїх клієнтів.
@@ -338,18 +338,6 @@ export default async function Home() {
               <p className="mt-4 text-muted text-base sm:text-lg leading-relaxed">
                 Від рекомпозиції тіла за пів року до підготовки спортсменів до сцени. Кожне фото — це системна робота, дисципліна та персональний супровід.
               </p>
-            </Reveal>
-            <Reveal delay={80}>
-              <div className="flex gap-6 shrink-0">
-                <div>
-                  <div className="font-display text-4xl sm:text-5xl font-black text-accent">100%</div>
-                  <div className="text-xs uppercase tracking-widest text-muted mt-1">реальні фото</div>
-                </div>
-                <div>
-                  <div className="font-display text-4xl sm:text-5xl font-black">4 роки</div>
-                  <div className="text-xs uppercase tracking-widest text-muted mt-1">досвіду набору</div>
-                </div>
-              </div>
             </Reveal>
           </div>
 

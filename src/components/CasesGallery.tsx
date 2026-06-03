@@ -14,45 +14,53 @@ export function CasesGallery({ items }: { items: CaseItem[] }) {
   const [idx, setIdx] = useState<number | null>(null);
   const open = idx !== null;
 
+  // Duplicate the row so the auto-scroll loop is seamless. Clicking a duplicate
+  // still opens the correct photo via the modulo index.
+  const loop = items.length > 1 ? [...items, ...items] : items;
+
   return (
     <>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {items.map((it, i) => (
-          <button
-            key={it.src}
-            type="button"
-            onClick={() => setIdx(i)}
-            className="group relative text-left rounded-2xl overflow-hidden border border-border bg-surface card-spot transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_20px_50px_-20px] hover:shadow-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/50"
-          >
-            {/* Image */}
-            <div className="relative aspect-[2/3] overflow-hidden bg-black">
-              <Image
-                src={it.src}
-                alt={it.caption}
-                fill
-                sizes="(max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              {/* Top tag */}
-              {it.tag && (
-                <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  <Trophy className="w-3 h-3 text-accent" /> {it.tag}
-                </span>
-              )}
-              {/* Zoom hint */}
-              <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center w-8 h-8 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <ZoomIn className="w-4 h-4" />
-              </span>
-              {/* Bottom gradient + caption */}
-              <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow line-clamp-4">
-                  {it.caption}
-                </p>
-              </div>
-            </div>
-          </button>
-        ))}
+      <div className="marquee -mx-5 lg:-mx-8 px-5 lg:px-8 [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+        <div className="marquee-track !gap-4">
+          {loop.map((it, i) => {
+            const realIdx = i % items.length;
+            return (
+              <button
+                key={`${it.src}-${i}`}
+                type="button"
+                onClick={() => setIdx(realIdx)}
+                className="group relative shrink-0 w-[230px] sm:w-[270px] text-left rounded-2xl overflow-hidden border border-border bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_24px_60px_-24px] hover:shadow-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/50"
+              >
+                <div className="relative aspect-[2/3] overflow-hidden bg-black">
+                  <Image
+                    src={it.src}
+                    alt={it.caption}
+                    fill
+                    sizes="270px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Top tag */}
+                  {it.tag && (
+                    <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                      <Trophy className="w-3 h-3 text-accent" /> {it.tag}
+                    </span>
+                  )}
+                  {/* Zoom hint */}
+                  <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center w-8 h-8 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ZoomIn className="w-4 h-4" />
+                  </span>
+                  {/* Bottom gradient + caption */}
+                  <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                    <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow line-clamp-4">
+                      {it.caption}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {open && (
