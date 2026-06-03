@@ -2,7 +2,7 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { Camera } from "lucide-react";
-import { PhotoCompare } from "@/components/PhotoCompare";
+import { PhotoComparePicker } from "@/components/PhotoCompare";
 
 const ANGLE_LABEL: Record<string, string> = { front: "Спереду", side: "Збоку", back: "Ззаду" };
 
@@ -18,21 +18,16 @@ export default async function PhotosPage() {
       </div>
     );
 
-  const first = photos[0];
-  const last = photos.at(-1)!;
-
   return (
     <div>
       <PageHeader title="Фото-прогрес" subtitle="Твій шлях у кадрах" />
 
-      {first.id !== last.id && (
+      {photos.length >= 2 && (
         <div className="card p-6 mb-6">
           <h3 className="font-semibold mb-4">Порівняння «до/після»</h3>
-          <PhotoCompare before={first.url} after={last.url} />
-          <div className="flex justify-between text-xs text-muted mt-2">
-            <span>{first.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</span>
-            <span>{last.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</span>
-          </div>
+          <PhotoComparePicker
+            photos={photos.map((p) => ({ id: p.id, url: p.url, date: p.date.toISOString(), angle: p.angle }))}
+          />
         </div>
       )}
 

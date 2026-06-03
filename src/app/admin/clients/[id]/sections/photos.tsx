@@ -7,7 +7,7 @@ import {
   Camera, ChevronLeft, ChevronRight, Calendar,
 } from "lucide-react";
 import { kyivDayKey } from "@/lib/kyivTime";
-import { PhotoCompare } from "@/components/PhotoCompare";
+import { PhotoComparePicker } from "@/components/PhotoCompare";
 
 type Photo = {
   id: string;
@@ -72,21 +72,15 @@ export function PhotosTab({ clientId, items }: { clientId: string; items: Photo[
         />
       )}
 
-      {/* Before/after comparison (oldest vs newest) */}
-      {!editing && items.length >= 2 && (() => {
-        const first = items[0];
-        const last = items[items.length - 1];
-        return (
-          <div className="card p-5 md:p-6 mb-4">
-            <h4 className="font-semibold mb-3">Порівняння «до/після»</h4>
-            <PhotoCompare before={first.url} after={last.url} />
-            <div className="flex justify-between text-xs text-muted mt-2">
-              <span>{new Date(first.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</span>
-              <span>{new Date(last.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</span>
-            </div>
-          </div>
-        );
-      })()}
+      {/* Before/after comparison — pick any two photos, filter by angle */}
+      {!editing && items.length >= 2 && (
+        <div className="card p-5 md:p-6 mb-4">
+          <h4 className="font-semibold mb-3">Порівняння «до/після»</h4>
+          <PhotoComparePicker
+            photos={items.map((p) => ({ id: p.id, url: p.url, date: p.date, angle: p.angle }))}
+          />
+        </div>
+      )}
 
       {/* Gallery */}
       {items.length === 0 ? (
