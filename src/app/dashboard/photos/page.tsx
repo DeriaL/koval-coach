@@ -2,7 +2,9 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, EmptyState } from "@/components/ui";
 import { Camera } from "lucide-react";
-import { PhotoCompare } from "./compare";
+import { PhotoCompare } from "@/components/PhotoCompare";
+
+const ANGLE_LABEL: Record<string, string> = { front: "Спереду", side: "Збоку", back: "Ззаду" };
 
 export default async function PhotosPage() {
   const u = await requireClient();
@@ -42,7 +44,7 @@ export default async function PhotosPage() {
             </div>
             <div className="p-3">
               <div className="text-sm font-medium">{p.date.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv" })}</div>
-              <div className="text-xs text-muted">{p.angle || "—"}</div>
+              <div className="text-xs text-muted">{p.angle ? (ANGLE_LABEL[p.angle] ?? p.angle) : "—"}</div>
             </div>
           </div>
         ))}

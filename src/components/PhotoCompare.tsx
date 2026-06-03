@@ -1,6 +1,8 @@
 "use client";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
 
+// Before/after progress photo slider — shared by the client photos page and the
+// trainer's admin photos section.
 export function PhotoCompare({ before, after }: { before: string; after: string }) {
   return (
     <ReactCompareSlider
