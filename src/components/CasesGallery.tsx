@@ -29,32 +29,32 @@ export function CasesGallery({ items }: { items: CaseItem[] }) {
                 key={`${it.src}-${i}`}
                 type="button"
                 onClick={() => setIdx(realIdx)}
-                className="group relative shrink-0 w-[230px] sm:w-[270px] text-left rounded-2xl overflow-hidden border border-border bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_24px_60px_-24px] hover:shadow-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/50"
+                className="group relative shrink-0 w-[230px] sm:w-[270px] flex flex-col text-left rounded-2xl overflow-hidden border border-border bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_24px_60px_-24px] hover:shadow-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/50"
               >
-                <div className="relative aspect-[2/3] overflow-hidden bg-black">
+                {/* Image — shown in full, never cropped */}
+                <div className="relative aspect-[3/4] bg-black shrink-0">
                   <Image
                     src={it.src}
                     alt={it.caption}
                     fill
                     sizes="270px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                   {/* Zoom hint */}
                   <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center w-8 h-8 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     <ZoomIn className="w-4 h-4" />
                   </span>
-                  {/* Bottom gradient + tag + caption */}
-                  <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
-                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                    {it.tag && (
-                      <span className="inline-flex items-center gap-1 mb-1.5 rounded-full bg-accent/25 backdrop-blur-md border border-accent/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                        <Trophy className="w-3 h-3 text-accent" /> {it.tag}
-                      </span>
-                    )}
-                    <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow">
-                      {it.caption}
-                    </p>
-                  </div>
+                </div>
+                {/* Caption footer — below the photo, no overlap */}
+                <div className="flex-1 p-3 sm:p-3.5 flex flex-col gap-1.5">
+                  {it.tag && (
+                    <span className="self-start inline-flex items-center gap-1 rounded-full bg-accent/15 border border-accent/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                      <Trophy className="w-3 h-3" /> {it.tag}
+                    </span>
+                  )}
+                  <p className="text-xs sm:text-sm font-medium leading-snug text-text/90">
+                    {it.caption}
+                  </p>
                 </div>
               </button>
             );
