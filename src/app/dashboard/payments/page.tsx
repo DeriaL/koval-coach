@@ -64,13 +64,18 @@ export default async function PaymentsPage() {
   // ── ONLINE clients: monthly subscription view ────────────────────────────
   if (isOnline) {
     const monthly = (user as any)?.priceMonthly ?? 0;
-    // Find this-month's payment if any
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const thisMonthPayment = list.find(p =>
-      (p.status === "paid" || p.status === "pending") && new Date(p.date) >= monthStart
-    );
-    const monthLabel = now.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv",  month: "long", year: "numeric" });
+    const monthLabel = now.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", month: "long", year: "numeric" });
+
+    // The invoice the client actually owes — any unpaid one, NOT just the
+    // current calendar month (an invoice can be issued for the previous month
+    // and still be waiting). Oldest first so they clear the oldest debt.
+    const pendingInvoice = list.find(p => p.status === "pending" || p.status === "overdue") ?? null;
+    const thisMonthPaid = list.some(p => p.status === "paid" && new Date(p.date) >= monthStart);
+    const invoiceMonthLabel = pendingInvoice
+      ? new Date(pendingInvoice.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", month: "long", year: "numeric" })
+      : monthLabel;
 
     return (
       <div>
@@ -84,11 +89,10 @@ export default async function PaymentsPage() {
               <div className="text-[10px] uppercase tracking-wider text-muted">Поточний місяць</div>
               <div className="text-base font-semibold mt-0.5 capitalize">{monthLabel}</div>
               <div className={`text-xs mt-1 ${
-                thisMonthPayment?.status === "paid" ? "text-success" :
-                thisMonthPayment?.status === "pending" ? "text-accent2" : "text-muted"
+                pendingInvoice ? "text-accent2" : thisMonthPaid ? "text-success" : "text-muted"
               }`}>
-                {thisMonthPayment?.status === "paid" ? "✓ оплачено" :
-                 thisMonthPayment?.status === "pending" ? "⏳ очікує оплати" :
+                {pendingInvoice ? "⏳ очікує оплати" :
+                 thisMonthPaid ? "✓ оплачено" :
                  "— ще немає рахунку"}
               </div>
             </div>
@@ -104,13 +108,13 @@ export default async function PaymentsPage() {
             </div>
           </div>
 
-          {thisMonthPayment?.status === "pending" && (
+          {pendingInvoice && (
             <div className="mt-5 p-3 rounded-xl bg-accent2/10 border border-accent2/30 flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex items-center gap-2 text-sm flex-1">
                 <Clock className="w-4 h-4 text-accent2 shrink-0" />
-                <span>Підписка за <b>{monthLabel}</b> очікує оплати — <b>{thisMonthPayment.amount.toLocaleString("uk-UA")} ₴</b></span>
+                <span>Підписка за <b className="capitalize">{invoiceMonthLabel}</b> очікує оплати — <b>{pendingInvoice.amount.toLocaleString("uk-UA")} ₴</b></span>
               </div>
-              <PayButton amount={thisMonthPayment.amount} />
+              <PayButton amount={pendingInvoice.amount} />
             </div>
           )}
 
