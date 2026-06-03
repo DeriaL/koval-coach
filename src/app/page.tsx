@@ -9,6 +9,7 @@ import { CardSpot } from "@/components/CardSpot";
 import { Magnetic } from "@/components/Magnetic";
 import { CountUp } from "@/components/CountUp";
 import { FloatingContact } from "@/components/FloatingContact";
+import { CasesGallery, type CaseItem } from "@/components/CasesGallery";
 import {
   ArrowRight, Play, Check, Star, Phone, Mail, Send, Instagram, MapPin,
   Apple, Pill, Camera, Flame, Trophy, MessageCircle, Wallet, BarChart3,
@@ -50,6 +51,7 @@ export default async function Home() {
     cfg?.aboutMe?.trim() ? { href: "#about", label: "Про мене" } : null,
     { href: "#how", label: "Як це працює" },
     { href: "#features", label: "Можливості" },
+    { href: "#cases", label: "Результати" },
     { href: "#pricing", label: "Тарифи" },
     { href: "#reviews", label: "Відгуки" },
     (cfg?.email || cfg?.telegram || cfg?.instagram || cfg?.city) ? { href: "#contacts", label: "Контакти" } : null,
@@ -62,6 +64,17 @@ export default async function Home() {
     { t: "Щоденний звіт", d: "Сон, енергія, настрій — я бачу все.", Icon: Flame, span: "col-span-1 lg:col-span-2" },
     { t: "Нагадування", d: "Вчасні нагадування про тренування й заміри.", Icon: ShieldCheck, span: "col-span-1 lg:col-span-2" },
     { t: "Оплати", d: "Історія платежів і статус підписки.", Icon: Wallet, span: "col-span-2 lg:col-span-2" },
+  ];
+
+  const cases: CaseItem[] = [
+    { src: "/Keysi/IMG_5671.PNG", caption: "Процес підготовки до змагань. Чотири роки якісного набору!", tag: "4 роки" },
+    { src: "/Keysi/IMG_5673.PNG", caption: "Якісний набір м'язової маси. Результат за 3 місяці роботи!", tag: "3 місяці" },
+    { src: "/Keysi/IMG_5680.PNG", caption: "Результат рекомпозиції тіла тривалістю 1.5 місяці!", tag: "1.5 місяці" },
+    { src: "/Keysi/IMG_5681.PNG", caption: "Підготовка до змагань. Результат роботи за один рік співпраці.", tag: "1 рік" },
+    { src: "/Keysi/IMG_5678.PNG", caption: "Схуднення, вихід із фази інсулінорезистентності та покращення показників аналізів і здоров'я!", tag: "Здоров'я" },
+    { src: "/Keysi/IMG_5676.PNG", caption: "Підготовка до змагань. Момент виступу!", tag: "Сцена" },
+    { src: "/Keysi/IMG_5679.PNG", caption: "Після нагородження з тренером. Підготовка до змагань!", tag: "Нагорода" },
+    { src: "/Keysi/IMG_5672.PNG", caption: "Момент з виступу на змаганнях!", tag: "Сцена" },
   ];
 
   const steps = [
@@ -312,6 +325,40 @@ export default async function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ============ КЕЙСИ / РЕЗУЛЬТАТИ ============ */}
+      <section id="cases" className="relative py-20 lg:py-28 overflow-hidden">
+        <div className="mesh opacity-60" aria-hidden />
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <div className="mb-10 lg:mb-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+            <Reveal className="max-w-2xl">
+              <span className="chip"><Trophy className="w-3 h-3 text-accent" /> Результати</span>
+              <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight [text-wrap:balance]">
+                Реальні результати<br className="hidden sm:block" /> моїх клієнтів.
+              </h2>
+              <p className="mt-4 text-muted text-base sm:text-lg leading-relaxed">
+                Від рекомпозиції тіла за пів року до підготовки спортсменів до сцени. Кожне фото — це системна робота, дисципліна та персональний супровід.
+              </p>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="flex gap-6 shrink-0">
+                <div>
+                  <div className="font-display text-4xl sm:text-5xl font-black text-accent">100%</div>
+                  <div className="text-xs uppercase tracking-widest text-muted mt-1">реальні фото</div>
+                </div>
+                <div>
+                  <div className="font-display text-4xl sm:text-5xl font-black">4 роки</div>
+                  <div className="text-xs uppercase tracking-widest text-muted mt-1">досвіду набору</div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal delay={120}>
+            <CasesGallery items={cases} />
+          </Reveal>
         </div>
       </section>
 

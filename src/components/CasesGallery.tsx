@@ -1,0 +1,172 @@
+"use client";
+import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
+import Image from "next/image";
+import { X, ChevronLeft, ChevronRight, ZoomIn, Trophy } from "lucide-react";
+
+export type CaseItem = {
+  src: string;
+  caption: string;
+  tag?: string; // short accent label, e.g. "1.5 місяці"
+};
+
+export function CasesGallery({ items }: { items: CaseItem[] }) {
+  const [idx, setIdx] = useState<number | null>(null);
+  const open = idx !== null;
+
+  return (
+    <>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {items.map((it, i) => (
+          <button
+            key={it.src}
+            type="button"
+            onClick={() => setIdx(i)}
+            className="group relative text-left rounded-2xl overflow-hidden border border-border bg-surface card-spot transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_20px_50px_-20px] hover:shadow-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/50"
+          >
+            {/* Image */}
+            <div className="relative aspect-[2/3] overflow-hidden bg-black">
+              <Image
+                src={it.src}
+                alt={it.caption}
+                fill
+                sizes="(max-width: 1024px) 50vw, 25vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              {/* Top tag */}
+              {it.tag && (
+                <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  <Trophy className="w-3 h-3 text-accent" /> {it.tag}
+                </span>
+              )}
+              {/* Zoom hint */}
+              <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center w-8 h-8 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                <ZoomIn className="w-4 h-4" />
+              </span>
+              {/* Bottom gradient + caption */}
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                <p className="text-white text-xs sm:text-sm font-medium leading-snug drop-shadow line-clamp-4">
+                  {it.caption}
+                </p>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {open && (
+        <Lightbox
+          items={items}
+          idx={idx!}
+          onClose={() => setIdx(null)}
+          onNav={(d) => setIdx((p) => {
+            const n = (p ?? 0) + d;
+            return n < 0 ? items.length - 1 : n >= items.length ? 0 : n;
+          })}
+        />
+      )}
+    </>
+  );
+}
+
+function Lightbox({
+  items, idx, onClose, onNav,
+}: {
+  items: CaseItem[];
+  idx: number;
+  onClose: () => void;
+  onNav: (d: number) => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const handleKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+    else if (e.key === "ArrowLeft") onNav(-1);
+    else if (e.key === "ArrowRight") onNav(1);
+  }, [onClose, onNav]);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [handleKey]);
+
+  if (!mounted) return null;
+  const it = items[idx];
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[120] flex flex-col animate-fade-in"
+      onClick={onClose}
+      style={{
+        background:
+          "radial-gradient(ellipse at top, rgba(40,30,80,0.55), transparent 60%), radial-gradient(ellipse at bottom, rgba(12,12,24,0.96), rgba(6,6,12,0.98))",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+      }}
+    >
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full grid place-items-center bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-90"
+        aria-label="Закрити"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {/* Image */}
+      <div
+        className="flex-1 flex items-center justify-center px-4 sm:px-8 pt-14 pb-28 min-h-0"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={it.src}
+          src={it.src}
+          alt={it.caption}
+          className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl ring-1 ring-white/10"
+        />
+      </div>
+
+      {/* Caption + nav */}
+      <div
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] flex flex-col items-center gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-5 py-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/10 text-white/95 text-sm text-center leading-snug">
+          {it.tag && (
+            <span className="inline-flex items-center gap-1 mr-2 align-middle rounded-full bg-accent/20 border border-accent/40 px-2 py-0.5 text-[11px] font-semibold text-accent">
+              <Trophy className="w-3 h-3" /> {it.tag}
+            </span>
+          )}
+          {it.caption}
+        </div>
+        <div className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/15">
+          <button
+            onClick={() => onNav(-1)}
+            className="w-10 h-10 rounded-full grid place-items-center text-white hover:bg-white/15 transition active:scale-90"
+            aria-label="Попередній"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="px-3 min-w-[60px] text-white text-sm font-semibold tabular-nums text-center">
+            {idx + 1}<span className="text-white/50 font-normal mx-0.5">/</span>{items.length}
+          </div>
+          <button
+            onClick={() => onNav(1)}
+            className="w-10 h-10 rounded-full grid place-items-center text-white hover:bg-white/15 transition active:scale-90"
+            aria-label="Наступний"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
