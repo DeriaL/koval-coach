@@ -40,13 +40,25 @@ export async function POST(req: Request) {
     if (file.size > 25 * 1024 * 1024) {
       return NextResponse.json({ error: "Максимум 25 МБ" }, { status: 400 });
     }
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return NextResponse.json(
+        { error: "Сховище файлів не налаштоване (BLOB_READ_WRITE_TOKEN). Додай Blob store на Vercel." },
+        { status: 503 }
+      );
+    }
     const fileType = ext === "pptx" || ext === "ppt" ? "pptx" : "pdf";
     // Sanitise the stored filename — never reflect raw user input into the path.
-    const safeName = file.name.replace(/[^\w.-]+/g, "_");
-    const blob = await put(`recipes/${Date.now()}-${safeName}`, file, {
-      access: "public",
-      contentType: fileType === "pdf" ? "application/pdf" : file.type,
-    });
+    const safeName = file.name.replace(/[^\w.-]+/g, "_") || "file";
+    let blob;
+    try {
+      blob = await put(`recipes/${Date.now()}-${safeName}`, file, {
+        access: "public",
+        contentType: fileType === "pdf" ? "application/pdf" : (file.type || undefined),
+      });
+    } catch (e: any) {
+      console.error("recipe upload failed:", e);
+      return NextResponse.json({ error: e?.message ?? "Не вдалось завантажити файл" }, { status: 500 });
+    }
 
     const recipe = await prisma.recipeBook.create({
       data: { title, category, description, emoji, fileUrl: blob.url, fileType },

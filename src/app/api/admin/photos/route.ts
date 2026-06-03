@@ -30,14 +30,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Максимум 15 МБ" }, { status: 400 });
   }
 
-  const folder = clientId ? `progress/${clientId}` : "progress";
-  const safeName = file.name.replace(/[^\w.-]+/g, "_");
-  const blob = await put(`${folder}/${Date.now()}-${safeName}`, file, {
-    access: "public",
-    contentType: file.type,
-  });
+  // Blob storage must be configured, otherwise put() throws and the route would
+  // return a non-JSON 500 (which Safari surfaces as "The string did not match
+  // the expected pattern"). Fail with a clear JSON error instead.
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: "Сховище фото не налаштоване (BLOB_READ_WRITE_TOKEN). Додай Blob store на Vercel." },
+      { status: 503 }
+    );
+  }
 
-  return NextResponse.json({ url: blob.url });
+  const folder = clientId ? `progress/${clientId}` : "progress";
+  const safeName = file.name.replace(/[^\w.-]+/g, "_") || "photo";
+  try {
+    const blob = await put(`${folder}/${Date.now()}-${safeName}`, file, {
+      access: "public",
+      contentType: file.type || undefined,
+    });
+    return NextResponse.json({ url: blob.url });
+  } catch (e: any) {
+    console.error("photo upload failed:", e);
+    return NextResponse.json({ error: e?.message ?? "Не вдалось завантажити фото" }, { status: 500 });
+  }
 }
 
 // DELETE /api/admin/photos?url=… — remove blob (used after photo record deletion)

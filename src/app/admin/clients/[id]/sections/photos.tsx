@@ -169,11 +169,17 @@ function PhotoForm({
       fd.append("file", file);
       fd.append("clientId", clientId);
       const res = await fetch("/api/admin/photos", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error ?? "Помилка завантаження");
+      // Parse defensively — a non-JSON body (e.g. a 500 HTML page) makes Safari
+      // throw "The string did not match the expected pattern".
+      const text = await res.text();
+      let data: any = {};
+      try { data = text ? JSON.parse(text) : {}; } catch { /* non-JSON */ }
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || `Помилка завантаження (${res.status})`);
+      }
       setUrl(data.url);
     } catch (e: any) {
-      setError(e?.message ?? "Помилка");
+      setError(e?.message ?? "Помилка завантаження");
     } finally {
       setUploading(false);
     }
