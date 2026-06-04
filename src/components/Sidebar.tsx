@@ -50,6 +50,22 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // On iOS a `fixed bottom-0` bar floats above the on-screen keyboard. Hide the
+  // mobile bottom nav while a text field is focused so it doesn't "ride" up.
+  const [kbOpen, setKbOpen] = useState(false);
+  useEffect(() => {
+    const editable = "input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]), textarea, select, [contenteditable='true'], [contenteditable='']";
+    const isEditable = (el: Element | null) => !!el && typeof (el as any).matches === "function" && (el as HTMLElement).matches(editable);
+    const onFocusIn = (e: FocusEvent) => { if (isEditable(e.target as Element)) setKbOpen(true); };
+    const onFocusOut = () => { setTimeout(() => { if (!isEditable(document.activeElement)) setKbOpen(false); }, 0); };
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
+    return () => {
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
+    };
+  }, []);
+
   // bottom-nav: 5 основних пунктів (5 columns total) — окремо для клієнта й тренера.
   // Use shorter labels here so the text doesn't overflow on narrow phones
   // ("Мій профіль" → "Профіль", etc.).
@@ -201,7 +217,7 @@ export function Sidebar({ role, userName, hasPendingPayment = false }: { role: "
           through into the home-indicator safe-area on overscroll. */}
       {bottomItems.length > 0 && (
         <nav
-          className="md:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-border z-30 grid grid-cols-5"
+          className={`md:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-border z-30 grid grid-cols-5 transition-transform duration-200 ${kbOpen ? "translate-y-full pointer-events-none" : "translate-y-0"}`}
           style={{
             paddingBottom: "max(env(safe-area-inset-bottom), 10px)",
             paddingTop: "8px",
