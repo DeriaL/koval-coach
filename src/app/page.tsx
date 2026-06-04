@@ -100,7 +100,7 @@ export default async function Home() {
       <StickyNav items={navItems} tgHref={tg} />
 
       {/* ============ HERO ============ */}
-      <section className="relative pt-28 lg:pt-36 pb-20 lg:pb-28 overflow-hidden noise">
+      <section className="relative pt-[calc(env(safe-area-inset-top)+7rem)] lg:pt-36 pb-20 lg:pb-28 overflow-hidden noise">
         <div className="mesh" aria-hidden />
         <div className="absolute inset-0 -z-10 bg-grid bg-[length:40px_40px] opacity-50" aria-hidden />
 

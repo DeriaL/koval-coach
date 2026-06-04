@@ -22,7 +22,14 @@ export function StickyNav({ items, tgHref = "/login" }: { items: NavItem[]; tgHr
   }, [items]);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-bg/60 backdrop-blur-xl border-b border-border/70">
+    <header
+      className="fixed top-0 inset-x-0 z-50 bg-bg/60 backdrop-blur-xl border-b border-border/70"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
       <div className="max-w-7xl mx-auto px-5 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 font-bold group">
           <span className="h-9 w-9 rounded-xl accent-shine flex items-center justify-center text-white shadow-glow group-hover:scale-110 transition-transform">
