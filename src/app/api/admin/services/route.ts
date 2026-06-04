@@ -8,7 +8,11 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   await requireTrainer();
   const body = await req.json();
-  const s = await (prisma as any).service.create({ data: body });
+  // Assign order server-side as (max + 1) so it stays unique even after a
+  // service is deleted — a client-supplied count could collide and tie.
+  const last = await (prisma as any).service.findFirst({ orderBy: { order: "desc" }, select: { order: true } });
+  const { order: _ignore, ...rest } = body ?? {};
+  const s = await (prisma as any).service.create({ data: { ...rest, order: (last?.order ?? -1) + 1 } });
   return NextResponse.json(s);
 }
 
