@@ -17,7 +17,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: { p
   const [plans, recent] = await Promise.all([
     prisma.trainingPlan.findMany({
       where: { clientId: u.id },
-      include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } },
+      include: { exercises: { orderBy: [{ order: "asc" }, { createdAt: "asc" }] } },
       orderBy: { updatedAt: "desc" },
     }),
     prisma.workoutLog.findMany({

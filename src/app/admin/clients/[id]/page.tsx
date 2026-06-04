@@ -28,7 +28,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
     where: { id },
     include: {
       nutritionPlans: { orderBy: { updatedAt: "desc" } },
-      trainingPlans: { orderBy: { updatedAt: "desc" }, include: { exercises: { orderBy: [{ day: "asc" }, { order: "asc" }] } } },
+      trainingPlans: { orderBy: { updatedAt: "desc" }, include: { exercises: { orderBy: [{ order: "asc" }, { createdAt: "asc" }] } } },
       supplements: { orderBy: { createdAt: "desc" } },
       payments: { orderBy: { date: "desc" } },
       measurements: { orderBy: { date: "asc" } },

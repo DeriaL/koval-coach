@@ -1,12 +1,21 @@
 "use client";
 import { useState, useTransition } from "react";
-import { saveTraining, deleteTraining, saveExercise, deleteExercise } from "../../actions";
-import { Pencil, Trash2, Plus, Save, X, Loader2, Dumbbell } from "lucide-react";
+import { saveTraining, deleteTraining, saveExercise, deleteExercise, reorderExercise } from "../../actions";
+import { Pencil, Trash2, Plus, Save, X, Loader2, Dumbbell, ArrowUp, ArrowDown } from "lucide-react";
+
+const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
+const weekdayIdx = (d: string) => { const i = WEEKDAYS.indexOf(d); return i === -1 ? 99 : i; };
 
 export function TrainingTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [exEditing, setExEditing] = useState<{ planId: string; ex: any } | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [pending, start] = useTransition();
+
+  function move(id: string, dir: "up" | "down") {
+    setBusyId(id);
+    start(async () => { await reorderExercise(id, dir, clientId); setBusyId(null); });
+  }
 
   function save(fd: FormData) {
     const data = Object.fromEntries(fd);
@@ -67,7 +76,6 @@ export function TrainingTab({ clientId, items }: { clientId: string; items: any[
             <div><label className="label">Підходів</label><input name="targetSets" type="number" defaultValue={exEditing.ex?.targetSets ?? 3} className="input" /></div>
             <div><label className="label">Повторень</label><input name="targetReps" defaultValue={exEditing.ex?.targetReps ?? "10"} placeholder="8-10 / max" className="input" /></div>
             <div><label className="label">Відпочинок (сек)</label><input name="restSec" type="number" defaultValue={exEditing.ex?.restSec ?? 90} className="input" /></div>
-            <div><label className="label">Порядок</label><input name="order" type="number" defaultValue={exEditing.ex?.order ?? 0} className="input" /></div>
             <div className="md:col-span-2"><label className="label">Відео (YouTube URL)</label><input name="videoUrl" defaultValue={exEditing.ex?.videoUrl ?? ""} className="input" /></div>
             <div className="md:col-span-2"><label className="label">Нотатка</label><input name="notes" defaultValue={exEditing.ex?.notes ?? ""} className="input" /></div>
           </div>
@@ -98,20 +106,52 @@ export function TrainingTab({ clientId, items }: { clientId: string; items: any[
                 <button onClick={() => setExEditing({ planId: p.id, ex: {} })} className="btn text-xs"><Plus className="w-3 h-3" /> Додати</button>
               </div>
               {p.exercises && p.exercises.length > 0 ? (
-                <div className="mt-3 grid sm:grid-cols-2 gap-2">
-                  {p.exercises.map((ex: any) => (
-                    <div key={ex.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-border min-w-0">
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-sm truncate">{ex.name}</div>
-                        <div className="text-xs text-muted truncate">{ex.day} · {ex.targetSets}×{ex.targetReps} · {ex.restSec}с</div>
-                      </div>
-                      <div className="flex gap-1 shrink-0">
-                        <button onClick={() => setExEditing({ planId: p.id, ex })} className="btn text-xs"><Pencil className="w-3 h-3" /></button>
-                        <button onClick={() => delEx(ex.id)} className="btn text-xs text-danger"><Trash2 className="w-3 h-3" /></button>
-                      </div>
+                (() => {
+                  // Group by weekday (real week order), keep within-day order stable.
+                  const byDay = new Map<string, any[]>();
+                  [...p.exercises]
+                    .sort((a, b) => weekdayIdx(a.day) - weekdayIdx(b.day) || (a.order - b.order))
+                    .forEach((ex) => { (byDay.get(ex.day) ?? byDay.set(ex.day, []).get(ex.day))!.push(ex); });
+                  return (
+                    <div className="mt-3 space-y-4">
+                      {[...byDay.entries()].map(([day, exs]) => (
+                        <div key={day}>
+                          <div className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1.5">{day}</div>
+                          <div className="space-y-2">
+                            {exs.map((ex: any, i: number) => (
+                              <div key={ex.id} className="flex items-center gap-2 p-3 rounded-xl bg-surface border border-border min-w-0">
+                                <div className="flex flex-col shrink-0">
+                                  <button
+                                    onClick={() => move(ex.id, "up")}
+                                    disabled={i === 0 || busyId === ex.id}
+                                    className="text-muted hover:text-accent disabled:opacity-25 disabled:hover:text-muted transition"
+                                    title="Вгору"
+                                  ><ArrowUp className="w-3.5 h-3.5" /></button>
+                                  <button
+                                    onClick={() => move(ex.id, "down")}
+                                    disabled={i === exs.length - 1 || busyId === ex.id}
+                                    className="text-muted hover:text-accent disabled:opacity-25 disabled:hover:text-muted transition"
+                                    title="Вниз"
+                                  ><ArrowDown className="w-3.5 h-3.5" /></button>
+                                </div>
+                                <div className="w-6 shrink-0 text-center text-sm font-bold text-muted tabular-nums">{i + 1}</div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="font-medium text-sm truncate">{ex.name}</div>
+                                  <div className="text-xs text-muted truncate">{ex.targetSets}×{ex.targetReps} · {ex.restSec}с</div>
+                                </div>
+                                <div className="flex gap-1 shrink-0">
+                                  {busyId === ex.id && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted self-center" />}
+                                  <button onClick={() => setExEditing({ planId: p.id, ex })} className="btn text-xs"><Pencil className="w-3 h-3" /></button>
+                                  <button onClick={() => delEx(ex.id)} className="btn text-xs text-danger"><Trash2 className="w-3 h-3" /></button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()
               ) : (
                 <div className="mt-3 text-muted text-sm">Вправ поки немає. Додай — і в клієнта зʼявиться режим «В залі» з таймерами.</div>
               )}

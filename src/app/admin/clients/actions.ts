@@ -293,6 +293,8 @@ export async function deleteAchievement(id: string, clientId: string) {
 // ========= Exercises =========
 export async function saveExercise(clientId: string, data: Record<string, any>) {
   await requireTrainer();
+  // NOTE: `order` is managed automatically (append-on-create + up/down arrows),
+  // NOT through this form — editing a field must never disturb the sequence.
   const payload = {
     name: data.name,
     day: data.day,
@@ -301,13 +303,31 @@ export async function saveExercise(clientId: string, data: Record<string, any>) 
     restSec: toInt(data.restSec) ?? 90,
     videoUrl: data.videoUrl || null,
     notes: data.notes || null,
-    order: toInt(data.order) ?? 0,
   };
+
+  async function nextOrderInDay(trainingPlanId: string, day: string) {
+    const maxInDay = await prisma.exercise.aggregate({
+      where: { trainingPlanId, day },
+      _max: { order: true },
+    });
+    return (maxInDay._max.order ?? -1) + 1;
+  }
+
   if (data.id) {
-    await prisma.exercise.update({ where: { id: data.id }, data: payload });
+    const existing = await prisma.exercise.findUnique({ where: { id: data.id } });
+    // If the day changed, move it to the end of the new day so it can't collide
+    // with an existing order there; otherwise keep the current order untouched.
+    const orderPatch =
+      existing && existing.day !== payload.day
+        ? { order: await nextOrderInDay(existing.trainingPlanId, payload.day) }
+        : {};
+    await prisma.exercise.update({ where: { id: data.id }, data: { ...payload, ...orderPatch } });
     notifyUser(clientId, "training", `🏋️ <b>Я оновив вправу</b>\n«${data.name}» (${data.day})`).catch(()=>{});
   } else {
-    await prisma.exercise.create({ data: { ...payload, trainingPlanId: data.trainingPlanId } });
+    // Append to the end of its day. Never default to 0 — shared zeros caused
+    // the sequence to shuffle after edits.
+    const order = await nextOrderInDay(data.trainingPlanId, payload.day);
+    await prisma.exercise.create({ data: { ...payload, order, trainingPlanId: data.trainingPlanId } });
     notifyUser(clientId, "training", `🏋️ <b>Я додав вправу до програми</b>\n«${data.name}» (${data.day}) · ${payload.targetSets}×${payload.targetReps}`).catch(()=>{});
   }
   revalidatePath(`/admin/clients/${clientId}`);
@@ -315,6 +335,26 @@ export async function saveExercise(clientId: string, data: Record<string, any>) 
 export async function deleteExercise(id: string, clientId: string) {
   await requireTrainer();
   await prisma.exercise.delete({ where: { id } });
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+// Swap an exercise with its neighbour in the SAME day (stable up/down reorder).
+export async function reorderExercise(id: string, dir: "up" | "down", clientId: string) {
+  await requireTrainer();
+  const ex = await prisma.exercise.findUnique({ where: { id } });
+  if (!ex) return;
+  const siblings = await prisma.exercise.findMany({
+    where: { trainingPlanId: ex.trainingPlanId, day: ex.day },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+  });
+  const idx = siblings.findIndex((s) => s.id === id);
+  const swapWith = dir === "up" ? idx - 1 : idx + 1;
+  if (swapWith < 0 || swapWith >= siblings.length) return;
+  const a = siblings[idx], b = siblings[swapWith];
+  await prisma.$transaction([
+    prisma.exercise.update({ where: { id: a.id }, data: { order: b.order } }),
+    prisma.exercise.update({ where: { id: b.id }, data: { order: a.order } }),
+  ]);
   revalidatePath(`/admin/clients/${clientId}`);
 }
 

@@ -10,7 +10,7 @@ export default async function WorkoutSessionPage({ searchParams }: { searchParam
 
   const plan = await prisma.trainingPlan.findFirst({
     where: { clientId: u.id, ...(searchParams.planId ? { id: searchParams.planId } : {}) },
-    include: { exercises: { where: { day }, orderBy: { order: "asc" } } },
+    include: { exercises: { where: { day }, orderBy: [{ order: "asc" }, { createdAt: "asc" }] } },
     orderBy: { updatedAt: "desc" },
   });
   if (!plan || plan.exercises.length === 0) notFound();
