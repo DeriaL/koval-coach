@@ -28,7 +28,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen h-gradient flex items-center justify-center p-6">
+    <div className="min-h-[100dvh] h-gradient flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl mb-8">
           <div className="w-10 h-10 rounded-xl accent-shine flex items-center justify-center text-white">

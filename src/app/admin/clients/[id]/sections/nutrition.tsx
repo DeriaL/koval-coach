@@ -274,7 +274,10 @@ function PlanEditor({
       </div>
 
       {/* SUBMIT */}
-      <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-bg/80 backdrop-blur border-t border-border flex gap-2 justify-end">
+      <div
+        className="sticky bottom-0 -mx-4 px-4 py-3 bg-bg/80 backdrop-blur border-t border-border flex gap-2 justify-end"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
         <button type="button" onClick={onCancel} className="btn" disabled={pending}>Скасувати</button>
         <button type="button" onClick={submit} className="btn btn-primary" disabled={pending}>
           {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Зберегти</>}

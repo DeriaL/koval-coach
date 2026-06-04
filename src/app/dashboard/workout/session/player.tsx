@@ -238,7 +238,10 @@ export function WorkoutPlayer({ day, exercises, prevBest, lastSession }: { day: 
 
       {/* rest overlay */}
       {rest > 0 && (
-        <div className="fixed inset-x-0 bottom-0 md:bottom-0 z-20 p-4 md:p-6 pointer-events-none">
+        <div
+          className="fixed inset-x-0 bottom-0 md:bottom-0 z-20 p-4 md:p-6 pointer-events-none"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
+        >
           <div className="max-w-md mx-auto card p-5 border-accent/50 bg-card/95 backdrop-blur pointer-events-auto shadow-glow">
             <div className="flex items-center justify-between">
               <div>

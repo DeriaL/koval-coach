@@ -157,7 +157,7 @@ export function SessionsCalendar({ sessions }: { sessions: S[] }) {
         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
           onClick={() => setSelectedDay(null)}>
           <div onClick={e => e.stopPropagation()}
-            className="card w-full md:max-w-2xl p-5 md:p-6 rounded-t-3xl md:rounded-3xl animate-slide-in-up md:animate-pop max-h-[90vh] overflow-y-auto">
+            className="card w-full md:max-w-2xl p-5 md:p-6 rounded-t-3xl md:rounded-3xl animate-slide-in-up md:animate-pop max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="text-xs text-muted uppercase tracking-wider">День</div>

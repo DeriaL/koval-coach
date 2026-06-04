@@ -55,7 +55,7 @@ export function CancelModal({
     <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
       onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()}
-        className="card w-full md:max-w-md p-5 md:p-6 rounded-t-3xl md:rounded-3xl border-danger/30 animate-slide-in-up md:animate-pop max-h-[92vh] overflow-y-auto">
+        className="card w-full md:max-w-md p-5 md:p-6 rounded-t-3xl md:rounded-3xl border-danger/30 animate-slide-in-up md:animate-pop max-h-[92dvh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-lg flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-danger/15 text-danger flex items-center justify-center"><AlertTriangle className="w-4 h-4" /></div>

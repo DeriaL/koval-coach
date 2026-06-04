@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { EmptyState } from "@/components/ui";
 import { Dumbbell, StickyNote, CheckCircle2, CalendarDays, Layers, Clock, ChevronRight, BookOpen } from "lucide-react";
 import Link from "next/link";
-
-const DAY_ORDER = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
+import { weekdayIndex } from "@/lib/weekday";
 
 function pluralExercise(n: number) {
   if (n === 1) return "вправа";
@@ -45,7 +44,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: { p
   const days: Record<string, typeof plan.exercises> = {};
   plan.exercises.forEach((e) => { (days[e.day] ||= []).push(e); });
   const sortedDays = Object.entries(days).sort(
-    ([a], [b]) => (DAY_ORDER.indexOf(a) ?? 99) - (DAY_ORDER.indexOf(b) ?? 99)
+    ([a], [b]) => weekdayIndex(a) - weekdayIndex(b)
   );
 
   const hasExercises = plan.exercises.length > 0;

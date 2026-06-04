@@ -2,9 +2,7 @@
 import { useState, useTransition } from "react";
 import { saveTraining, deleteTraining, saveExercise, deleteExercise, reorderExercise } from "../../actions";
 import { Pencil, Trash2, Plus, Save, X, Loader2, Dumbbell, ArrowUp, ArrowDown } from "lucide-react";
-
-const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
-const weekdayIdx = (d: string) => { const i = WEEKDAYS.indexOf(d); return i === -1 ? 99 : i; };
+import { weekdayIndex as weekdayIdx } from "@/lib/weekday";
 
 export function TrainingTab({ clientId, items }: { clientId: string; items: any[] }) {
   const [editing, setEditing] = useState<any | null>(null);

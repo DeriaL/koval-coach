@@ -5,6 +5,7 @@ import { Dumbbell, Play, Clock, Trophy, Calendar, ChevronRight, CheckCircle2, Za
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import Link from "next/link";
+import { weekdayIndex } from "@/lib/weekday";
 
 function pluralExercise(n: number) {
   if (n === 1) return "вправа";
@@ -17,7 +18,6 @@ function formatGCalDate(d: Date) {
   return `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
 }
 
-const DAY_ORDER = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
 
 export default async function WorkoutHome({ searchParams }: { searchParams: { planId?: string } }) {
   const u = await requireClient();
@@ -50,7 +50,7 @@ export default async function WorkoutHome({ searchParams }: { searchParams: { pl
   const days: Record<string, any[]> = {};
   plan?.exercises.forEach((e) => { (days[e.day] ||= []).push(e); });
   const sortedDays = Object.entries(days).sort(
-    ([a], [b]) => (DAY_ORDER.indexOf(a) ?? 99) - (DAY_ORDER.indexOf(b) ?? 99)
+    ([a], [b]) => weekdayIndex(a) - weekdayIndex(b)
   );
 
   return (

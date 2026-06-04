@@ -9,7 +9,7 @@ export function SkeletonCard({ h = "h-24" }: { h?: string }) {
 /* Top-of-viewport gradient progress bar — kept as a helper for tight spots. */
 export function TopLoader() {
   return (
-    <div className="fixed inset-x-0 top-0 z-[100] h-[3px] overflow-hidden pointer-events-none" aria-hidden>
+    <div className="fixed inset-x-0 z-[100] h-[3px] overflow-hidden pointer-events-none" style={{ top: "env(safe-area-inset-top)" }} aria-hidden>
       <div
         className="h-full w-1/3 rounded-full bg-gradient-to-r from-accent via-accent2 to-accent-soft"
         style={{ animation: "topLoader 1.1s cubic-bezier(.4,0,.2,1) infinite" }}
@@ -23,7 +23,7 @@ export function TopLoader() {
    pops + pulses, the halo breathes, and the indicator bar slides. */
 export function PageSkeleton() {
   return (
-    <div className="relative flex flex-col items-center justify-center gap-5 py-24 md:py-36 min-h-[60vh]">
+    <div className="relative flex flex-col items-center justify-center gap-5 py-24 md:py-36 min-h-[60dvh]">
       {/* breathing halo behind the logo */}
       <span
         aria-hidden

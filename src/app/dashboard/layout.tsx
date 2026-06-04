@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }).catch(() => 0);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[100dvh]">
       <Sidebar role="CLIENT" userName={user.name} hasPendingPayment={pendingCount > 0} />
       <main
         className="md:ml-64 px-4 md:px-8 max-w-6xl mx-auto pt-[calc(3.5rem+env(safe-area-inset-top)+1.25rem)] md:pt-8 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-8"

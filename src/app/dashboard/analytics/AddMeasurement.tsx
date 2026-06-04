@@ -93,7 +93,7 @@ export function AddMeasurement({ initial, trigger }: Props) {
         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
           onClick={() => setOpen(false)}>
           <div onClick={(e) => e.stopPropagation()}
-            className="card w-full md:max-w-xl p-5 md:p-6 rounded-t-3xl md:rounded-3xl border-accent/30 animate-slide-in-up md:animate-pop max-h-[92vh] overflow-y-auto">
+            className="card w-full md:max-w-xl p-5 md:p-6 rounded-t-3xl md:rounded-3xl border-accent/30 animate-slide-in-up md:animate-pop max-h-[92dvh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl accent-shine flex items-center justify-center text-white"><Ruler className="w-4 h-4" /></div>
