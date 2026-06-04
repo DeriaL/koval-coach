@@ -117,19 +117,27 @@ function Lightbox({
         WebkitBackdropFilter: "blur(10px)",
       }}
     >
-      {/* Close */}
+      {/* Close — pushed below the notch / Telegram's own top bar via safe-area */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full grid place-items-center bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-90"
+        className="absolute z-20 w-12 h-12 rounded-full grid place-items-center bg-white/15 hover:bg-white/25 text-white border border-white/20 shadow-lg transition active:scale-90"
+        style={{
+          top: "calc(env(safe-area-inset-top, 0px) + 14px)",
+          right: "calc(env(safe-area-inset-right, 0px) + 14px)",
+        }}
         aria-label="Закрити"
       >
-        <X className="w-5 h-5" />
+        <X className="w-6 h-6" />
       </button>
 
       {/* Image */}
       <div
-        className="flex-1 flex items-center justify-center px-4 sm:px-8 pt-14 pb-28 min-h-0"
-        onClick={(e) => e.stopPropagation()}
+        className="flex-1 flex items-center justify-center px-4 sm:px-8 min-h-0"
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 72px)",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 120px)",
+        }}
+        onClick={onClose}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -142,7 +150,8 @@ function Lightbox({
 
       {/* Caption + nav */}
       <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] flex flex-col items-center gap-3"
+        className="absolute left-1/2 -translate-x-1/2 w-[min(92vw,640px)] flex flex-col items-center gap-3"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-5 py-3 rounded-2xl bg-black/55 backdrop-blur-xl border border-white/10 text-white/95 text-sm text-center leading-snug">
