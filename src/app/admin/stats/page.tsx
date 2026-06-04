@@ -40,14 +40,21 @@ export default async function AdminStatsPage() {
           </div>
         </div>
         <div className="card p-4">
-          <div className="text-[10px] uppercase tracking-wider text-muted">Цього місяця</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted">Цього місяця · оплати</div>
           <div className="text-2xl font-black mt-1">{(thisMonth?.paymentsSum ?? 0).toLocaleString("uk-UA")} ₴</div>
-          <div className="text-[11px] text-muted">оплат</div>
+          <div className="text-[11px] text-muted">
+            <span className="text-accent">{(thisMonth?.paymentsPersonal ?? 0).toLocaleString("uk-UA")}</span> персон. ·{" "}
+            <span className="text-accent2">{(thisMonth?.paymentsOnline ?? 0).toLocaleString("uk-UA")}</span> онлайн
+          </div>
         </div>
         <div className="card p-4 col-span-2 md:col-span-1">
           <div className="text-[10px] uppercase tracking-wider text-muted">Минулого місяця · {monthLabel(prevKey).toLowerCase()}</div>
           <div className="text-2xl font-black mt-1">{prevMonth?.workouts ?? 0} <span className="text-base font-bold text-muted">трен.</span></div>
-          <div className="text-[11px] text-muted">{(prevMonth?.paymentsSum ?? 0).toLocaleString("uk-UA")} ₴ оплат</div>
+          <div className="text-[11px] text-muted">
+            <span className="text-accent">{prevMonth?.personal ?? 0}</span> персон. ·{" "}
+            <span className="text-accent2">{prevMonth?.online ?? 0}</span> онлайн ·{" "}
+            {(prevMonth?.paymentsSum ?? 0).toLocaleString("uk-UA")} ₴
+          </div>
         </div>
       </div>
 

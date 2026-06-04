@@ -60,7 +60,13 @@ export function StatsView({ months, currentKey }: { months: MonthRow[]; currentK
                   <span className="chip py-0 px-2 gap-1 text-accent border-accent/30">персональні: {m.personal}</span>
                   <span className="chip py-0 px-2 gap-1 text-accent2 border-accent2/30">онлайн: {m.online}</span>
                   {m.totalMin > 0 && <span className="chip py-0 px-2 gap-1"><Clock className="w-3 h-3" /> {Math.round(m.totalMin / 60)} год</span>}
-                  <span className="chip py-0 px-2 gap-1"><Wallet className="w-3 h-3" /> {m.paymentsCount} оплат</span>
+                  <span className="chip py-0 px-2 gap-1"><Wallet className="w-3 h-3" /> {m.paymentsSum.toLocaleString("uk-UA")} ₴ ({m.paymentsCount})</span>
+                  {m.paymentsSum > 0 && (
+                    <span className="chip py-0 px-2 gap-1 text-muted">
+                      <span className="text-accent">{m.paymentsPersonal.toLocaleString("uk-UA")}</span> /{" "}
+                      <span className="text-accent2">{m.paymentsOnline.toLocaleString("uk-UA")}</span> ₴
+                    </span>
+                  )}
                 </div>
                 {/* Per-client breakdown */}
                 {m.clients.length === 0 ? (

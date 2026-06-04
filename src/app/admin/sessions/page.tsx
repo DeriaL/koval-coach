@@ -27,7 +27,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   const planWhere = format === "online" ? { coachingPlan: "ONLINE" } : format === "offline" ? { coachingPlan: "FULL" } : {};
   const clientWhere = { role: "CLIENT", ...planWhere, ...(clientFilter ? { id: clientFilter } : {}) };
 
-  const [awaiting, upcoming, completed, completedCount, cancelled, allClients, todaySessions, calSessions] = await Promise.all([
+  const [awaiting, upcoming, completed, completedPlans, cancelled, allClients, todaySessions, calSessions] = await Promise.all([
     prisma.workoutSession.findMany({
       where: {
         scheduledAt: { lt: now }, completed: false, confirmedByTrainer: false, cancelledAt: null,
@@ -55,14 +55,16 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       orderBy: { date: "desc" },
       take: 100,
     }),
-    // Separate count for the KPI — not capped
-    prisma.workoutSession.count({
+    // For the KPI — uncapped, with the client's plan so we can split the count
+    // into personal (offline) vs online (self-logged).
+    prisma.workoutSession.findMany({
       where: {
         OR: [{ completed: true }, { confirmedByTrainer: true }],
         cancelledAt: null,
         date: { gte: monthStart },
         client: clientWhere as any,
       },
+      select: { client: { select: { coachingPlan: true } } },
     }),
     prisma.workoutSession.findMany({
       where: { cancelledAt: { gte: monthAgo }, client: clientWhere as any },
@@ -90,6 +92,11 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       orderBy: { date: "asc" },
     }),
   ]);
+
+  // "Виконано" this month, split into personal (offline) vs online (self-logged).
+  const completedCount = completedPlans.length;
+  const completedOnline = completedPlans.filter((s: any) => s.client?.coachingPlan === "ONLINE").length;
+  const completedPersonal = completedCount - completedOnline;
 
   // Group upcoming by day
   const upcomingByDay = new Map<string, typeof upcoming>();
@@ -120,7 +127,13 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         <KpiCard icon={AlertTriangle} label="Підтвердити" value={awaiting.length} color="accent2" pulse={awaiting.length > 0} />
         <KpiCard icon={Calendar} label="Сьогодні" value={todaySessions} color="accent" />
         <KpiCard icon={Clock} label="Найближчі 14 дн." value={upcoming.length} />
-        <KpiCard icon={CheckCircle2} label="Виконано · цей місяць" value={completedCount} color="success" />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Виконано · цей місяць"
+          value={completedCount}
+          color="success"
+          sub={<><span className="text-accent">{completedPersonal}</span> персон. · <span className="text-accent2">{completedOnline}</span> онлайн</>}
+        />
       </div>
 
       {/* Filters */}
@@ -242,7 +255,7 @@ function Section({ icon: Icon, title, subtitle, count, accent = "accent", childr
   );
 }
 
-function KpiCard({ icon: Icon, label, value, color = "accent", pulse }: any) {
+function KpiCard({ icon: Icon, label, value, color = "accent", pulse, sub }: any) {
   const colorMap: Record<string, string> = {
     accent: "text-accent border-accent/30 bg-accent/5",
     accent2: "text-accent2 border-accent2/40 bg-accent2/5",
@@ -256,6 +269,7 @@ function KpiCard({ icon: Icon, label, value, color = "accent", pulse }: any) {
         <Icon className="w-3.5 h-3.5" /> {label}
       </div>
       <div className="text-3xl font-black mt-2">{value}</div>
+      {sub && <div className="text-[11px] text-muted mt-0.5">{sub}</div>}
     </div>
   );
 }

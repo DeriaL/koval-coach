@@ -12,7 +12,9 @@ export type MonthStat = {
   online: number;       // of those — ONLINE clients (self-logged)
   totalMin: number;     // summed duration, minutes
   paymentsCount: number;
-  paymentsSum: number;  // ₴ of payments marked paid that month
+  paymentsSum: number;      // ₴ of payments marked paid that month
+  paymentsPersonal: number; // of those — from offline/personal clients
+  paymentsOnline: number;   // of those — from ONLINE clients
 };
 
 export type ClientLine = {
@@ -28,7 +30,7 @@ export type MonthRow = MonthStat & { clients: ClientLine[] };
 const whenOf = (s: { scheduledAt: Date | null; date: Date }) => s.scheduledAt ?? s.date;
 
 function blank(key: string): MonthStat {
-  return { key, workouts: 0, personal: 0, online: 0, totalMin: 0, paymentsCount: 0, paymentsSum: 0 };
+  return { key, workouts: 0, personal: 0, online: 0, totalMin: 0, paymentsCount: 0, paymentsSum: 0, paymentsPersonal: 0, paymentsOnline: 0 };
 }
 
 /** Trainer-wide per-month totals + per-client breakdown, newest month first. */
@@ -85,6 +87,7 @@ export async function getAllMonthlyStats(): Promise<MonthRow[]> {
     const r = monthRow(k);
     r.paymentsCount++;
     r.paymentsSum += p.amount;
+    if (isOnline(p.clientId)) r.paymentsOnline += p.amount; else r.paymentsPersonal += p.amount;
     clientLine(k, p.clientId).paymentsSum += p.amount;
   }
 
