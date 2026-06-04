@@ -1,7 +1,16 @@
 import { PageHeader } from "@/components/ui";
 import { getAllMonthlyStats } from "@/lib/monthlyStats";
 import { kyivMonthKey } from "@/lib/kyivTime";
+import { monthLabel } from "@/lib/monthLabel";
 import { StatsView } from "./StatsView";
+
+// "2026-06" -> "2026-05"
+function prevMonthKey(key: string): string {
+  let [y, m] = key.split("-").map(Number);
+  m -= 1;
+  if (m === 0) { m = 12; y -= 1; }
+  return `${y}-${String(m).padStart(2, "0")}`;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +19,8 @@ export default async function AdminStatsPage() {
   const currentKey = kyivMonthKey(new Date());
 
   const thisMonth = months.find((m) => m.key === currentKey);
-  const totalW = months.reduce((s, m) => s + m.workouts, 0);
-  const totalPay = months.reduce((s, m) => s + m.paymentsSum, 0);
+  const prevKey = prevMonthKey(currentKey);
+  const prevMonth = months.find((m) => m.key === prevKey);
 
   return (
     <div className="max-w-4xl">
@@ -33,9 +42,9 @@ export default async function AdminStatsPage() {
           <div className="text-[11px] text-muted">оплат</div>
         </div>
         <div className="card p-4 col-span-2 md:col-span-1">
-          <div className="text-[10px] uppercase tracking-wider text-muted">За весь час</div>
-          <div className="text-2xl font-black mt-1">{totalW} <span className="text-base font-bold text-muted">трен.</span></div>
-          <div className="text-[11px] text-muted">{totalPay.toLocaleString("uk-UA")} ₴ оплат</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted">Минулого місяця · {monthLabel(prevKey).toLowerCase()}</div>
+          <div className="text-2xl font-black mt-1">{prevMonth?.workouts ?? 0} <span className="text-base font-bold text-muted">трен.</span></div>
+          <div className="text-[11px] text-muted">{(prevMonth?.paymentsSum ?? 0).toLocaleString("uk-UA")} ₴ оплат</div>
         </div>
       </div>
 
