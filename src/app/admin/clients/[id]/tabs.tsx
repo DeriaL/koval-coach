@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import {
-  User, Apple, Dumbbell, Pill, Wallet, LineChart, Camera, Trophy, Flame, Bell, MessageCircle, Target, Calendar, FlaskConical, CalendarRange
+  User, Apple, Dumbbell, Pill, Wallet, LineChart, Camera, Trophy, Flame, Bell, MessageCircle, Target, Calendar, FlaskConical
 } from "lucide-react";
 
 const tabs = [
@@ -15,7 +15,6 @@ const tabs = [
   { id: "analyses", label: "Аналізи", icon: FlaskConical },
   { id: "photos", label: "Фото", icon: Camera },
   { id: "payments", label: "Оплати", icon: Wallet },
-  { id: "archive", label: "Архів", icon: CalendarRange },
   { id: "reminders", label: "Нагадування", icon: Bell },
 ];
 

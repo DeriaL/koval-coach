@@ -2,11 +2,13 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { scheduleSession, confirmSession, deleteSession, cancelSessionByTrainer } from "../../actions";
-import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban, Wallet } from "lucide-react";
+import { Calendar, Plus, X, Save, Loader2, CheckCircle2, AlertCircle, Trash2, Clock, Dumbbell, Sparkles, Ban, Wallet, ChevronDown, Archive } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { CancelModal } from "@/components/CancelModal";
 import { WorkoutDetailRow } from "@/components/WorkoutDetailRow";
+import { kyivMonthKey } from "@/lib/kyivTime";
+import { monthLabel } from "@/lib/monthLabel";
 
 type SetRow = {
   id: string; exerciseName: string; setIndex: number;
@@ -34,6 +36,7 @@ export function SessionsTab({ clientId, items, payments = [], plan }: { clientId
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const [cancelTarget, setCancelTarget] = useState<S | null>(null);
+  const [openMonths, setOpenMonths] = useState<Set<string>>(new Set());
   const now = new Date();
 
   function add(fd: FormData) {
@@ -52,7 +55,7 @@ export function SessionsTab({ clientId, items, payments = [], plan }: { clientId
   const active = items.filter(s => !s.cancelledAt);
   const awaiting = active.filter(s => s.scheduledAt && new Date(s.scheduledAt) < now && !s.completed && !s.confirmedByTrainer);
   const upcoming = active.filter(s => s.scheduledAt && new Date(s.scheduledAt) >= now && !s.completed);
-  const done = active.filter(s => s.completed || s.confirmedByTrainer).slice(0, 30);
+  const done = active.filter(s => s.completed || s.confirmedByTrainer);
   const cancelled = items.filter(s => s.cancelledAt).slice(0, 20);
 
   async function doCancel(reason: string) {
@@ -199,10 +202,10 @@ export function SessionsTab({ clientId, items, payments = [], plan }: { clientId
         </div>
       )}
 
-      {/* Done — interleaved with payment markers so each 10-pack is visibly
-          "closed" by the payment that follows it. */}
+      {/* Done — current month expanded, previous months collapsed into a
+          per-month archive. Payment markers ("Пакет №N закрито") sit inside the
+          month they belong to. */}
       {done.length > 0 && (() => {
-        // Merge done sessions + paid payments into one timeline (newest first).
         // Number FULL-client packages from the oldest paid payment (Пакет №1).
         const paid = payments.filter(p => p.status === "paid");
         const isPackage = plan === "FULL";
@@ -212,49 +215,111 @@ export function SessionsTab({ clientId, items, payments = [], plan }: { clientId
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .forEach((p, i) => packageNoById.set(p.id, i + 1));
         }
+
         type Row =
           | { kind: "session"; date: number; s: S }
           | { kind: "payment"; date: number; p: Pay };
-        const rows: Row[] = [
-          ...done.map(s => ({ kind: "session" as const, date: new Date(s.date).getTime(), s })),
-          ...paid.map(p => ({ kind: "payment" as const, date: new Date(p.date).getTime(), p })),
+
+        // Bucket sessions and (paid) payments by Kyiv month.
+        const sByMonth = new Map<string, S[]>();
+        for (const s of done) {
+          const k = kyivMonthKey(new Date(s.date));
+          (sByMonth.get(k) ?? sByMonth.set(k, []).get(k)!).push(s);
+        }
+        const pByMonth = new Map<string, Pay[]>();
+        for (const p of paid) {
+          const k = kyivMonthKey(new Date(p.date));
+          (pByMonth.get(k) ?? pByMonth.set(k, []).get(k)!).push(p);
+        }
+
+        // Build the merged, newest-first timeline for one month.
+        const rowsFor = (key: string): Row[] => [
+          ...(sByMonth.get(key) ?? []).map(s => ({ kind: "session" as const, date: new Date(s.date).getTime(), s })),
+          ...(pByMonth.get(key) ?? []).map(p => ({ kind: "payment" as const, date: new Date(p.date).getTime(), p })),
         ].sort((a, b) => b.date - a.date);
-        // Drop a leading/trailing payment with no sessions around it for a clean look — keep all, simplest.
+
+        const renderRows = (rows: Row[]) => rows.map((r) => r.kind === "payment" ? (
+          <div key={`pay-${r.p.id}`} className="flex items-center gap-2 py-0.5">
+            <div className="flex-1 h-px bg-success/30" />
+            <span className="chip text-[10px] py-0.5 px-2 border-success/40 text-success gap-1 shrink-0">
+              <Wallet className="w-3 h-3" />
+              {packageNoById.has(r.p.id) ? `Пакет №${packageNoById.get(r.p.id)} закрито · ` : "Оплачено "}
+              {r.p.amount.toLocaleString("uk-UA")} {r.p.currency} ·{" "}
+              {new Date(r.p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short" })}
+            </span>
+            <div className="flex-1 h-px bg-success/30" />
+          </div>
+        ) : (
+          <WorkoutDetailRow
+            key={r.s.id}
+            session={{
+              id: r.s.id, title: r.s.title, date: r.s.date,
+              durationSec: r.s.durationSec, notes: r.s.notes,
+              completed: r.s.completed, confirmedByTrainer: r.s.confirmedByTrainer,
+              sets: r.s.sets ?? [],
+            }}
+            editHref={`/admin/clients/${clientId}/log-workout?edit=${r.s.id}`}
+            onDelete={async (id) => { await deleteSession(id, clientId); }}
+          />
+        ));
+
+        const currentKey = kyivMonthKey(now);
+        // Month keys with sessions, newest first.
+        const monthKeys = [...sByMonth.keys()].sort((a, b) => (a < b ? 1 : -1));
+        const pastKeys = monthKeys.filter(k => k !== currentKey);
+
         return (
-          <div>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-success mb-2">
-              <Sparkles className="w-3.5 h-3.5" /> Виконані ({done.length})
-            </div>
-            <div className="space-y-2">
-              {rows.map((r) => r.kind === "payment" ? (
-                <div key={`pay-${r.p.id}`} className="flex items-center gap-2 py-0.5">
-                  <div className="flex-1 h-px bg-success/30" />
-                  <span className="chip text-[10px] py-0.5 px-2 border-success/40 text-success gap-1 shrink-0">
-                    <Wallet className="w-3 h-3" />
-                    {packageNoById.has(r.p.id) ? `Пакет №${packageNoById.get(r.p.id)} закрито · ` : "Оплачено "}
-                    {r.p.amount.toLocaleString("uk-UA")} {r.p.currency} ·{" "}
-                    {new Date(r.p.date).toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "2-digit", month: "short" })}
-                  </span>
-                  <div className="flex-1 h-px bg-success/30" />
+          <div className="space-y-5">
+            {/* Current month — always expanded */}
+            {sByMonth.has(currentKey) && (
+              <div>
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-success mb-2">
+                  <Sparkles className="w-3.5 h-3.5" /> Виконані цього місяця ({sByMonth.get(currentKey)!.length})
                 </div>
-              ) : (
-                <WorkoutDetailRow
-                  key={r.s.id}
-                  session={{
-                    id: r.s.id,
-                    title: r.s.title,
-                    date: r.s.date,
-                    durationSec: r.s.durationSec,
-                    notes: r.s.notes,
-                    completed: r.s.completed,
-                    confirmedByTrainer: r.s.confirmedByTrainer,
-                    sets: r.s.sets ?? [],
-                  }}
-                  editHref={`/admin/clients/${clientId}/log-workout?edit=${r.s.id}`}
-                  onDelete={async (id) => { await deleteSession(id, clientId); }}
-                />
-              ))}
-            </div>
+                <div className="space-y-2">{renderRows(rowsFor(currentKey))}</div>
+              </div>
+            )}
+
+            {/* Previous months — collapsed archive */}
+            {pastKeys.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
+                  <Archive className="w-3.5 h-3.5" /> Архів
+                </div>
+                <div className="space-y-2">
+                  {pastKeys.map((key) => {
+                    const cnt = sByMonth.get(key)!.length;
+                    const isOpen = openMonths.has(key);
+                    return (
+                      <div key={key} className="card overflow-hidden">
+                        <button
+                          onClick={() => setOpenMonths(prev => {
+                            const next = new Set(prev);
+                            next.has(key) ? next.delete(key) : next.add(key);
+                            return next;
+                          })}
+                          className="w-full p-3.5 flex items-center gap-3 text-left hover:bg-surface/40 transition"
+                        >
+                          <div className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center shrink-0">
+                            <Calendar className="w-4 h-4 text-muted" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm">Тренування за {monthLabel(key).toLowerCase()}</div>
+                            <div className="text-xs text-muted">{cnt} {cnt === 1 ? "тренування" : cnt < 5 ? "тренування" : "тренувань"}</div>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-muted shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {isOpen && (
+                          <div className="px-3 pb-3 pt-1 border-t border-border/60 space-y-2">
+                            {renderRows(rowsFor(key))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
