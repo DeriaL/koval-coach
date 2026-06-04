@@ -8,6 +8,8 @@ import { kyivMonthKey } from "@/lib/kyivTime";
 export type MonthStat = {
   key: string;          // "YYYY-MM"
   workouts: number;     // valid (completed/confirmed) sessions in that month
+  personal: number;     // of those — offline/personal clients (FULL/DROP_IN)
+  online: number;       // of those — ONLINE clients (self-logged)
   totalMin: number;     // summed duration, minutes
   paymentsCount: number;
   paymentsSum: number;  // ₴ of payments marked paid that month
@@ -26,37 +28,7 @@ export type MonthRow = MonthStat & { clients: ClientLine[] };
 const whenOf = (s: { scheduledAt: Date | null; date: Date }) => s.scheduledAt ?? s.date;
 
 function blank(key: string): MonthStat {
-  return { key, workouts: 0, totalMin: 0, paymentsCount: 0, paymentsSum: 0 };
-}
-
-/** Per-month history for a single client, newest month first. */
-export async function getClientMonthlyStats(clientId: string): Promise<MonthStat[]> {
-  const [sessions, payments] = await Promise.all([
-    prisma.workoutSession.findMany({
-      where: { clientId, ...VALID_SESSION },
-      select: { date: true, scheduledAt: true, durationSec: true },
-    }),
-    prisma.payment.findMany({
-      where: { clientId, status: "paid" },
-      select: { date: true, amount: true },
-    }),
-  ]);
-
-  const map = new Map<string, MonthStat>();
-  const bucket = (k: string) => map.get(k) ?? map.set(k, blank(k)).get(k)!;
-
-  for (const s of sessions) {
-    const m = bucket(kyivMonthKey(whenOf(s)));
-    m.workouts++;
-    m.totalMin += Math.round((s.durationSec ?? 0) / 60);
-  }
-  for (const p of payments) {
-    const m = bucket(kyivMonthKey(p.date));
-    m.paymentsCount++;
-    m.paymentsSum += p.amount;
-  }
-
-  return [...map.values()].sort((a, b) => (a.key < b.key ? 1 : -1));
+  return { key, workouts: 0, personal: 0, online: 0, totalMin: 0, paymentsCount: 0, paymentsSum: 0 };
 }
 
 /** Trainer-wide per-month totals + per-client breakdown, newest month first. */
@@ -72,11 +44,13 @@ export async function getAllMonthlyStats(): Promise<MonthRow[]> {
     }),
     prisma.user.findMany({
       where: { role: "CLIENT" },
-      select: { id: true, firstName: true, lastName: true },
+      select: { id: true, firstName: true, lastName: true, coachingPlan: true },
     }),
   ]);
 
   const nameOf = new Map(clients.map((c) => [c.id, `${c.firstName} ${c.lastName}`.trim()]));
+  const onlineIds = new Set(clients.filter((c) => c.coachingPlan === "ONLINE").map((c) => c.id));
+  const isOnline = (clientId: string) => onlineIds.has(clientId);
 
   // month -> { totals, perClient map }
   const months = new Map<string, MonthRow>();
@@ -102,6 +76,7 @@ export async function getAllMonthlyStats(): Promise<MonthRow[]> {
     const k = kyivMonthKey(whenOf(s));
     const r = monthRow(k);
     r.workouts++;
+    if (isOnline(s.clientId)) r.online++; else r.personal++;
     r.totalMin += Math.round((s.durationSec ?? 0) / 60);
     clientLine(k, s.clientId).workouts++;
   }

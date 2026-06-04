@@ -57,6 +57,8 @@ export function StatsView({ months, currentKey }: { months: MonthRow[]; currentK
                 {/* Month summary chips */}
                 <div className="flex flex-wrap gap-2 mb-3 text-[11px]">
                   <span className="chip py-0 px-2 gap-1"><Dumbbell className="w-3 h-3" /> {m.workouts} тренувань</span>
+                  <span className="chip py-0 px-2 gap-1 text-accent border-accent/30">персональні: {m.personal}</span>
+                  <span className="chip py-0 px-2 gap-1 text-accent2 border-accent2/30">онлайн: {m.online}</span>
                   {m.totalMin > 0 && <span className="chip py-0 px-2 gap-1"><Clock className="w-3 h-3" /> {Math.round(m.totalMin / 60)} год</span>}
                   <span className="chip py-0 px-2 gap-1"><Wallet className="w-3 h-3" /> {m.paymentsCount} оплат</span>
                 </div>

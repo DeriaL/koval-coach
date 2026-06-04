@@ -33,8 +33,11 @@ export default async function AdminStatsPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
         <div className="card p-4">
           <div className="text-[10px] uppercase tracking-wider text-muted">Цього місяця</div>
-          <div className="text-2xl font-black mt-1">{thisMonth?.workouts ?? 0}</div>
-          <div className="text-[11px] text-muted">тренувань</div>
+          <div className="text-2xl font-black mt-1">{thisMonth?.workouts ?? 0} <span className="text-base font-bold text-muted">трен.</span></div>
+          <div className="text-[11px] text-muted">
+            <span className="text-accent">{thisMonth?.personal ?? 0}</span> персон. ·{" "}
+            <span className="text-accent2">{thisMonth?.online ?? 0}</span> онлайн
+          </div>
         </div>
         <div className="card p-4">
           <div className="text-[10px] uppercase tracking-wider text-muted">Цього місяця</div>
