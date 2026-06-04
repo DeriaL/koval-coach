@@ -10,7 +10,7 @@ import { ScheduleButton } from "./schedule-button";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { CalendarPlus, Download } from "lucide-react";
 import { SessionsCalendar } from "./calendar";
-import { kyivStartOfToday, kyivAddDays, fmtKyivDate } from "@/lib/kyivTime";
+import { kyivStartOfToday, kyivAddDays, kyivStartOfMonth, fmtKyivDate } from "@/lib/kyivTime";
 
 export default async function AdminSessions({ searchParams }: { searchParams: { format?: string; client?: string } }) {
   await requireTrainer();
@@ -18,6 +18,9 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
   const todayStart = kyivStartOfToday();
   const weekAhead = new Date(now.getTime() + 14 * 86400000);
   const monthAgo = new Date(now.getTime() - 30 * 86400000);
+  // "Виконано" KPI counts the CURRENT calendar month (Kyiv), so it resets on the
+  // 1st and previous months drop off the count — not a rolling 30-day window.
+  const monthStart = kyivStartOfMonth();
   const format = searchParams?.format === "online" ? "online" : searchParams?.format === "offline" ? "offline" : "all";
   const clientFilter = searchParams?.client || "";
 
@@ -45,19 +48,19 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
       where: {
         OR: [{ completed: true }, { confirmedByTrainer: true }],
         cancelledAt: null,
-        date: { gte: monthAgo },
+        date: { gte: monthStart },
         client: clientWhere as any,
       },
       include: { client: { select: { firstName: true, lastName: true, id: true, coachingPlan: true, avatarUrl: true } } },
       orderBy: { date: "desc" },
-      take: 50,
+      take: 100,
     }),
-    // Separate count for the KPI — not capped at 50
+    // Separate count for the KPI — not capped
     prisma.workoutSession.count({
       where: {
         OR: [{ completed: true }, { confirmedByTrainer: true }],
         cancelledAt: null,
-        date: { gte: monthAgo },
+        date: { gte: monthStart },
         client: clientWhere as any,
       },
     }),
@@ -117,7 +120,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
         <KpiCard icon={AlertTriangle} label="Підтвердити" value={awaiting.length} color="accent2" pulse={awaiting.length > 0} />
         <KpiCard icon={Calendar} label="Сьогодні" value={todaySessions} color="accent" />
         <KpiCard icon={Clock} label="Найближчі 14 дн." value={upcoming.length} />
-        <KpiCard icon={CheckCircle2} label="Виконано · 30 дн." value={completedCount} color="success" />
+        <KpiCard icon={CheckCircle2} label="Виконано · цей місяць" value={completedCount} color="success" />
       </div>
 
       {/* Filters */}
@@ -191,7 +194,7 @@ export default async function AdminSessions({ searchParams }: { searchParams: { 
 
       {/* COMPLETED */}
       {completed.length > 0 && (
-        <Section icon={Sparkles} title="Виконані · 30 днів" count={completedCount} accent="success">
+        <Section icon={Sparkles} title="Виконані · цей місяць" count={completedCount} accent="success">
           <div className="space-y-2">
             {completed.map(s => <SessionCard key={s.id} session={s} mode="done" />)}
           </div>
