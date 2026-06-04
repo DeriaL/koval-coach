@@ -25,7 +25,7 @@ export default async function ClientSessions() {
     }),
     prisma.workoutSession.findMany({
       where: { clientId: u.id, OR: [{ completed: true }, { confirmedByTrainer: true }], cancelledAt: null, date: { gte: monthAgo } },
-      include: { sets: true },
+      include: { sets: { orderBy: { setIndex: "asc" } } },
       orderBy: { date: "desc" },
       take: 50,
     }),

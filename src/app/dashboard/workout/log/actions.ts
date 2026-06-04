@@ -28,19 +28,21 @@ export async function logManualWorkout(data: {
   const notes = (data.notes || "").trim() || null;
   const durationSec = data.durationSec && data.durationSec > 0 ? Math.round(data.durationSec) : null;
 
-  // Build flat array of SessionSet rows.
+  // Build flat array of SessionSet rows. setIndex is a SESSION-WIDE running
+  // counter (0,1,2…) in logged order — this is what preserves exercise order on
+  // display (sets fetched by setIndex asc, grouped by name = original sequence).
   const setsCreate: any[] = [];
-  let prsCount = 0;
+  let seq = 0;
   for (const ex of data.exercises ?? []) {
     const exName = (ex.name || "").trim();
     if (!exName) continue;
-    ex.sets.forEach((s, i) => {
+    ex.sets.forEach((s) => {
       const w = parseFloat(String(s.weight ?? "")) || null;
       const r = parseInt(String(s.reps ?? ""), 10) || null;
       if (!w && !r) return; // skip empty sets
       setsCreate.push({
         exerciseName: exName,
-        setIndex: i,
+        setIndex: seq++,
         weight: w,
         reps: r,
         completed: true,
@@ -112,14 +114,15 @@ export async function updateWorkoutSession(sessionId: string, data: {
   const notes = (data.notes || "").trim() || null;
 
   const setsCreate: any[] = [];
+  let seq = 0; // session-wide running index preserves exercise order on display
   for (const ex of data.exercises ?? []) {
     const exName = (ex.name || "").trim();
     if (!exName) continue;
-    ex.sets.forEach((s, i) => {
+    ex.sets.forEach((s) => {
       const w = parseFloat(String(s.weight ?? "")) || null;
       const r = parseInt(String(s.reps ?? ""), 10) || null;
       if (!w && !r) return;
-      setsCreate.push({ sessionId, exerciseName: exName, setIndex: i, weight: w, reps: r, completed: true });
+      setsCreate.push({ sessionId, exerciseName: exName, setIndex: seq++, weight: w, reps: r, completed: true });
     });
   }
 

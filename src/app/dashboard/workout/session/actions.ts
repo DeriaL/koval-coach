@@ -41,6 +41,7 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
   });
 
   const prs: string[] = [];
+  let seq = 0; // session-wide running index → stable exercise order on display
   for (const s of data.sets) {
     const isPR = s.completed && s.weight != null && s.reps != null && (!bestPerEx[s.exerciseName] || s.weight > bestPerEx[s.exerciseName]);
     if (isPR) { bestPerEx[s.exerciseName] = s.weight!; if (!prs.includes(s.exerciseName)) prs.push(s.exerciseName); }
@@ -48,7 +49,7 @@ export async function finishWorkout(data: Payload): Promise<FinishResult> {
       data: {
         sessionId: session.id,
         exerciseName: s.exerciseName,
-        setIndex: s.setIndex,
+        setIndex: seq++,
         weight: s.weight,
         reps: s.reps,
         completed: s.completed,

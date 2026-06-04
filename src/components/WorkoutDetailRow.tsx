@@ -24,15 +24,15 @@ type Session = {
 };
 
 function groupByExercise(sets: Set[]) {
+  // setIndex is a session-wide running counter, so sorting by it first makes the
+  // exercise order (first-encounter) and the within-exercise set order both
+  // reflect the original logged sequence — regardless of how sets arrived.
+  const sorted = [...sets].sort((a, b) => a.setIndex - b.setIndex);
   const map = new Map<string, Set[]>();
-  for (const s of sets) {
+  for (const s of sorted) {
     const arr = map.get(s.exerciseName) ?? [];
     arr.push(s);
     map.set(s.exerciseName, arr);
-  }
-  // Sort each exercise's sets by setIndex
-  for (const arr of map.values()) {
-    arr.sort((a, b) => a.setIndex - b.setIndex);
   }
   return Array.from(map.entries());
 }
