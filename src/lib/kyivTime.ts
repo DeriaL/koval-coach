@@ -85,6 +85,13 @@ export function kyivDayKey(date: Date | null | undefined): string {
   return `${p.year}-${pad(p.month)}-${pad(p.day)}`;
 }
 
+// "YYYY-MM" for the calendar month a moment falls into, in Kyiv time. Used to
+// group sessions/payments into monthly buckets for the stats archive.
+export function kyivMonthKey(date: Date | null | undefined): string {
+  const p = kyivParts(date ?? new Date());
+  return `${p.year}-${String(p.month).padStart(2, "0")}`;
+}
+
 // ── DAY-BOUNDARY MATH ───────────────────────────────────────────────────────
 
 /**

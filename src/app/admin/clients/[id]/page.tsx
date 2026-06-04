@@ -14,9 +14,12 @@ import { CheckInsTab } from "./sections/checkins";
 import { RemindersTab } from "./sections/reminders";
 import { SessionsTab } from "./sections/sessions";
 import { AnalysesTab } from "./sections/analyses";
+import { ArchiveTab } from "./sections/archive";
 import { ArrowLeft, Mail, Phone, Target, Wifi, Crown, Dumbbell, Wallet, Star } from "lucide-react";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { getSessionPeriod } from "@/lib/sessionPeriod";
+import { getClientMonthlyStats } from "@/lib/monthlyStats";
+import { kyivMonthKey } from "@/lib/kyivTime";
 
 type Props = { params: { id: string }; searchParams: { tab?: string } };
 
@@ -44,6 +47,10 @@ export default async function ClientDetail({ params, searchParams }: Props) {
 
   // Current-period session count: ONLINE resets monthly, others reset on payment.
   const period = await getSessionPeriod(client);
+
+  // Monthly archive (workouts + payments grouped by month) for the «Архів» tab.
+  const monthly = tab === "archive" ? await getClientMonthlyStats(client.id) : [];
+  const currentMonthKey = kyivMonthKey(new Date());
 
   // Suggested amount for a new manual payment, based on the client's plan.
   const suggestedAmount =
@@ -148,6 +155,7 @@ export default async function ClientDetail({ params, searchParams }: Props) {
         {tab === "payments" && <PaymentsTab clientId={client.id} items={client.payments} suggestedAmount={suggestedAmount} periodCount={period.count} periodLabel={periodLabel} />}
         {tab === "analytics" && <AnalyticsTab clientId={client.id} items={client.measurements} />}
         {tab === "analyses" && <AnalysesTab clientId={client.id} items={(client as any).labResults.map((l: any) => ({ ...l, date: l.date.toISOString() }))} />}
+        {tab === "archive" && <ArchiveTab months={monthly} currentKey={currentMonthKey} />}
         {tab === "photos" && <PhotosTab clientId={client.id} items={client.photos} />}
         {tab === "checkins" && <CheckInsTab items={client.checkIns} />}
         {tab === "sessions" && <SessionsTab clientId={client.id} items={client.sessions} payments={client.payments} plan={client.coachingPlan} />}
