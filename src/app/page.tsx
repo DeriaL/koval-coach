@@ -217,7 +217,7 @@ export default async function Home() {
             <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
               Від першого повідомлення<br className="hidden sm:block" /> до першого результату.
             </h2>
-            <p className="text-muted mt-3">Без зайвого. Без води. Тільки те, що приведе до конкретної цілі та якнайкращого результату!</p>
+            <p className="text-muted mt-3">Тільки те, що приведе до конкретної цілі та якнайкращого результату!</p>
           </Reveal>
 
           <div className="mt-12 grid md:grid-cols-3 gap-4 md:gap-5 relative">
