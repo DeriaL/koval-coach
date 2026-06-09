@@ -217,7 +217,7 @@ export default async function Home() {
             <h2 className="font-display mt-5 text-3xl sm:text-5xl font-black tracking-tight">
               Від першого повідомлення<br className="hidden sm:block" /> до першого результату.
             </h2>
-            <p className="text-muted mt-3">Без зайвого. Без води. Тільки те, що приведе до цілі.</p>
+            <p className="text-muted mt-3">Без зайвого. Без води. Тільки те, що приведе до конкретної цілі та якнайкращого результату!</p>
           </Reveal>
 
           <div className="mt-12 grid md:grid-cols-3 gap-4 md:gap-5 relative">
@@ -226,7 +226,7 @@ export default async function Home() {
               <Reveal key={s.i} delay={idx * 100}>
                 <CardSpot className="p-7">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs tracking-widest text-muted">КРОК 0{s.i}</span>
+                    <span className="font-semibold text-xs tracking-widest text-muted">КРОК {s.i}</span>
                     <span className="h-10 w-10 rounded-2xl border border-border grid place-items-center text-accent">
                       <s.Icon className="w-5 h-5" />
                     </span>
@@ -258,10 +258,10 @@ export default async function Home() {
                 <div className="relative flex h-full flex-col">
                   <span className="chip self-start"><Dumbbell className="w-3 h-3 text-accent" /> Тренування</span>
                   <h3 className="font-display text-2xl lg:text-3xl font-black tracking-tight mt-4">
-                    Всі тренування — на одному екрані.
+                    Всі тренування та складові якісного супроводу на одному екрані.
                   </h3>
                   <p className="text-muted text-sm mt-2 max-w-md">
-                    План на тиждень, техніка виконання вправ і миттєвий зворотний зв&apos;язок від мене!
+                    План на день, тиждень, місяць. Якісний супровід та миттєвий зворотний зв&apos;язок від мене!
                   </p>
                   <div className="mt-auto grid grid-cols-3 gap-2 pt-6">
                     {[
@@ -289,7 +289,7 @@ export default async function Home() {
                   <div>
                     <span className="chip"><BarChart3 className="w-3 h-3 text-accent" /> Аналітика</span>
                     <h3 className="font-display text-2xl font-black tracking-tight mt-4">Прогрес у цифрах,<br />а не у відчуттях!</h3>
-                    <p className="text-muted text-sm mt-2 max-w-sm">Вага, заміри, % жиру й динаміка змін. Усе, що змінюється — помітно одразу!</p>
+                    <p className="text-muted text-sm mt-2 max-w-sm">Вага, заміри, аналітика та динаміка змін. Усе помітно одразу!</p>
                   </div>
                   <span className="h-10 w-10 rounded-2xl border border-border grid place-items-center text-accent shrink-0">
                     <BarChart3 className="w-5 h-5" />
@@ -336,7 +336,7 @@ export default async function Home() {
                 Реальні результати<br className="hidden sm:block" /> моїх клієнтів.
               </h2>
               <p className="mt-4 text-muted text-base sm:text-lg leading-relaxed">
-                Від рекомпозиції тіла за пів року до підготовки спортсменів до сцени. Кожне фото — це системна робота, дисципліна та персональний супровід.
+                Від рекомпозиції тіла за пів року до підготовки спортсменів до змагань! Кожне фото — це системна робота, дисципліна та персональний супровід під моїм контролем!
               </p>
             </Reveal>
           </div>
