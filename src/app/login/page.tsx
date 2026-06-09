@@ -2,7 +2,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dumbbell, Loader2 } from "lucide-react";
+import { Dumbbell, Loader2, Send } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -57,9 +57,24 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-muted mt-6">
-          Ще не маєш доступу? Напиши мені, і я заведу твій кабінет.
-        </p>
+        {/* No-access CTA — sends the visitor straight to the trainer in Telegram */}
+        <div className="card mt-5 p-5 text-center border-accent2/30 bg-accent2/5 relative overflow-hidden">
+          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-40 bg-gradient-to-br from-accent2/15 via-transparent to-accent/15" />
+          <div className="relative">
+            <p className="font-semibold">Ще не маєш доступу?</p>
+            <p className="text-xs text-muted mt-1">
+              Напиши мені — заведу твій кабінет і обговоримо співпрацю.
+            </p>
+            <a
+              href="https://t.me/dmytro_kovalchuk_coach"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-white accent-shine shadow-glow active:scale-95 transition hover:brightness-110"
+            >
+              <Send className="w-4 h-4" /> Написати тренеру
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
