@@ -70,14 +70,17 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   const totalSessions = clients.reduce((a, c) => a + (periodCounts.get(c.id) ?? 0), 0);
   const duePayments = clients.filter(c => c.payments.some(p => p.status === "pending" || p.status === "overdue")).length;
 
-  // Sorting. "name" comes straight from the DB (VIP first, then name). For
-  // "sessions" we sort by the computed period count (desc), since that number is
-  // derived in JS and can't be ordered in the query. Name is the tiebreaker.
+  // Sorting is done in JS so names follow the Ukrainian alphabet (the DB
+  // collation doesn't order Cyrillic correctly). VIP clients stay on top.
+  // "sessions" sorts by the computed period count (desc) — that number is
+  // derived in JS and can't be ordered in the query; name is the tiebreaker.
+  const byNameUk = (a: typeof clients[number], b: typeof clients[number]) =>
+    `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, "uk", { sensitivity: "base" });
   const sortedClients = sort === "sessions"
     ? [...clients].sort((a, b) =>
-        (periodCounts.get(b.id) ?? 0) - (periodCounts.get(a.id) ?? 0) ||
-        `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, "uk"))
-    : clients;
+        (periodCounts.get(b.id) ?? 0) - (periodCounts.get(a.id) ?? 0) || byNameUk(a, b))
+    : [...clients].sort((a, b) =>
+        (Number(b.isVip) - Number(a.isVip)) || byNameUk(a, b));
 
   // Build an /admin URL that preserves the current filter + search + sort,
   // overriding only what's passed in.
