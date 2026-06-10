@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/ui";
 import Link from "next/link";
-import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket } from "lucide-react";
+import { Plus, Mail, Target, Flame, ChevronRight, Wifi, Crown, Dumbbell, Wallet, AlertTriangle, Star, Search, Ticket, ArrowDownWideNarrow } from "lucide-react";
 import { ClientSearch } from "./ClientSearch";
 import { PayReminderButton } from "./PayReminderButton";
 import { kyivDayKey } from "@/lib/kyivTime";
@@ -9,11 +9,12 @@ import { getSessionPeriodCounts } from "@/lib/sessionPeriod";
 
 const DUE_PAYMENT = { some: { status: { in: ["pending", "overdue"] } } };
 
-export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string } }) {
+export default async function AdminHome({ searchParams }: { searchParams: { format?: string; q?: string; sort?: string } }) {
   const format = searchParams?.format === "online" ? "online"
     : searchParams?.format === "offline" ? "offline"
     : searchParams?.format === "due" ? "due"
     : "all";
+  const sort = searchParams?.sort === "sessions" ? "sessions" : "name";
   const planFilter = format === "online" ? { coachingPlan: "ONLINE" }
     : format === "offline" ? { coachingPlan: "FULL" }
     : format === "due" ? { payments: DUE_PAYMENT }
@@ -69,6 +70,29 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
   const totalSessions = clients.reduce((a, c) => a + (periodCounts.get(c.id) ?? 0), 0);
   const duePayments = clients.filter(c => c.payments.some(p => p.status === "pending" || p.status === "overdue")).length;
 
+  // Sorting. "name" comes straight from the DB (VIP first, then name). For
+  // "sessions" we sort by the computed period count (desc), since that number is
+  // derived in JS and can't be ordered in the query. Name is the tiebreaker.
+  const sortedClients = sort === "sessions"
+    ? [...clients].sort((a, b) =>
+        (periodCounts.get(b.id) ?? 0) - (periodCounts.get(a.id) ?? 0) ||
+        `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, "uk"))
+    : clients;
+
+  // Build an /admin URL that preserves the current filter + search + sort,
+  // overriding only what's passed in.
+  const buildUrl = (over: { format?: string; q?: string; sort?: string }) => {
+    const f = over.format ?? format;
+    const qq = over.q ?? q;
+    const s = over.sort ?? sort;
+    const sp = new URLSearchParams();
+    if (f && f !== "all") sp.set("format", f);
+    if (qq) sp.set("q", qq);
+    if (s && s !== "name") sp.set("sort", s);
+    const str = sp.toString();
+    return `/admin${str ? `?${str}` : ""}`;
+  };
+
   return (
     <div className="max-w-6xl">
       <PageHeader
@@ -87,11 +111,18 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
       </div>
 
       {/* Format filter */}
+      <div className="flex items-center gap-2 mb-3 overflow-x-auto scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
+        <FilterChip href={buildUrl({ format: "all" })} label="Усі" count={totalAll} active={format === "all"} />
+        <FilterChip href={buildUrl({ format: "online" })} label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
+        <FilterChip href={buildUrl({ format: "offline" })} label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
+        <FilterChip href={buildUrl({ format: "due" })} label="До оплати" count={dueCount} active={format === "due"} icon="wallet" />
+      </div>
+
+      {/* Sort */}
       <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
-        <FilterChip href={`/admin${q ? `?q=${encodeURIComponent(q)}` : ""}`} label="Усі" count={totalAll} active={format === "all"} />
-        <FilterChip href={`/admin?format=online${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Онлайн" count={onlineCount} active={format === "online"} icon="wifi" />
-        <FilterChip href={`/admin?format=offline${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="Офлайн" count={offlineCount} active={format === "offline"} icon="crown" />
-        <FilterChip href={`/admin?format=due${q ? `&q=${encodeURIComponent(q)}` : ""}`} label="До оплати" count={dueCount} active={format === "due"} icon="wallet" />
+        <span className="text-xs text-muted shrink-0 flex items-center gap-1"><ArrowDownWideNarrow className="w-3.5 h-3.5" /> Сортувати:</span>
+        <SortChip href={buildUrl({ sort: "name" })} label="За іменем" active={sort === "name"} />
+        <SortChip href={buildUrl({ sort: "sessions" })} label="За тренуваннями" active={sort === "sessions"} />
       </div>
 
       {/* Empty search result */}
@@ -122,7 +153,7 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 stagger">
-        {clients.map((c, i) => {
+        {sortedClients.map((c, i) => {
           const latest = c.measurements[0];
           const delta = latest && c.startWeight ? latest.weight! - c.startWeight : 0;
           const streakDays = new Set(c.checkIns.map((x) => kyivDayKey(x.date))).size;
@@ -259,6 +290,19 @@ export default async function AdminHome({ searchParams }: { searchParams: { form
         </div>
       )}
     </div>
+  );
+}
+
+function SortChip({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border transition active:scale-95 ${
+        active ? "accent-shine text-white border-transparent shadow-glow" : "bg-surface border-border hover:border-accent/40 text-text/80"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }
 
